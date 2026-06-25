@@ -2243,7 +2243,7 @@ function renderAdminIni(){
                 ${createUploadZone({id:`ini-gal-acc-${idx}`, label:'Subir imágenes a la galería', sub:'Puedes seleccionar varias · se agregan automáticamente', multiple:true})}
                 <textarea id="ai-gal-${idx}" class="a-form-inp" style="min-height:75px;font-size:11px;margin-top:6px" placeholder="Las URLs aparecerán aquí al subir, o pega manualmente (una por línea)">${(ini.gallery||[]).join('\n')}</textarea>
                 <div id="ai-gal-thumbs-${idx}" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
-                  ${(ini.gallery||[]).map(u=>`<img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>`).join('')}
+                  ${(ini.gallery||[]).map((u,gi)=>`<div style="position:relative;width:55px;height:40px"><img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/><button type="button" onclick="removeGalImg(${idx},${gi})" title="Eliminar imagen" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#e5484d;border:1.5px solid #0B1929;color:#fff;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">✕</button></div>`).join('')}
                 </div>
               </div>
 
@@ -2304,16 +2304,34 @@ function toggleAcc(idx){
           const existing = ta.value.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
           const combined = [...existing, ...urls];
           ta.value = combined.join('\n');
-          // Actualizar miniaturas
-          const thumbs = document.getElementById(`ai-gal-thumbs-${idx}`);
-          if(thumbs){
-            thumbs.innerHTML = combined.map(u=>`<img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>`).join('');
-          }
+          // Actualizar miniaturas (con botón eliminar)
+          renderGalThumbs(idx);
         }
         showAdminToast(`✓ ${urls.length} imagen(es) agregada(s) a la galería — Guarda los cambios`);
       };
     }, 100);
   }
+}
+
+// ── Galería del admin: render con botón eliminar + quitar imagen ──
+function renderGalThumbs(idx){
+  const ta = document.getElementById(`ai-gal-${idx}`);
+  const wrap = document.getElementById(`ai-gal-thumbs-${idx}`);
+  if(!ta || !wrap) return;
+  const urls = ta.value.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  wrap.innerHTML = urls.map((u,gi)=>`<div style="position:relative;width:55px;height:40px">
+    <img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>
+    <button type="button" onclick="removeGalImg(${idx},${gi})" title="Eliminar imagen" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#e5484d;border:1.5px solid #0B1929;color:#fff;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">✕</button>
+  </div>`).join('');
+}
+function removeGalImg(idx, gi){
+  const ta = document.getElementById(`ai-gal-${idx}`);
+  if(!ta) return;
+  const urls = ta.value.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  urls.splice(gi,1);
+  ta.value = urls.join('\n');
+  renderGalThumbs(idx);
+  showAdminToast('🗑 Imagen quitada — Guarda los cambios para aplicar');
 }
 
 function saveAdminRow(idx){
@@ -2331,15 +2349,19 @@ function saveAdminRow(idx){
   const d=document.getElementById(`ai-d-${idx}`)?.value.trim()||ini.d;
   const fase=document.getElementById(`ai-fase-${idx}`)?.value||ini.fase;
   const imageUrl=document.getElementById(`ai-img-${idx}`)?.value.trim()||null;
-  const galRaw=document.getElementById(`ai-gal-${idx}`)?.value||'';
+  const galEl=document.getElementById(`ai-gal-${idx}`);
+  const galRaw=galEl?.value||'';
   const gallery=galRaw.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+  // Si el textarea está presente, su contenido manda (permite borrar todas las imágenes).
+  // Si la fila está colapsada (no existe el textarea), se conserva la galería previa.
+  const galFinal = galEl ? (gallery.length ? gallery : null) : (ini.gallery || null);
 
   // Actualizar en ADMIN_INI
-  const sanitize=s=>{if(typeof s!=='string')return s;return s.replace(/[<>&]/g,c=>c==='<'?'&lt;':c==='>'?'&gt;':'&amp;');};Object.assign(ADMIN_INI[idx],{n:sanitize(n),oe,c,lat,lng,tipo:sanitize(tipo),plazo,resp:sanitize(resp),d:sanitize(d),fase,imageUrl:imageUrl||ini.imageUrl||null,gallery:gallery.length?gallery:ini.gallery||null});
+  const sanitize=s=>{if(typeof s!=='string')return s;return s.replace(/[<>&]/g,c=>c==='<'?'&lt;':c==='>'?'&gt;':'&amp;');};Object.assign(ADMIN_INI[idx],{n:sanitize(n),oe,c,lat,lng,tipo:sanitize(tipo),plazo,resp:sanitize(resp),d:sanitize(d),fase,imageUrl:imageUrl||ini.imageUrl||null,gallery:galFinal});
 
   // Sincronizar en INI vivo
   const live=INI.find(i=>i.id===ini.id);
-  if(live) Object.assign(live,{n,oe,c,lat,lng,tipo,plazo,resp,d,imageUrl:imageUrl||ini.imageUrl||null,gallery:gallery.length?gallery:ini.gallery||null});
+  if(live) Object.assign(live,{n,oe,c,lat,lng,tipo,plazo,resp,d,imageUrl:imageUrl||ini.imageUrl||null,gallery:galFinal});
 
   renderMarkers();
   renderList();
