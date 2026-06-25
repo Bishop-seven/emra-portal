@@ -770,6 +770,15 @@ svg{display:block}
           <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" style="height:44px;object-fit:contain;animation:pulse 1.5s ease-in-out infinite" onerror="this.style.display='none'"/>
           <p style="color:rgba(148,180,200,.6);font-size:13px;font-weight:500;animation:pulse 1.5s ease-in-out infinite">Cargando presentación EMRA…</p>
         </div>
+        <div id="canva-fallback" style="position:absolute;inset:0;background:#060e18;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center">
+          <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" style="height:48px;object-fit:contain" onerror="this.style.display='none'"/>
+          <p style="color:rgba(200,220,235,.85);font-size:14px;font-weight:600;max-width:420px;line-height:1.5">La presentación se abre mejor en una ventana nueva de Canva.</p>
+          <a href="https://www.canva.com/design/DAHKKGnoq_M/MA_vFOlhnNEQ7flVyf4yPg/view" target="_blank" rel="noopener"
+            style="background:#038FCF;border-radius:9px;color:#fff;font-size:14px;font-weight:800;padding:0 26px;height:46px;display:flex;align-items:center;gap:8px;text-decoration:none;box-shadow:0 6px 24px rgba(3,143,207,.4);transition:all .2s"
+            onmouseenter="this.style.transform='translateY(-1px)'" onmouseleave="this.style.transform=''">
+            ▶ Abrir presentación EMRA en Canva ↗
+          </a>
+        </div>
       </div>
       <div class="pres-nav">
         <div style="display:flex;align-items:center;gap:8px;flex:1">
@@ -777,7 +786,7 @@ svg{display:block}
           <span style="font-size:12px;font-weight:700;color:#fff;font-family:'DM Sans',sans-serif">EMRA 2023–2050</span>
           <span style="font-size:11px;color:var(--sbm)">· Presentación oficial</span>
         </div>
-        <a id="canva-link-btn" href="https://canva.link/bz1r6mnsdtptrsk" target="_blank"
+        <a id="canva-link-btn" href="https://www.canva.com/design/DAHKKGnoq_M/MA_vFOlhnNEQ7flVyf4yPg/view" target="_blank" rel="noopener"
           style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(200,220,235,.8);font-size:11px;font-weight:700;padding:0 14px;height:32px;display:flex;align-items:center;gap:5px;text-decoration:none;transition:all .2s">
           ↗ Abrir en Canva
         </a>
@@ -1180,7 +1189,7 @@ function renderList(){
 function renderStats(){
   const byOE={},byC={},byF={};
   INI.forEach(i=>{byOE[i.oe]=(byOE[i.oe]||0)+1;byC[i.c]=(byC[i.c]||0)+1});
-  TIMELINE.forEach(i=>{byF[i.f]=(byF[i.f]||0)+1});
+  INI.forEach(i=>{const f=i.fase||'Iniciativa';byF[f]=(byF[f]||0)+1});
   const mO=Math.max(...Object.values(byOE)),mC=Math.max(...Object.values(byC));
   document.getElementById('pnl-d').innerHTML=`
     <div class="stat-hero"><div class="stat-big">${INI.length}</div><div class="stat-lbl">Iniciativas EMRA · 2023–2050</div></div>
@@ -1189,19 +1198,31 @@ function renderStats(){
     <div class="sec-title" style="margin-top:12px">Por ciudad (clic para filtrar)</div>
     <div class="stat-grid">${Object.entries(byC).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat-mini" onclick="document.getElementById('city-sel').value='${c}';applyFilters();switchTab('l')"><div class="stat-mini-num">${n}</div><div class="stat-mini-lbl">${c}</div></div>`).join('')}</div>
     <div class="sec-title" style="margin-top:12px">Por etapa</div>
-    ${Object.entries(FASE_COLORS).map(([f,c])=>{const n=byF[f]||0;return`<div class="bar-row"><div class="bar-head"><span style="color:${c};display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block"></span>${f}</span><span style="color:var(--sbm)">${n}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/TIMELINE.length*100)}%;background:${c}"></div></div></div>`}).join('')}`;
+    ${Object.entries(FASE_COLORS).map(([f,c])=>{const n=byF[f]||0;return`<div class="bar-row"><div class="bar-head"><span style="color:${c};display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block"></span>${f}</span><span style="color:var(--sbm)">${n}</span></div><div class="bar-track"><div class="bar-fill" style="width:${INI.length?Math.round(n/INI.length*100):0}%;background:${c}"></div></div></div>`}).join('')}`;
 }
 
+// Orden de fases del ciclo de vida del proyecto (Iniciativa primero)
+const FASE_ORDER=['Iniciativa','Prefactibilidad','Diseño','Piloto','En ejecución'];
 function renderTimeline(){
-  const byY={};TIMELINE.forEach(i=>{if(!byY[i.y])byY[i.y]=[];byY[i.y].push(i)});
-  document.getElementById('pnl-tl').innerHTML=`<div style="font-size:10px;color:var(--sbm);margin-bottom:10px;line-height:1.5">${TIMELINE.length} hitos · horizonte 2025–2030</div>
-    <div class="tl-wrap"><div class="tl-spine"></div>
-    ${Object.entries(byY).sort(([a],[b])=>+a-+b).map(([y,its])=>`
-      <div class="tl-item"><div class="tl-dot" style="background:${FASE_COLORS[its[0].f]||'var(--e)'}"></div>
-      <div class="tl-year">${y}</div>
-      ${its.map(it=>`<div class="tl-card" style="border-left-color:${FASE_COLORS[it.f]||'var(--e)'}"><div class="tl-title">${it.n}</div>
-        <div class="tl-meta"><span class="oe-badge" style="background:${oec(it.oe)}">${it.oe}</span><span class="fase-badge" style="background:${FASE_COLORS[it.f]}22;color:${FASE_COLORS[it.f]}">${it.f}</span><span style="font-size:9px;color:var(--sbm)">${it.c}</span></div>
-      </div>`).join('')}</div>`).join('')}</div>`;
+  // Construir el timeline desde las iniciativas REALES (live, desde Supabase/HTML),
+  // agrupadas por fase. Así aparecen las 37 y refleja lo que se edita en el admin.
+  const src = (typeof INI!=='undefined' && INI.length) ? INI : [];
+  const byF={}; FASE_ORDER.forEach(f=>byF[f]=[]);
+  src.forEach(i=>{ const f=i.fase||'Iniciativa'; if(!byF[f])byF[f]=[]; byF[f].push(i); });
+  const total=src.length;
+  let html=`<div style="font-size:10px;color:var(--sbm);margin-bottom:10px;line-height:1.5">${total} iniciativas · 5 fases de desarrollo</div>
+    <div class="tl-wrap"><div class="tl-spine"></div>`;
+  FASE_ORDER.forEach(f=>{
+    const its=byF[f]||[]; if(!its.length) return;
+    const col=FASE_COLORS[f]||'var(--e)';
+    html+=`<div class="tl-item"><div class="tl-dot" style="background:${col}"></div>
+      <div class="tl-year" style="color:${col}">${f} · ${its.length}</div>
+      ${its.map(it=>`<div class="tl-card" style="border-left-color:${col};cursor:pointer" onclick="openFicha('${it.id}')"><div class="tl-title">${it.n}</div>
+        <div class="tl-meta"><span class="oe-badge" style="background:${oec(it.oe)}">${it.oe}</span><span class="fase-badge" style="background:${col}22;color:${col}">${f}</span><span style="font-size:9px;color:var(--sbm)">${it.c}</span></div>
+      </div>`).join('')}</div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('pnl-tl').innerHTML=html;
 }
 
 function renderGallery(){
@@ -1498,7 +1519,11 @@ function renderSlide(){
 
 function navSlide(d){CUR=Math.max(0,Math.min(SLIDES.length-1,CUR+d));renderSlide()}
 function goSlide(i){CUR=i;renderSlide()}
-const CANVA_URL = 'https://canva.link/bz1r6mnsdtptrsk';
+// Presentación Canva — la URL ?embed es la que Canva permite dentro de iframe.
+// (El enlace canva.link/... redirige a /view, que bloquea iframes.)
+const CANVA_EMBED_URL = 'https://www.canva.com/design/DAHKKGnoq_M/MA_vFOlhnNEQ7flVyf4yPg/view?embed';
+const CANVA_VIEW_URL  = 'https://www.canva.com/design/DAHKKGnoq_M/MA_vFOlhnNEQ7flVyf4yPg/view';
+const CANVA_URL = CANVA_EMBED_URL;
 let EMRA_VIDEO_URL = 'https://youtu.be/Q-bJ_i68Qyg';
 
 // ── PROXY CONFIG ──
@@ -1744,16 +1769,20 @@ function openCanvaPres(){
   const pres = document.getElementById('pres');
   const iframe = document.getElementById('canva-iframe');
   const loading = document.getElementById('canva-loading');
-  // Mostrar loading, luego cargar iframe
+  const fb = document.getElementById('canva-fallback');
+  if(fb) fb.style.display = 'none';
   loading.style.display = 'flex';
   iframe.src = '';
   pres.classList.add('on');
-  // Pequeño delay para que el loading sea visible
+  let loaded = false;
   setTimeout(() => {
-    iframe.src = CANVA_URL;
-    iframe.onload = () => { loading.style.display = 'none'; };
-    // Fallback si onload no dispara (X-Frame-Options)
-    setTimeout(() => { loading.style.display = 'none'; }, 4000);
+    iframe.src = window.CANVA_URL || CANVA_URL;
+    iframe.onload = () => { loaded = true; loading.style.display = 'none'; };
+    // Si Canva bloquea el embed y a los 6s no cargó, ofrecer abrir en pestaña
+    setTimeout(() => {
+      loading.style.display = 'none';
+      if(!loaded && fb) fb.style.display = 'flex';
+    }, 6000);
   }, 300);
 }
 
@@ -3514,13 +3543,23 @@ function changePassword(){
 
 
 function saveCanvaURL(){
-  const url = document.getElementById('canva-url-inp')?.value.trim();
+  let url = document.getElementById('canva-url-inp')?.value.trim();
   if(!url || !url.startsWith('http')){showAdminToast('⚠ URL inválida',true);return}
-  // Actualizar la variable global
-  window.CANVA_URL = url;
-  // Actualizar también el link directo
+  // Normalizar a URL embebible. Canva solo permite iframe con la versión ?embed.
+  // Si pegan un canva.link/... no se puede convertir aquí (requiere resolverlo),
+  // así que avisamos y dejamos el link tal cual para "Abrir en Canva".
+  let viewUrl = url, embedUrl = url;
+  if(url.includes('/design/') && url.includes('/view')){
+    viewUrl  = url.split('?')[0];                 // .../view
+    embedUrl = viewUrl + '?embed';                // .../view?embed
+  } else if(url.includes('canva.link')){
+    showAdminToast('⚠ Pega el link "Enlace de vista pública" (canva.com/design/…/view), no el canva.link',true);
+  }
+  window.CANVA_URL = embedUrl;
   const linkBtn = document.getElementById('canva-link-btn');
-  if(linkBtn) linkBtn.href = url;
+  if(linkBtn) linkBtn.href = viewUrl;
+  const fbLink = document.querySelector('#canva-fallback a');
+  if(fbLink) fbLink.href = viewUrl;
   showAdminToast('✓ Link de Canva actualizado — abre la presentación para verificar');
 }
 
