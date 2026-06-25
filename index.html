@@ -1579,30 +1579,38 @@ async function loadFromSupabase(){
   try{
     const [inis, cfg] = await Promise.all([sbGetInicias(), sbGetConfig()]);
     if(inis && inis.length > 0){
-      // Mapear formato BD → formato portal
+      // ── SUPABASE ES LA FUENTE PRINCIPAL ──
+      // Reemplazar completamente los datos del portal con los de la BD
       const mapped = inis.map(r => ({
         id: r.id, n: r.nombre, oe: r.oe, c: r.ciudad,
         lat: parseFloat(r.lat), lng: parseFloat(r.lng),
         tipo: r.tipo||'', plazo: r.plazo||'',
         resp: r.responsable||'', d: r.descripcion||'',
-        fase: r.fase||'Prefactibilidad',
+        fase: r.fase||'Iniciativa',
         imageUrl: r.image_url||null,
-        gallery: r.gallery||null
+        gallery: (r.gallery && r.gallery.length) ? r.gallery : null
       }));
       INI.length = 0;
       mapped.forEach(i => INI.push(i));
       ADMIN_INI.length = 0;
       mapped.forEach(i => ADMIN_INI.push({...i}));
       SB_LOADED = true;
-      console.log('✅ Supabase: '+inis.length+' iniciativas cargadas');
+      console.log('✅ Supabase: '+inis.length+' iniciativas cargadas desde BD (fuente principal)');
     } else {
-      // Primera vez — poblar BD con datos del HTML
-      console.log('📤 Supabase vacío — cargando datos iniciales...');
+      // Supabase vacío — sembrar con datos del HTML en background
+      console.log('📤 Supabase vacío — sembrando datos iniciales...');
       await seedSupabase();
     }
-    // Aplicar config
-    if(cfg.logoMain) PORTAL_CONFIG.logoUrl = cfg.logoMain;
-    if(cfg.videoUrl) EMRA_VIDEO_URL = cfg.videoUrl;
+    // Aplicar config persistente (logo, video)
+    if(cfg && cfg.logoMain){
+      PORTAL_CONFIG.logoUrl = cfg.logoMain;
+      DISENO_CONFIG.logoMain = cfg.logoMain;
+      // Aplicar logo en el DOM
+      setTimeout(()=>{
+        document.querySelectorAll('.sb-logo,.admin-logo,.login-logo').forEach(el=>el.src=cfg.logoMain);
+      }, 100);
+    }
+    if(cfg && cfg.videoUrl) EMRA_VIDEO_URL = cfg.videoUrl;
   } catch(e){
     console.warn('⚠ Supabase no disponible, usando datos locales:', e.message);
   }
@@ -3793,7 +3801,12 @@ function applyLogo(type){
   DISENO_CONFIG.logoMain = url;
   PORTAL_CONFIG.logoUrl  = url;
   document.querySelectorAll('.sb-logo,.admin-logo,.login-logo').forEach(el=>el.src=url);
-  showAdminToast('✓ Logo actualizado en el portal');
+  // Guardar logo en Supabase para que persista
+  sbSaveConfig('logoMain', url).then(()=>{
+    showAdminToast('✓ Logo actualizado y guardado en base de datos ✅');
+  }).catch(()=>{
+    showAdminToast('✓ Logo actualizado (solo local)');
+  });
 }
 
 // ── Callbacks Cloudinary para logos y recursos visuales ──
