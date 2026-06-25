@@ -234,6 +234,18 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .fgal::-webkit-scrollbar-thumb{background:rgba(3,143,207,.3);border-radius:4px}
 .fgi{width:88px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0;cursor:pointer;border:2px solid transparent;transition:all .2s;opacity:.85}
 .fgi:hover,.fgi.on{border-color:var(--e);opacity:1}
+/* ── Lightbox / Mesa de luz ── */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10000;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(4px)}
+#lightbox.on{display:flex;animation:lbfade .2s ease}
+@keyframes lbfade{from{opacity:0}to{opacity:1}}
+#lightbox img{max-width:92vw;max-height:82vh;object-fit:contain;border-radius:8px;box-shadow:0 12px 60px rgba(0,0,0,.7);user-select:none}
+.lb-close{position:absolute;top:18px;right:22px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:2}
+.lb-close:hover{background:rgba(255,255,255,.25)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;z-index:2}
+.lb-nav:hover{background:rgba(255,255,255,.25)}
+.lb-prev{left:22px}.lb-next{right:22px}
+.lb-counter{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.85);font-size:13px;font-weight:600;background:rgba(0,0,0,.4);padding:5px 14px;border-radius:20px;letter-spacing:.03em}
+@media(max-width:640px){.lb-nav{width:42px;height:42px;font-size:22px}.lb-prev{left:8px}.lb-next{right:8px}#lightbox img{max-width:96vw}}
 .frel-item{display:flex;align-items:center;gap:8px;padding:7px 9px;background:rgba(255,255,255,.03);border:1px solid var(--sbb);border-radius:6px;cursor:pointer;transition:all .2s;margin-bottom:5px;width:100%;text-align:left}
 .frel-item:hover{border-color:rgba(3,143,207,.3);background:rgba(3,143,207,.06)}
 .frel-img{width:38px;height:30px;object-fit:cover;border-radius:4px;flex-shrink:0}
@@ -571,7 +583,7 @@ svg{display:block}
 
 <!-- Loading -->
 <div id="loading">
-  <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp" alt="EMRA" onerror="this.style.display='none'"/>
+  <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" alt="EMRA" onerror="this.style.display='none'"/>
   <p>Cargando plataforma EMRA 2023–2050…</p>
 </div>
 
@@ -583,7 +595,7 @@ svg{display:block}
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-head">
-      <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp" class="sb-logo" alt="EMRA" onerror="this.style.display='none'"/>
+      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" onerror="this.style.display='none'"/>
       <div>
         <div class="sb-title">EMRA <span style="color:var(--e)">2023–2050</span></div>
         <div class="sb-sub">Región de Antofagasta</div>
@@ -654,10 +666,6 @@ svg{display:block}
     <!-- Map header -->
     <div class="map-header">
       <button class="btn-mobile-menu" onclick="openSidebar()">&#xe47b;</button>
-      <div class="map-card">
-        <div class="map-title">&#xe55a; EMRA <span class="map-accent">2023–2050</span></div>
-        <div class="map-sub">Iniciativas · Región de Antofagasta</div>
-      </div>
       <!-- Video YouTube EMRA -->
       <button id="emra-video-btn" onclick="openEMRAVideo()"
         style="background:linear-gradient(135deg,rgba(255,0,0,.25),rgba(180,0,0,.35));border:1.5px solid rgba(255,80,80,.45);border-radius:9px;padding:8px 14px;pointer-events:auto;display:flex;align-items:center;gap:8px;color:#fff;font-size:11px;font-weight:800;box-shadow:0 2px 12px rgba(255,0,0,.2);transition:all .2s;cursor:pointer;font-family:inherit;white-space:nowrap;letter-spacing:.01em"
@@ -759,7 +767,7 @@ svg{display:block}
           loading="lazy">
         </iframe>
         <div id="canva-loading" style="position:absolute;inset:0;background:#060e18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
-          <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp" style="height:44px;object-fit:contain;animation:pulse 1.5s ease-in-out infinite" onerror="this.style.display='none'"/>
+          <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" style="height:44px;object-fit:contain;animation:pulse 1.5s ease-in-out infinite" onerror="this.style.display='none'"/>
           <p style="color:rgba(148,180,200,.6);font-size:13px;font-weight:500;animation:pulse 1.5s ease-in-out infinite">Cargando presentación EMRA…</p>
         </div>
       </div>
@@ -812,7 +820,7 @@ svg{display:block}
 <div id="admin-overlay">
   <div id="admin-login">
     <div class="login-box">
-      <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp" class="login-logo" alt="EMRA" onerror="this.style.display='none'"/>
+      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="login-logo" alt="EMRA" onerror="this.style.display='none'"/>
       <div class="login-title">Panel de Administración</div>
       <div class="login-sub">EMRA 2023–2050 · Acceso restringido</div>
       <label class="login-label">Contraseña</label>
@@ -825,7 +833,7 @@ svg{display:block}
   <div id="admin-main">
     <div class="admin-top">
       <div class="admin-top-l">
-        <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp" class="admin-logo" alt="EMRA" onerror="this.style.display='none'"/>
+        <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="admin-logo" alt="EMRA" onerror="this.style.display='none'"/>
         <span class="admin-badge">Admin</span>
       </div>
       <div class="admin-top-r">
@@ -1216,9 +1224,10 @@ function openFicha(id){
   const mainImg=i.imageUrl||img(id,600,300);
   const galleryImgs=i.gallery&&i.gallery.length?i.gallery:[img(id+'b',600,300),img(id+'c',600,300),img(id+'d',600,300)];
   const imgs=[mainImg,...galleryImgs].slice(0,8);
+  window._fichaImgs = imgs;
   document.getElementById('ficha').innerHTML=`
     <div class="fh">
-      <img id="fi-main" src="${imgs[0]}" alt="" onerror="this.src='https://picsum.photos/600/300?grayscale'"/>
+      <img id="fi-main" src="${imgs[0]}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, 0)" onerror="this.src='https://picsum.photos/600/300?grayscale'"/>
       <div class="fh-over"></div>
       <div class="fh-info">
         <div style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:4px">
@@ -1238,7 +1247,7 @@ function openFicha(id){
       <div class="fsec">📄 Descripción</div>
       <div class="fdesc">${i.d}</div>
       <div class="fsec" style="margin-top:12px">🖼 Galería</div>
-      <div class="fgal">${imgs.map((u,idx)=>`<img class="fgi ${idx===0?'on':''}" src="${u}" alt="" onclick="document.getElementById('fi-main').src=this.src;document.querySelectorAll('.fgi').forEach(x=>x.classList.remove('on'));this.classList.add('on')" onerror="this.style.display='none'"/>`).join('')}</div>
+      <div class="fgal">${imgs.map((u,idx)=>`<img class="fgi ${idx===0?'on':''}" src="${u}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, ${idx})" onerror="this.style.display='none'"/>`).join('')}</div>
       ${rel.length?`<div class="fsec" style="margin-top:12px">🔗 Iniciativas relacionadas (${i.oe})</div>
       ${rel.map(r=>`<div class="frel-item" onclick="openFicha('${r.id}')">
         <img class="frel-img" src="${img(r.id,120,80)}" alt="" onerror="this.style.display='none'"/>
@@ -1262,6 +1271,41 @@ function openFicha(id){
   if(gBtn) gBtn.dataset.ini = i.n;
 }
 function closeFicha(){document.getElementById('ficha-wrap').classList.remove('on');highlighted=new Set();renderMarkers()}
+
+// ── Lightbox / Mesa de luz ──
+let _lbImgs=[], _lbIdx=0;
+function openLightbox(imgsJson, idx){
+  try{ _lbImgs = typeof imgsJson==='string' ? JSON.parse(imgsJson) : imgsJson; }
+  catch(e){ _lbImgs = [imgsJson]; }
+  _lbIdx = idx||0;
+  _lbRender();
+  document.getElementById('lightbox').classList.add('on');
+}
+function _lbRender(){
+  const img=document.getElementById('lb-img');
+  const ctr=document.getElementById('lb-counter');
+  if(!_lbImgs.length) return;
+  img.src=_lbImgs[_lbIdx];
+  ctr.textContent=(_lbIdx+1)+' / '+_lbImgs.length;
+  const prev=document.querySelector('.lb-prev'), next=document.querySelector('.lb-next');
+  const multi=_lbImgs.length>1;
+  if(prev) prev.style.display=multi?'flex':'none';
+  if(next) next.style.display=multi?'flex':'none';
+}
+function lightboxNav(dir){
+  if(!_lbImgs.length) return;
+  _lbIdx=(_lbIdx+dir+_lbImgs.length)%_lbImgs.length;
+  _lbRender();
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('on')}
+// Navegación por teclado
+document.addEventListener('keydown',e=>{
+  const lb=document.getElementById('lightbox');
+  if(!lb||!lb.classList.contains('on')) return;
+  if(e.key==='Escape') closeLightbox();
+  else if(e.key==='ArrowLeft') lightboxNav(-1);
+  else if(e.key==='ArrowRight') lightboxNav(1);
+});
 
 // ═══════════════════════════════════════════════════════
 // COMPARADOR
@@ -1601,12 +1645,9 @@ async function loadFromSupabase(){
       console.log('📤 Supabase vacío — sembrando datos iniciales...');
       await seedSupabase();
     }
-    // Aplicar config persistente (logo, video)
-    if(cfg && cfg.logoMain){
-      PORTAL_CONFIG.logoUrl = cfg.logoMain;
-      DISENO_CONFIG.logoMain = cfg.logoMain;
-      window._pendingLogo = cfg.logoMain; // se aplica cuando el DOM esté listo
-    }
+    // Aplicar config persistente (video). El logo es FIJO (Cloudinary) y no se
+    // sobrescribe desde Supabase para evitar el bug de logo que no cargaba.
+    // if(cfg && cfg.logoMain){ ... }  ← desactivado a propósito
     if(cfg && cfg.videoUrl) EMRA_VIDEO_URL = cfg.videoUrl;
   } catch(e){
     console.warn('⚠ Supabase no disponible, usando datos locales:', e.message);
@@ -2510,7 +2551,7 @@ let PRES_CONFIG = {
   portada: {
     titulo: 'Estrategia Minera para el Bienestar Regional 2023–2050',
     subtitulo: 'Iniciativas estratégicas de mediano y largo plazo para la Región de Antofagasta.',
-    logo: 'https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp',
+    logo: 'https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png',
   },
   slides: null, // null = usar INI automáticamente
 };
@@ -2782,9 +2823,9 @@ let PORTAL_CONFIG = {
   anio: '2023–2050',
   subtitulo: 'Iniciativas · Región de Antofagasta',
   descripcion: 'Estrategia Minera para el Bienestar de la Región de Antofagasta',
-  logoUrl: 'https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp',
+  logoUrl: 'https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png',
   instituciones: [
-    {nombre:'EMRA', logoUrl:'https://www.emra.cl/web/wp-content/uploads/2025/04/logo_2.webp'},
+    {nombre:'EMRA', logoUrl:'https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png'},
     {nombre:'Clúster Minero', logoUrl:''},
     {nombre:'CORE Antofagasta', logoUrl:''},
     {nombre:'GORE Antofagasta', logoUrl:''},
@@ -4017,5 +4058,14 @@ window.addEventListener('load',async()=>{
 });
 
 </script>
+<!-- Lightbox / Mesa de luz -->
+<div id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
+  <button class="lb-nav lb-prev" onclick="lightboxNav(-1)" aria-label="Anterior">‹</button>
+  <img id="lb-img" src="" alt="" onerror="this.src='https://picsum.photos/800/500?grayscale'"/>
+  <button class="lb-nav lb-next" onclick="lightboxNav(1)" aria-label="Siguiente">›</button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
 </body>
 </html>
