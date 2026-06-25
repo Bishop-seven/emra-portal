@@ -865,7 +865,7 @@ const OE_DETAILS={
   'OE 4':{label:'Gobernanza',desc:'Mejorar la institucionalidad pública y gobernanza para un sector minero más competitivo.',n:2},
   'OE 5':{label:'Conocimiento e innovación',desc:'Reforzar el ecosistema del conocimiento e innovación en la cadena del valor minero.',n:2},
 };
-const FASE_COLORS={'En ejecución':'#10b981','Diseño':'#038FCF','Prefactibilidad':'#EFAD1B','Piloto':'#19BAB6'};
+const FASE_COLORS={'Iniciativa':'#8B5CF6','En ejecución':'#10b981','Diseño':'#038FCF','Prefactibilidad':'#EFAD1B','Piloto':'#19BAB6'};
 const BASEMAPS={
   light:{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',attr:'&copy; OpenStreetMap &copy; CARTO'},
   dark:{url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',attr:'&copy; OpenStreetMap &copy; CARTO'},
@@ -1605,10 +1605,7 @@ async function loadFromSupabase(){
     if(cfg && cfg.logoMain){
       PORTAL_CONFIG.logoUrl = cfg.logoMain;
       DISENO_CONFIG.logoMain = cfg.logoMain;
-      // Aplicar logo en el DOM
-      setTimeout(()=>{
-        document.querySelectorAll('.sb-logo,.admin-logo,.login-logo').forEach(el=>el.src=cfg.logoMain);
-      }, 100);
+      window._pendingLogo = cfg.logoMain; // se aplica cuando el DOM esté listo
     }
     if(cfg && cfg.videoUrl) EMRA_VIDEO_URL = cfg.videoUrl;
   } catch(e){
@@ -2159,7 +2156,7 @@ function renderAdminIni(){
               <div class="a-field">
                 <div class="a-label">Fase del proyecto</div>
                 <select id="ai-fase-${idx}" class="a-form-sel">
-                  ${['Prefactibilidad','Diseño','Piloto','En ejecución'].map(f=>`<option ${ini.fase===f?'selected':''}>${f}</option>`).join('')}
+                  ${['Iniciativa','Prefactibilidad','Diseño','Piloto','En ejecución'].map(f=>`<option ${ini.fase===f?'selected':''}>${f}</option>`).join('')}
                 </select>
               </div>
 
@@ -2172,8 +2169,12 @@ function renderAdminIni(){
               </div>
 
               <div class="a-field full">
-                <div class="a-label">Galería de imágenes (una URL por línea)</div>
-                <textarea id="ai-gal-${idx}" class="a-form-inp" style="min-height:75px;font-size:11px" placeholder="https://… imagen 1\nhttps://… imagen 2">${(ini.gallery||[]).join('\n')}</textarea>
+                <div class="a-label">Galería de imágenes</div>
+                ${createUploadZone({id:`ini-gal-acc-${idx}`, label:'Subir imágenes a la galería', sub:'Puedes seleccionar varias · se agregan automáticamente', multiple:true})}
+                <textarea id="ai-gal-${idx}" class="a-form-inp" style="min-height:75px;font-size:11px;margin-top:6px" placeholder="Las URLs aparecerán aquí al subir, o pega manualmente (una por línea)">${(ini.gallery||[]).join('\n')}</textarea>
+                <div id="ai-gal-thumbs-${idx}" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+                  ${(ini.gallery||[]).map(u=>`<img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>`).join('')}
+                </div>
               </div>
 
               <div class="a-field full" style="display:flex;gap:8px;justify-content:space-between;align-items:center">
@@ -2214,15 +2215,32 @@ function toggleAcc(idx){
     panel.style.display='block';
     if(arrow)arrow.style.transform='rotate(180deg)';
     panel.scrollIntoView({behavior:'smooth',block:'nearest'});
-    // Registrar callback Cloudinary para imagen de esta iniciativa
+    // Registrar callbacks Cloudinary para esta iniciativa
     setTimeout(()=>{
+      // Imagen destacada
       window[`onClUpload_ini-img-acc-${idx}`] = function(urls){
         if(!urls.length) return;
         const inp = document.getElementById(`ai-img-${idx}`);
         if(inp){ inp.value = urls[0]; inp.dispatchEvent(new Event('input')); }
         const prev = panel.querySelector('img[src]');
         if(prev){ prev.src = urls[0]; prev.style.display='block'; }
-        showAdminToast('✓ Imagen subida — haz clic en Guardar cambios');
+        showAdminToast('✓ Imagen destacada subida — haz clic en Guardar cambios');
+      };
+      // Galería (múltiples imágenes)
+      window[`onClUpload_ini-gal-acc-${idx}`] = function(urls){
+        if(!urls.length) return;
+        const ta = document.getElementById(`ai-gal-${idx}`);
+        if(ta){
+          const existing = ta.value.split('\n').map(u=>u.trim()).filter(u=>u.startsWith('http'));
+          const combined = [...existing, ...urls];
+          ta.value = combined.join('\n');
+          // Actualizar miniaturas
+          const thumbs = document.getElementById(`ai-gal-thumbs-${idx}`);
+          if(thumbs){
+            thumbs.innerHTML = combined.map(u=>`<img src="${u}" style="width:55px;height:40px;object-fit:cover;border-radius:4px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>`).join('');
+          }
+        }
+        showAdminToast(`✓ ${urls.length} imagen(es) agregada(s) a la galería — Guarda los cambios`);
       };
     }, 100);
   }
@@ -3748,14 +3766,15 @@ function renderAdminDiseno(){
   `;
 
   // Activar callback de subida para logos
-  window.onClUpload_logo_main = (urls) => {
+  window['onClUpload_logo-main'] = (urls) => {
     if(urls[0]){
       document.getElementById('logo-main-url').value = urls[0];
-      document.getElementById('logo-main-preview').src = urls[0];
-      document.getElementById('logo-main-preview').style.display = 'block';
+      const prev = document.getElementById('logo-main-preview');
+      if(prev){ prev.src = urls[0]; prev.style.display = 'block'; }
+      showAdminToast('✓ Logo subido — haz clic en Aplicar');
     }
   };
-  window.onClUpload_logo_inst = (urls) => {
+  window['onClUpload_logo-inst'] = (urls) => {
     urls.forEach(url => {
       const name = prompt('Nombre de esta institución:', 'Institución');
       if(name !== null) {
@@ -3811,31 +3830,33 @@ function applyLogo(type){
 
 // ── Callbacks Cloudinary para logos y recursos visuales ──
 function registerCloudinaryCallbacks(){
-  // Logo principal EMRA
-  window.onClUpload_logo_main = function(urls){
+  // Logo principal EMRA (id con guión: 'logo-main')
+  window['onClUpload_logo-main'] = function(urls){
     if(!urls.length) return;
     const inp = document.getElementById('logo-main-url');
     if(inp){ inp.value = urls[0]; inp.dispatchEvent(new Event('input')); }
+    const prev = document.getElementById('logo-main-preview');
+    if(prev){ prev.src = urls[0]; prev.style.display='block'; }
     showAdminToast('✓ Logo subido a Cloudinary — haz clic en Aplicar');
   };
   // Logo Cluster
-  window.onClUpload_logo_cluster = function(urls){
+  window['onClUpload_logo-cluster'] = function(urls){
     if(!urls.length) return;
     const inp = document.getElementById('logo-cluster-url');
     if(inp){ inp.value = urls[0]; inp.dispatchEvent(new Event('input')); }
     showAdminToast('✓ Logo subido — haz clic en Aplicar');
   };
   // Logo GORE
-  window.onClUpload_logo_gore = function(urls){
+  window['onClUpload_logo-gore'] = function(urls){
     if(!urls.length) return;
     const inp = document.getElementById('logo-gore-url');
     if(inp){ inp.value = urls[0]; inp.dispatchEvent(new Event('input')); }
     showAdminToast('✓ Logo subido — haz clic en Aplicar');
   };
   // Logo institucional aliado
-  window.onClUpload_logo_inst = function(urls){
+  window['onClUpload_logo-inst'] = function(urls){
     if(!urls.length) return;
-    urls.forEach(url => addInstLogo(url));
+    urls.forEach(url => { if(typeof addInstLogo==='function') addInstLogo(url); });
     showAdminToast('✓ Logo institucional subido y agregado');
   };
 }
@@ -3971,6 +3992,12 @@ window.addEventListener('load',async()=>{
   setTimeout(()=>{
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
+    // Aplicar logo persistente desde Supabase
+    if(window._pendingLogo){
+      document.querySelectorAll('.sb-logo,.admin-logo,.login-logo').forEach(el=>{
+        el.src=window._pendingLogo; el.style.display='';
+      });
+    }
     // Cargar Gorito en todos los elementos
     const gorImg=document.getElementById('gorito-img');
     const gorLbl=document.getElementById('gorito-label-img');
