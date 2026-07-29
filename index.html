@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<!-- Portal EMRA 2023–2050 · v1.0 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>EMRA 2023–2050 · Mapa de Iniciativas</title>
+<title>Portal EMRA 2023–2050 · Estrategia Minera para el Bienestar · Región de Antofagasta</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css"/>
@@ -95,6 +96,51 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .bar-head{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;font-weight:600}
 .bar-track{height:4px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
 .bar-fill{height:100%;border-radius:99px;transition:width .5s ease}
+
+/* ═══════════════ TAB EMRA ═══════════════ */
+.emra-hero{background:linear-gradient(160deg,rgba(3,143,207,.14),rgba(3,143,207,.04));border:1px solid rgba(3,143,207,.25);border-radius:var(--rl);padding:13px;margin-bottom:10px}
+.emra-hero-title{font-size:16px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;margin-bottom:7px;letter-spacing:-.01em}
+.emra-p{font-size:11.5px;color:rgba(200,220,235,.85);line-height:1.55}
+.emra-actions{display:flex;gap:6px;margin-bottom:12px}
+.emra-btn{flex:1;background:var(--sb2);border:1px solid var(--sbb);border-radius:8px;color:var(--sbt);font-size:10.5px;font-weight:700;padding:8px 6px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.emra-btn:hover{border-color:var(--e);color:#fff}
+.emra-btn-video{background:linear-gradient(135deg,rgba(255,0,0,.2),rgba(180,0,0,.28));border-color:rgba(255,80,80,.4)}
+.emra-btn-video:hover{border-color:rgba(255,80,80,.7)}
+.emra-btn-tag{background:rgba(255,255,255,.15);border-radius:4px;padding:1px 5px;font-size:9px}
+.emra-oe-card{background:var(--sb2);border:1px solid var(--sbb);border-left:3px solid transparent;border-radius:var(--r);padding:9px 10px;margin-bottom:6px}
+.emra-oe-head{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.emra-oe-label{font-size:11.5px;font-weight:700;color:#fff;flex:1;font-family:'DM Sans',sans-serif}
+.emra-oe-vid{color:rgba(255,80,80,.85);font-size:11px;text-decoration:none;background:rgba(255,0,0,.12);border:1px solid rgba(255,80,80,.3);border-radius:5px;padding:1px 7px;transition:all .15s}
+.emra-oe-vid:hover{background:rgba(255,0,0,.25);color:#fff}
+.emra-oe-desc{font-size:10.5px;color:var(--sbm);line-height:1.5;margin-bottom:6px}
+.emra-oe-link{background:none;border:none;color:var(--e);font-size:10px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;transition:opacity .15s}
+.emra-oe-link:hover{opacity:.75}
+.emra-foot-card{background:rgba(3,143,207,.1);border:1px solid rgba(3,143,207,.2);border-radius:var(--r);padding:12px;text-align:center;margin-top:10px}
+.emra-actores{font-size:9px;color:var(--sbm);text-align:center;margin:10px 0 4px;letter-spacing:.04em;text-transform:uppercase;font-weight:600;line-height:1.7}
+
+/* ═══════════════ CHAT SUGERENCIAS ═══════════════ */
+.chat-sugs{display:flex;gap:5px;overflow-x:auto;padding:0 2px 6px;scrollbar-width:none}
+.chat-sugs::-webkit-scrollbar{display:none}
+.chat-sug{flex-shrink:0;background:rgba(11,25,41,.92);border:1px solid rgba(3,143,207,.35);border-radius:99px;color:rgba(200,225,240,.9);font-size:10px;font-weight:600;padding:5px 11px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;backdrop-filter:blur(6px)}
+.chat-sug:hover{background:rgba(3,143,207,.25);border-color:var(--e);color:#fff}
+
+/* ═══════════════ BIENVENIDA ═══════════════ */
+#welcome-overlay{display:none;position:fixed;inset:0;background:rgba(4,10,18,.82);backdrop-filter:blur(8px);z-index:8000;align-items:center;justify-content:center;padding:18px}
+.welcome-card{background:linear-gradient(170deg,#0f2033,#0B1929);border:1px solid rgba(3,143,207,.3);border-radius:16px;max-width:520px;width:100%;padding:26px 24px 20px;box-shadow:0 24px 80px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}
+.welcome-card img.wc-logo{height:42px;object-fit:contain;display:block;margin:0 auto 14px}
+.welcome-title{font-size:22px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;text-align:center;margin-bottom:10px;letter-spacing:-.01em}
+.welcome-p{font-size:13px;color:rgba(205,225,240,.88);line-height:1.6;text-align:center;margin-bottom:14px}
+.welcome-oes{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:18px}
+.welcome-oe{border-radius:99px;padding:4px 12px;font-size:10.5px;font-weight:700;color:#fff}
+.welcome-btns{display:flex;gap:8px;margin-bottom:12px}
+.welcome-btn{flex:1;border-radius:9px;padding:11px 8px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;border:1.5px solid transparent}
+.welcome-btn-video{background:linear-gradient(135deg,rgba(255,0,0,.3),rgba(180,0,0,.4));border-color:rgba(255,80,80,.5);color:#fff}
+.welcome-btn-video:hover{border-color:rgba(255,80,80,.8)}
+.welcome-btn-go{background:var(--e);color:#fff}
+.welcome-btn-go:hover{background:var(--ed)}
+.welcome-chk-row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--sbm)}
+.welcome-chk-row input{accent-color:var(--e)}
+@media(max-width:520px){.welcome-btns{flex-direction:column}}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -584,7 +630,7 @@ svg{display:block}
 <!-- Loading -->
 <div id="loading">
   <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" alt="EMRA" onerror="this.style.display='none'"/>
-  <p>Cargando plataforma EMRA 2023–2050…</p>
+  <p>Cargando Portal EMRA 2023–2050…</p>
 </div>
 
 <!-- App -->
@@ -598,18 +644,21 @@ svg{display:block}
       <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" onerror="this.style.display='none'"/>
       <div>
         <div class="sb-title">EMRA <span style="color:var(--e)">2023–2050</span></div>
-        <div class="sb-sub">Región de Antofagasta</div>
+        <div class="sb-sub">Región de Antofagasta · <span id="app-version"></span></div>
       </div>
     </div>
     <div class="tabs">
-      <button class="tab on" id="t-l" onclick="switchTab('l')">Lista</button>
+      <button class="tab on" id="t-e" onclick="switchTab('e')">EMRA</button>
+      <button class="tab" id="t-l" onclick="switchTab('l')">Lista</button>
       <button class="tab" id="t-d" onclick="switchTab('d')">Datos</button>
       <button class="tab" id="t-tl" onclick="switchTab('tl')">Timeline</button>
       <button class="tab" id="t-g" onclick="switchTab('g')">Galería</button>
     </div>
     <div class="sb-body" id="sb-body">
+      <!-- Tab EMRA (¿Qué es la EMRA?) -->
+      <div id="pnl-e"></div>
       <!-- Tab Lista -->
-      <div id="pnl-l">
+      <div id="pnl-l" style="display:none">
         <div class="search-wrap">
           <span class="search-ico">&#xe592;</span>
           <input id="search-q" type="text" placeholder="Buscar iniciativas…" oninput="applyFilters()"/>
@@ -796,6 +845,7 @@ svg{display:block}
     </div>
     <!-- Chat -->
     <div id="chat-bar">
+      <div class="chat-sugs" id="chat-sugs"></div>
       <div style="display:flex;align-items:flex-end;gap:0">
         <!-- Gorito avatar -->
         <div id="gorito-avatar" style="flex-shrink:0;position:relative;margin-right:-6px;z-index:2">
@@ -823,6 +873,24 @@ svg{display:block}
       </div>
     </div>
   </main>
+</div>
+
+<!-- Bienvenida — ¿Qué es la EMRA? -->
+<div id="welcome-overlay" onclick="if(event.target===this)closeWelcome(false)">
+  <div class="welcome-card">
+    <img class="wc-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" alt="EMRA" onerror="this.style.display='none'"/>
+    <div class="welcome-title">¿Qué es la <span style="color:var(--e)">EMRA</span>?</div>
+    <p class="welcome-p" id="welcome-intro">La <strong>Estrategia Minera para el Bienestar de la Región de Antofagasta</strong> es la hoja de ruta regional hacia el 2050: busca que la minería sea un motor de bienestar para las personas, comunidades y territorios de la región, a través de 5 Objetivos Estratégicos e iniciativas concretas.</p>
+    <div class="welcome-oes" id="welcome-oes"></div>
+    <div class="welcome-btns">
+      <button class="welcome-btn welcome-btn-video" onclick="closeWelcome(true)">▶ Ver video (10 min)</button>
+      <button class="welcome-btn welcome-btn-go" onclick="closeWelcome(false)">Explorar el portal →</button>
+    </div>
+    <div class="welcome-chk-row">
+      <input type="checkbox" id="welcome-chk"/>
+      <label for="welcome-chk">No volver a mostrar</label>
+    </div>
+  </div>
 </div>
 
 <!-- Admin overlay -->
@@ -874,6 +942,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
+const APP_VERSION='v1.0';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -1137,10 +1206,11 @@ function flyToIni(lat,lng){
 // SIDEBAR TABS
 // ═══════════════════════════════════════════════════════
 function switchTab(id){
-  ['l','d','tl','g'].forEach(t=>{
+  ['e','l','d','tl','g'].forEach(t=>{
     document.getElementById('pnl-'+t).style.display=t===id?'block':'none';
     document.getElementById('t-'+t).classList.toggle('on',t===id);
   });
+  if(id==='e')renderEmraTab();
   if(id==='d')renderStats();
   if(id==='tl')renderTimeline();
   if(id==='g')renderGallery();
@@ -2044,9 +2114,14 @@ async function sendChat(){
   resp.classList.add('on');txt.textContent='…';
   const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c,tipo:i.tipo}));
   try{
-    const sysPrompt=(typeof CLAUDE_CONFIG!=='undefined')
-      ? CLAUDE_CONFIG.prompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx))
-      : `Eres experto en EMRA 2023-2050, estrategia minera de la Región de Antofagasta. Responde en español, breve y directo. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\n\nIniciativas:\n${JSON.stringify(ctx)}`;
+    const basePrompt=(typeof CLAUDE_CONFIG!=='undefined')
+      ? CLAUDE_CONFIG.prompt
+      : `Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve y directo, tanto sobre la EMRA en general como sobre iniciativas. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\n\n{{EMRA}}\n\nIniciativas:\n{{INICIATIVAS}}`;
+    let sysPrompt=basePrompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx));
+    // Contexto general de la EMRA: vía placeholder {{EMRA}} o antepuesto si el prompt no lo trae
+    sysPrompt = basePrompt.includes('{{EMRA}}')
+      ? sysPrompt.replace('{{EMRA}}',emraContextText())
+      : emraContextText()+'\n\n'+sysPrompt;
     const maxTok=(typeof CLAUDE_CONFIG!=='undefined')?CLAUDE_CONFIG.maxTokens:600;
     const apiEndpoint = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
     const headers = {'Content-Type': 'application/json'};
@@ -2896,12 +2971,109 @@ let RUTAS_CONFIG = [
   {id:'r-corredor',nombre:'Corredor Antofagasta-Calama',coords:[[-23.639,-70.3962],[-22.495,-68.9093]],color:'#038FCF',activa:true},
 ];
 
+// ═══════════════════════════════════════════════════════
+// EMRA — INFORMACIÓN GENERAL DE LA ESTRATEGIA
+// ═══════════════════════════════════════════════════════
+let EMRA_INFO = {
+  nombre: 'Estrategia Minera para el Bienestar de la Región de Antofagasta',
+  sigla: 'EMRA 2023–2050',
+  intro: 'La EMRA es la hoja de ruta de la Región de Antofagasta hacia el 2050: una estrategia que busca que la minería sea un motor de bienestar para las personas, las comunidades y los territorios de la región.',
+  detalle: 'Se organiza en 5 Objetivos Estratégicos y se materializa en iniciativas concretas de corto, mediano y largo plazo en Antofagasta, Calama, Tocopilla, Mejillones y a escala regional, impulsadas por actores públicos y privados.',
+  actores: 'GORE Antofagasta · CORE Antofagasta · Clúster Minero',
+};
+
+// Texto de contexto EMRA para el asistente IA (Gorito)
+function emraContextText(){
+  const oes = Object.entries(OE_CONFIG).map(([k,c])=>`${k} — ${c.label}: ${c.desc}`).join('\n');
+  return `CONTEXTO GENERAL DE LA EMRA:\n${EMRA_INFO.nombre} (${EMRA_INFO.sigla}). ${EMRA_INFO.intro} ${EMRA_INFO.detalle}\nActores impulsores: ${EMRA_INFO.actores}.\n\nObjetivos Estratégicos:\n${oes}\n\nTerritorios: Antofagasta, Calama, Tocopilla, Mejillones y escala Regional.\nPuedes responder tanto sobre la EMRA en general (qué es, objetivos, actores, horizonte) como sobre iniciativas específicas.`;
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB EMRA — ¿QUÉ ES LA EMRA?
+// ═══════════════════════════════════════════════════════
+function renderEmraTab(){
+  const el=document.getElementById('pnl-e');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="emra-hero">
+      <div class="emra-hero-title">¿Qué es la <span style="color:var(--e)">EMRA</span>?</div>
+      <p class="emra-p">${EMRA_INFO.intro}</p>
+      <p class="emra-p" style="margin-top:6px">${EMRA_INFO.detalle}</p>
+    </div>
+    <div class="emra-actions">
+      <button class="emra-btn emra-btn-video" onclick="openEMRAVideo()">▶ Ver video EMRA <span class="emra-btn-tag">10 min</span></button>
+      <button class="emra-btn" onclick="openCanvaPres()">🖥 Ver presentación</button>
+    </div>
+    <div class="sec-title">🎯 Los 5 Objetivos Estratégicos</div>
+    ${Object.entries(OE_CONFIG).map(([oe,cfg])=>`
+      <div class="emra-oe-card" style="border-left-color:${cfg.color}">
+        <div class="emra-oe-head">
+          <span class="oe-badge" style="background:${cfg.color}">${oe}</span>
+          <span class="emra-oe-label">${cfg.label}</span>
+          ${cfg.videoId?`<a class="emra-oe-vid" href="https://www.youtube.com/watch?v=${cfg.videoId}" target="_blank" title="Ver video de ${oe}">▶</a>`:''}
+        </div>
+        <div class="emra-oe-desc">${cfg.desc}</div>
+        <button class="emra-oe-link" onclick="filterByOEFromEmra('${oe}')">Ver ${INI.filter(i=>i.oe&&i.oe.includes(oe)).length} iniciativas en el mapa →</button>
+      </div>`).join('')}
+    <div class="emra-foot-card">
+      <div class="stat-big" style="font-size:28px">${INI.length}</div>
+      <div class="stat-lbl">Iniciativas 2023–2050</div>
+      <button class="emra-btn" style="margin-top:8px;width:100%" onclick="switchTab('l')">Explorar todas las iniciativas →</button>
+    </div>
+    <div class="emra-actores">${EMRA_INFO.actores}</div>`;
+}
+
+function filterByOEFromEmra(oe){
+  switchTab('l');
+  setOE(oe);
+}
+
+// ═══════════════════════════════════════════════════════
+// CHAT — PREGUNTAS SUGERIDAS
+// ═══════════════════════════════════════════════════════
+const CHAT_SUGS = [
+  '¿Qué es la EMRA?',
+  '¿Cuáles son los 5 objetivos estratégicos?',
+  '¿Quién impulsa la EMRA?',
+  '¿Qué iniciativas hay en mi ciudad?',
+];
+function renderChatSugs(){
+  const el=document.getElementById('chat-sugs');
+  if(!el)return;
+  el.innerHTML=CHAT_SUGS.map(q=>`<button class="chat-sug" onclick="askSug(this)">${q}</button>`).join('');
+}
+function askSug(btn){
+  const inp=document.getElementById('chat-inp');
+  if(!inp)return;
+  inp.value=btn.textContent;
+  sendChat();
+}
+
+// ═══════════════════════════════════════════════════════
+// BIENVENIDA — PRIMERA VISITA
+// ═══════════════════════════════════════════════════════
+const WELCOME_KEY='emra_welcome_v1';
+function maybeShowWelcome(){
+  try{ if(localStorage.getItem(WELCOME_KEY)==='1') return; }catch(e){}
+  const el=document.getElementById('welcome-overlay');
+  if(el) el.style.display='flex';
+}
+function closeWelcome(openVideo){
+  const chk=document.getElementById('welcome-chk');
+  try{ if(chk&&chk.checked) localStorage.setItem(WELCOME_KEY,'1'); }catch(e){}
+  const el=document.getElementById('welcome-overlay');
+  if(el) el.style.display='none';
+  if(openVideo) openEMRAVideo();
+}
+
 let CLAUDE_CONFIG = {
-  prompt: 'Eres experto en EMRA 2023-2050, la Estrategia Minera para el Bienestar de la Región de Antofagasta. Responde en español, breve y directo. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\
+  prompt: 'Eres Gorito, asistente de la EMRA 2023-2050, la Estrategia Minera para el Bienestar de la Región de Antofagasta. Responde en español, breve y directo. Puedes explicar la EMRA en general (qué es, objetivos, actores, horizonte) y también iniciativas específicas. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\
+\
+{{EMRA}}\
 \
 Iniciativas:\
 {{INICIATIVAS}}',
-  placeholder: 'Pregunta sobre las iniciativas EMRA…',
+  placeholder: 'Pregúntale a Gorito sobre la EMRA…',
   label: 'Claude · EMRA',
   maxTokens: 600,
 };
@@ -3216,7 +3388,7 @@ function saveClaudeConfig(){
 }
 
 function resetClaudePrompt(){
-  CLAUDE_CONFIG.prompt='Eres experto en EMRA 2023-2050, la Estrategia Minera para el Bienestar de la Región de Antofagasta. Responde en español, breve y directo. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\n\nIniciativas:\n{{INICIATIVAS}}';
+  CLAUDE_CONFIG.prompt='Eres Gorito, asistente de la EMRA 2023-2050, la Estrategia Minera para el Bienestar de la Región de Antofagasta. Responde en español, breve y directo. Puedes explicar la EMRA en general (qué es, objetivos, actores, horizonte) y también iniciativas específicas. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\n\n{{EMRA}}\n\nIniciativas:\n{{INICIATIVAS}}';
   renderAdminClaude();
   showAdminToast('↺ Prompt restaurado al original');
 }
@@ -3228,7 +3400,7 @@ async function testClaudePrompt(){
   result.style.display='block';
   result.textContent='⏳ Consultando a Claude…';
   const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c}));
-  const sysPrompt=CLAUDE_CONFIG.prompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx));
+  const sysPrompt=CLAUDE_CONFIG.prompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx)).replace('{{EMRA}}',emraContextText());
   try{
     const apiEndpointTest = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
     const headersTest = {'Content-Type': 'application/json'};
@@ -4107,6 +4279,14 @@ window.addEventListener('load',async()=>{
     if(gorLbl) gorLbl.src=GORITO_URL;
     // Sincronizar botones inline (se actualizan cuando se abran fichas)
     window._goritoReady=true;
+    const vEl=document.getElementById('app-version');
+    if(vEl) vEl.textContent=APP_VERSION;
+    // Tab EMRA + bienvenida + sugerencias del chat
+    renderEmraTab();
+    renderChatSugs();
+    const wOes=document.getElementById('welcome-oes');
+    if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
+    maybeShowWelcome();
     // Init Leaflet después de que el DOM sea visible
     setTimeout(()=>{
       initMap();
