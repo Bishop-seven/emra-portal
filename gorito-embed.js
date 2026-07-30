@@ -48,7 +48,7 @@
   var fab = document.createElement('button');
   fab.id = 'gorito-fab';
   fab.setAttribute('aria-label', 'Abrir asistente Gorito');
-  fab.innerHTML = '<span class="g-emoji">🤖</span><span class="g-close">✕</span>';
+  fab.innerHTML = '<img class="g-emoji" src="' + base + '/gorito.webp" alt="Gorito" style="height:52px;width:auto" onerror="this.outerHTML=\'<span class=&quot;g-emoji&quot;>🤖</span>\'"/><span class="g-close">✕</span>';
 
   var tag = document.createElement('div');
   tag.id = 'gorito-tag';
