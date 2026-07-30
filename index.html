@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.3 -->
+<!-- Portal EMRA 2023–2050 · v1.3.1 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -1015,7 +1015,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.3';
+const APP_VERSION='v1.3.1';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -3639,7 +3639,7 @@ async function workerAdmin(method, body){
   if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
   return data;
 }
-async function renderAdminSeg(){
+async function renderAdminSegV2(){
   const el=document.getElementById('admin-content');
   if(!SESSION||SESSION.rol!=='admin'){
     el.innerHTML=`<div class="a-box"><div class="a-box-title">🔒 Seguridad</div>
@@ -3716,6 +3716,9 @@ async function eliminarUsuario(id){
   try{ await workerAdmin('DELETE',{id});showAdminToast('✓ Usuario eliminado');renderAdminSeg(); }
   catch(e){showAdminToast('⚠ '+e.message,true)}
 }
+// La maqueta antigua de Seguridad declara renderAdminSeg más abajo; esta
+// asignación en tiempo de ejecución garantiza que se use la versión real (V2):
+renderAdminSeg = renderAdminSegV2;
 async function cambiarMiPassword(){
   const p=document.getElementById('mi-pwd')?.value||'';
   if(p.length<8){showAdminToast('⚠ Mínimo 8 caracteres',true);return}
