@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.0 -->
+<!-- Portal EMRA 2023–2050 · v1.2 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -141,6 +142,48 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .welcome-chk-row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--sbm)}
 .welcome-chk-row input{accent-color:var(--e)}
 @media(max-width:520px){.welcome-btns{flex-direction:column}}
+
+/* ═══════════════ PARTICIPACIÓN (eventos) ═══════════════ */
+#participa-overlay,#pantalla-overlay{display:none;position:fixed;inset:0;background:#060e18;z-index:8500;overflow-y:auto}
+.part-wrap{max-width:480px;margin:0 auto;padding:34px 20px 40px;min-height:100%;display:flex;flex-direction:column}
+.part-logo{height:44px;object-fit:contain;display:block;margin:0 auto 8px}
+.part-kicker{font-size:10px;color:var(--sbm);text-transform:uppercase;letter-spacing:.1em;font-weight:700;text-align:center;margin-bottom:22px}
+.part-q{font-size:21px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;text-align:center;line-height:1.35;margin-bottom:22px;letter-spacing:-.01em}
+.part-opt{display:block;width:100%;background:var(--sb2);border:1.5px solid var(--sbb);border-radius:12px;color:var(--sbt);font-size:14px;font-weight:600;padding:15px 16px;margin-bottom:9px;cursor:pointer;font-family:inherit;text-align:left;transition:all .15s}
+.part-opt:hover{border-color:var(--e);color:#fff;background:rgba(3,143,207,.1)}
+.part-opt.sel{border-color:var(--e);background:rgba(3,143,207,.18);color:#fff}
+.part-ta{width:100%;background:var(--sb2);border:1.5px solid var(--sbb);border-radius:12px;color:var(--sbt);font-size:14px;padding:14px;font-family:inherit;min-height:110px;resize:vertical;outline:none;margin-bottom:12px}
+.part-ta:focus{border-color:var(--e)}
+.part-send{width:100%;background:var(--e);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;padding:15px;cursor:pointer;font-family:inherit;transition:background .15s}
+.part-send:hover{background:var(--ed)}
+.part-send:disabled{opacity:.4;cursor:default}
+.part-thanks{text-align:center;padding:30px 0}
+.part-thanks-ico{font-size:46px;margin-bottom:12px}
+.part-thanks-t{font-size:20px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.part-thanks-p{font-size:13px;color:var(--sbm);line-height:1.6;margin-bottom:22px}
+.part-bar-row{margin-bottom:10px}
+.part-bar-head{display:flex;justify-content:space-between;font-size:12px;color:var(--sbt);font-weight:600;margin-bottom:4px;gap:10px}
+.part-bar-track{height:8px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.part-bar-fill{height:100%;border-radius:99px;background:var(--e);transition:width .6s ease}
+/* Pantalla (proyector) */
+.pant-wrap{display:flex;height:100vh;padding:4vh 4vw;gap:4vw;align-items:stretch}
+.pant-left{flex:1.4;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.pant-right{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(255,255,255,.03);border:1px solid var(--sbb);border-radius:20px;padding:30px}
+.pant-logo{height:52px;object-fit:contain;margin-bottom:18px;align-self:flex-start}
+.pant-q{font-size:clamp(24px,3.4vw,44px);font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;line-height:1.25;margin-bottom:30px;letter-spacing:-.015em}
+.pant-bars .part-bar-head{font-size:clamp(13px,1.3vw,18px)}
+.pant-bars .part-bar-track{height:clamp(12px,1.4vw,20px)}
+.pant-feed{overflow-y:auto;max-height:52vh}
+.pant-feed-item{background:var(--sb2);border:1px solid var(--sbb);border-left:3px solid var(--e);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:clamp(13px,1.3vw,17px);color:var(--sbt);line-height:1.45}
+.pant-count{font-size:clamp(13px,1.2vw,16px);color:var(--sbm);font-weight:600;margin-top:16px}
+.pant-count b{color:var(--e);font-size:1.3em}
+#pant-qr{background:#fff;padding:14px;border-radius:14px}
+#pant-qr img,#pant-qr canvas{display:block}
+.pant-scan{font-size:clamp(14px,1.5vw,20px);font-weight:700;color:#fff;text-align:center;font-family:'DM Sans',sans-serif}
+.pant-url{font-size:clamp(11px,1vw,13px);color:var(--e);font-weight:600;text-align:center;word-break:break-all}
+.pant-exit{position:fixed;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--sbb);border-radius:8px;color:var(--sbm);font-size:11px;font-weight:700;padding:7px 12px;cursor:pointer;font-family:inherit;z-index:10}
+.pant-exit:hover{color:#fff;border-color:var(--e)}
+@media(max-width:760px){.pant-wrap{flex-direction:column;overflow-y:auto;height:auto;min-height:100vh}.pant-left{flex:none}.pant-right{flex:none}}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -875,6 +918,17 @@ svg{display:block}
   </main>
 </div>
 
+<!-- Participación (asistentes vía QR) -->
+<div id="participa-overlay">
+  <div class="part-wrap" id="part-content"></div>
+</div>
+
+<!-- Pantalla (proyector en eventos) -->
+<div id="pantalla-overlay">
+  <button class="pant-exit" onclick="closePantalla()">Salir ✕</button>
+  <div class="pant-wrap" id="pant-content"></div>
+</div>
+
 <!-- Bienvenida — ¿Qué es la EMRA? -->
 <div id="welcome-overlay" onclick="if(event.target===this)closeWelcome(false)">
   <div class="welcome-card">
@@ -900,10 +954,12 @@ svg{display:block}
       <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="login-logo" alt="EMRA" onerror="this.style.display='none'"/>
       <div class="login-title">Panel de Administración</div>
       <div class="login-sub">EMRA 2023–2050 · Acceso restringido</div>
+      <label class="login-label">Email</label>
+      <input type="email" class="login-input" id="admin-email" placeholder="usuario@emra.cl" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')document.getElementById('admin-pwd').focus()"/>
       <label class="login-label">Contraseña</label>
       <input type="password" class="login-input" id="admin-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/>
-      <button class="login-btn" onclick="adminLogin()">Ingresar</button>
-      <div class="login-err" id="login-err">Contraseña incorrecta</div>
+      <button class="login-btn" id="login-btn" onclick="adminLogin()">Ingresar</button>
+      <div class="login-err" id="login-err">Credenciales incorrectas</div>
       <button class="login-back" onclick="closeAdmin()">← Volver al portal</button>
     </div>
   </div>
@@ -914,7 +970,9 @@ svg{display:block}
         <span class="admin-badge">Admin</span>
       </div>
       <div class="admin-top-r">
+        <span id="admin-user-chip" style="font-size:10px;color:var(--sbm);margin-right:6px"></span>
         <button class="a-btn a-btn-g" onclick="exportData()">&#xe2c4; Exportar JSON</button>
+        <button class="a-btn a-btn-g" onclick="authLogout()">Cerrar sesión</button>
         <button class="a-btn a-btn-g" onclick="closeAdmin()">&#xe5cd; Salir</button>
       </div>
     </div>
@@ -932,6 +990,7 @@ svg{display:block}
       <button class="a-tab" id="at-pdf" onclick="setAdminTab('pdf')">📄 PDF</button>
       <button class="a-tab" id="at-seg" onclick="setAdminTab('seg')">🔐 Seguridad</button>
       <button class="a-tab" id="at-diseno" onclick="setAdminTab('diseno')">🎨 Diseño</button>
+      <button class="a-tab" id="at-part" onclick="setAdminTab('part')">🗳 Participación</button>
     </div>
     <div class="admin-content" id="admin-content"></div>
   </div>
@@ -942,7 +1001,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.0';
+const APP_VERSION='v1.2';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -957,7 +1016,7 @@ const BASEMAPS={
   dark:{url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',attr:'&copy; OpenStreetMap &copy; CARTO'},
   satellite:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri'},
 };
-const ADMIN_PASSWORD='emra2050'; // ⚠️ CAMBIA ESTO ANTES DE PUBLICAR
+const ADMIN_PASSWORD=''; // OBSOLETA — el acceso ahora es con usuarios de Supabase Auth (Admin → Seguridad)
 
 function oec(o){for(const[k,c]of Object.entries(OE_COLORS)){if(o&&o.includes(k))return c}return'#6b7280'}
 function img(id,w=500,h=300){
@@ -1318,7 +1377,7 @@ function openFicha(id){
   window._fichaImgs = imgs;
   document.getElementById('ficha').innerHTML=`
     <div class="fh">
-      <img id="fi-main" src="${imgs[0]}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, 0)" onerror="this.src='https://picsum.photos/600/300?grayscale'"/>
+      <img id="fi-main" src="${imgs[0]}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, 0)" onerror="this.src=PH_IMG"/>
       <div class="fh-over"></div>
       <div class="fh-info">
         <div style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:4px">
@@ -1557,7 +1616,7 @@ function buildSlides(){
   INI.filter(ini=>!PRES_HIDDEN.has(ini.id)).forEach((ini,idx)=>{
     SLIDES.push({label:ini.n,ini,render:()=>`<div class="s-ini-pg">
       <div class="s-ini-img">
-        <img src="${img(ini.id,600,500)}" alt="" onerror="this.src='https://picsum.photos/seed/${ini.id}/600/500?grayscale'"/>
+        <img src="${img(ini.id,600,500)}" alt="" onerror="this.src=PH_IMG"/>
         <div class="s-num">${idx+1} / ${INI.length}</div>
       </div>
       <div class="s-ini-content">
@@ -1600,7 +1659,15 @@ let EMRA_VIDEO_URL = 'https://youtu.be/Q-bJ_i68Qyg';
 // URL del Cloudflare Worker. Cambiar a tu worker desplegado.
 // Formato: https://emra-ai-proxy.TU_USUARIO.workers.dev/v1/messages
 // Si es vacío, llamará directamente a api.anthropic.com (solo para desarrollo local)
-let CLAUDE_PROXY_URL = 'https://emra-ai-proxy.emraportal.workers.dev/v1/messages';
+// Placeholder local (reemplaza picsum.photos para evitar bloqueos de antivirus)
+const PH_IMG='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300"><rect width="600" height="300" fill="#112236"/><text x="300" y="150" font-family="sans-serif" font-size="16" fill="#038FCF" text-anchor="middle" dominant-baseline="middle">EMRA 2023-2050</text></svg>');
+// En producción (emra.cl / vercel) el chat pasa por /api/gorito (rewrite de Vercel
+// hacia el worker) para que el navegador nunca llame a *.workers.dev — dominio que
+// algunos antivirus como McAfee marcan. En local se usa el worker directo.
+const _prod = location.protocol.startsWith('http') && !['localhost','127.0.0.1'].includes(location.hostname);
+// Base del worker: en producción pasa por /api/w (rewrite de Vercel al worker)
+const WORKER_BASE = _prod ? location.origin + '/api/w' : 'https://emra-ai-proxy.emraportal.workers.dev';
+let CLAUDE_PROXY_URL = WORKER_BASE + '/v1/messages';
 
 // ── SUPABASE CONFIG ──
 const SB_URL = 'https://tjoveoqolrfxntvvdjwh.supabase.co';
@@ -1608,10 +1675,14 @@ const SB_KEY = 'sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE';
 
 // Helper Supabase fetch
 async function sbFetch(path, options={}){
+  // Con sesión activa, las peticiones van firmadas con el JWT del usuario
+  // (necesario para escribir con las políticas RLS de solo-autenticados)
+  let tok = SB_KEY;
+  if(SESSION){ tok = (await ensureFreshToken()) || SB_KEY; }
   const res = await fetch(SB_URL+'/rest/v1/'+path, {
     headers: {
       'apikey': SB_KEY,
-      'Authorization': 'Bearer '+SB_KEY,
+      'Authorization': 'Bearer '+tok,
       'Content-Type': 'application/json',
       'Prefer': options.prefer||'return=representation',
       ...options.headers
@@ -2152,12 +2223,92 @@ function openAdmin(){
     alert('Demasiados intentos fallidos. Recarga la página.');
     return;
   }
-  document.getElementById('admin-overlay').classList.add('on');document.getElementById('admin-login').style.display='flex';document.getElementById('admin-main').classList.remove('on');document.getElementById('admin-pwd').value='';document.getElementById('login-err').classList.remove('on')}
+  document.getElementById('admin-overlay').classList.add('on');
+  ensureFreshToken().then(tok=>{
+    if(tok){ enterAdmin(); }
+    else{
+      document.getElementById('admin-login').style.display='flex';
+      document.getElementById('admin-main').classList.remove('on');
+      document.getElementById('admin-pwd').value='';
+      document.getElementById('login-err').classList.remove('on');
+    }
+  });
+}
 function closeAdmin(){document.getElementById('admin-overlay').classList.remove('on')}
-function adminLogin(){const pwd=document.getElementById('admin-pwd').value;if(pwd===ADMIN_PASSWORD){document.getElementById('admin-login').style.display='none';document.getElementById('admin-main').classList.add('on');setAdminTab('dash')}else{document.getElementById('login-err').classList.add('on');document.getElementById('admin-pwd').value=''}}
+// ═══════════════════════════════════════════════════════
+// AUTENTICACIÓN — Supabase Auth (email + contraseña)
+// Los usuarios se gestionan en Admin → Seguridad (rol admin)
+// ═══════════════════════════════════════════════════════
+let SESSION = null;
+try{ SESSION = JSON.parse(localStorage.getItem('emra_auth')||'null'); }catch(e){}
+
+function saveSession(s){ SESSION=s; try{ s?localStorage.setItem('emra_auth',JSON.stringify(s)):localStorage.removeItem('emra_auth'); }catch(e){} }
+
+async function authRequest(path, body){
+  const res = await fetch(SB_URL+'/auth/v1/'+path, {
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error_description||data.msg||data.error||'Error de autenticación');
+  return data;
+}
+function sessionFromAuth(d){
+  return {
+    access_token: d.access_token,
+    refresh_token: d.refresh_token,
+    expires_at: (d.expires_at? d.expires_at*1000 : Date.now()+ (d.expires_in||3600)*1000),
+    email: d.user?.email,
+    nombre: d.user?.user_metadata?.nombre || d.user?.email,
+    rol: d.user?.app_metadata?.rol || 'editor',
+    uid: d.user?.id
+  };
+}
+async function ensureFreshToken(){
+  if(!SESSION) return null;
+  if(SESSION.expires_at - 60000 > Date.now()) return SESSION.access_token;
+  try{
+    const d = await authRequest('token?grant_type=refresh_token',{refresh_token:SESSION.refresh_token});
+    saveSession(sessionFromAuth(d));
+    return SESSION.access_token;
+  }catch(e){ saveSession(null); return null; }
+}
+async function adminLogin(){
+  const email=(document.getElementById('admin-email')?.value||'').trim();
+  const pwd=document.getElementById('admin-pwd').value;
+  const err=document.getElementById('login-err');
+  const btn=document.getElementById('login-btn');
+  if(!email||!pwd){err.textContent='Ingresa email y contraseña';err.classList.add('on');return}
+  btn.disabled=true;btn.textContent='Verificando…';
+  try{
+    const d = await authRequest('token?grant_type=password',{email,password:pwd});
+    saveSession(sessionFromAuth(d));
+    err.classList.remove('on');
+    document.getElementById('admin-pwd').value='';
+    enterAdmin();
+  }catch(e){
+    err.textContent = /invalid/i.test(e.message)?'Credenciales incorrectas':e.message;
+    err.classList.add('on');
+    document.getElementById('admin-pwd').value='';
+  }
+  btn.disabled=false;btn.textContent='Ingresar';
+}
+function enterAdmin(){
+  document.getElementById('admin-login').style.display='none';
+  document.getElementById('admin-main').classList.add('on');
+  const chip=document.getElementById('admin-user-chip');
+  if(chip&&SESSION) chip.textContent=`${SESSION.nombre} · ${SESSION.rol==='admin'?'Administrador':'Editor'}`;
+  setAdminTab('dash');
+}
+function authLogout(){
+  saveSession(null);
+  closeAdmin();
+  showAdminToast&&showAdminToast('Sesión cerrada');
+}
 
 function setAdminTab(id){
-  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno'].forEach(t=>{
+  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part'].forEach(t=>{
     const el=document.getElementById('at-'+t);
     if(el)el.classList.toggle('on',t===id);
   });
@@ -2165,7 +2316,7 @@ function setAdminTab(id){
     dash:renderAdminDash,ini:renderAdminIni,new:renderAdminNew,
     tl:renderAdminTL,pres:renderAdminPres,portal:renderAdminPortal,
     oe:renderAdminOE,rutas:renderAdminRutas,claude:renderAdminClaude,
-    pdf:renderAdminPDF,seg:renderAdminSeg,diseno:renderAdminDiseno,
+    pdf:renderAdminPDF,seg:renderAdminSeg,diseno:renderAdminDiseno,part:renderAdminPart,
     importar:renderImportExcel,
   };
   if(fn[id])fn[id]();
@@ -2786,7 +2937,7 @@ function renderAdminPres(){
           ondragend="dragEnd(event)">
           <span class="slide-drag" title="Arrastrar para reordenar">⠿</span>
           <div class="slide-num" style="${hidden?'opacity:.4':''}">${hidden?'—':slideNum}</div>
-          <img class="slide-thumb" src="${ini.imageUrl||'https://picsum.photos/seed/emra'+id+'/150/100'}" alt="" onerror="this.src='https://picsum.photos/seed/emra/150/100'"/>
+          <img class="slide-thumb" src="${ini.imageUrl||PH_IMG}" alt="" onerror="this.src=PH_IMG"/>
           <div class="slide-info">
             <div class="slide-name" style="${hidden?'opacity:.45':''}">${ini.n}</div>
             <div class="slide-meta">
@@ -3052,6 +3203,390 @@ function askSug(btn){
 // ═══════════════════════════════════════════════════════
 // BIENVENIDA — PRIMERA VISITA
 // ═══════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════
+// PARTICIPACIÓN — CONVERSATORIOS / SEMINARIOS
+// Tablas Supabase: encuestas, respuestas (ver SQL adjunto)
+// ═══════════════════════════════════════════════════════
+const PART_URL = location.origin + location.pathname + '#participa';
+
+// ── Helpers Supabase ──
+async function sbGetEncuestaActiva(){
+  const r = await sbFetch('encuestas?activa=eq.true&order=id.desc&limit=1');
+  return (r && r.length) ? r[0] : null;
+}
+async function sbGetEncuestas(){ return sbFetch('encuestas?order=id.desc'); }
+async function sbCreateEncuesta(e){
+  return sbFetch('encuestas',{method:'POST',body:JSON.stringify(e)});
+}
+async function sbPatchEncuesta(id,patch){
+  return sbFetch('encuestas?id=eq.'+id,{method:'PATCH',body:JSON.stringify(patch)});
+}
+async function sbDeleteEncuesta(id){
+  await sbFetch('respuestas?encuesta_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+  return sbFetch('encuestas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+}
+async function sbInsertRespuesta(encuesta_id,respuesta){
+  return sbFetch('respuestas',{method:'POST',body:JSON.stringify({encuesta_id,respuesta})});
+}
+async function sbGetRespuestas(encuesta_id){
+  return sbFetch('respuestas?encuesta_id=eq.'+encuesta_id+'&order=id.desc&limit=500');
+}
+
+function contarOpciones(enc,resps){
+  const counts={};(enc.opciones||[]).forEach(o=>counts[o]=0);
+  resps.forEach(r=>{if(counts[r.respuesta]!==undefined)counts[r.respuesta]++});
+  return counts;
+}
+function barsHTML(enc,resps,big=false){
+  const counts=contarOpciones(enc,resps);
+  const total=resps.length||1;
+  return Object.entries(counts).map(([op,n])=>{
+    const pct=Math.round(n/total*100);
+    return `<div class="part-bar-row"><div class="part-bar-head"><span>${op}</span><span>${n} · ${pct}%</span></div>
+      <div class="part-bar-track"><div class="part-bar-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+
+// ── VISTA ASISTENTE (#participa) ──
+let PART_ENC=null, PART_SEL=null;
+async function openParticipa(){
+  const ov=document.getElementById('participa-overlay');
+  const el=document.getElementById('part-content');
+  ov.style.display='block';
+  el.innerHTML=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+    <div class="part-kicker">EMRA 2023–2050 · Participación</div>
+    <div style="text-align:center;color:var(--sbm);font-size:13px;padding:30px 0">⏳ Cargando…</div>`;
+  try{ PART_ENC=await sbGetEncuestaActiva(); }catch(e){ PART_ENC=null; }
+  if(!PART_ENC){ renderPartThanks('👋','Por ahora no hay una pregunta activa','Pero puedes explorar el Portal EMRA y conocer la estrategia y sus iniciativas.'); return; }
+  let yaResp=false;
+  try{ yaResp=localStorage.getItem('emra_resp_'+PART_ENC.id)==='1'; }catch(e){}
+  if(yaResp){ renderPartThanks('✅','¡Ya registramos tu respuesta!','Gracias por participar. Ahora te invitamos a explorar el Portal EMRA.'); return; }
+  renderPartQuestion();
+}
+function renderPartQuestion(){
+  const el=document.getElementById('part-content');
+  const head=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+    <div class="part-kicker">EMRA 2023–2050 · Tu opinión importa</div>
+    <div class="part-q">${PART_ENC.pregunta}</div>`;
+  if(PART_ENC.tipo==='abierta'){
+    el.innerHTML=head+`<textarea class="part-ta" id="part-ta" maxlength="400" placeholder="Escribe tu respuesta…"></textarea>
+      <button class="part-send" onclick="enviarRespuesta()">Enviar respuesta</button>`;
+  } else {
+    PART_SEL=null;
+    el.innerHTML=head+(PART_ENC.opciones||[]).map((o,i)=>
+      `<button class="part-opt" id="popt-${i}" onclick="selOpt(${i})">${o}</button>`).join('')+
+      `<button class="part-send" id="part-send-btn" style="margin-top:6px" onclick="enviarRespuesta()" disabled>Enviar respuesta</button>`;
+  }
+}
+function selOpt(i){
+  PART_SEL=(PART_ENC.opciones||[])[i];
+  (PART_ENC.opciones||[]).forEach((_,j)=>{
+    const b=document.getElementById('popt-'+j);
+    if(b)b.classList.toggle('sel',j===i);
+  });
+  const s=document.getElementById('part-send-btn'); if(s)s.disabled=false;
+}
+async function enviarRespuesta(){
+  let resp;
+  if(PART_ENC.tipo==='abierta'){
+    resp=(document.getElementById('part-ta')?.value||'').trim();
+    if(!resp)return;
+  } else {
+    resp=PART_SEL; if(!resp)return;
+  }
+  const btns=document.querySelectorAll('#part-content .part-send');
+  btns.forEach(b=>{b.disabled=true;b.textContent='Enviando…'});
+  try{
+    await sbInsertRespuesta(PART_ENC.id,resp);
+    try{ localStorage.setItem('emra_resp_'+PART_ENC.id,'1'); }catch(e){}
+    if(PART_ENC.tipo!=='abierta'){
+      // Mostrar resultados en vivo al responder alternativas
+      let resps=[]; try{ resps=await sbGetRespuestas(PART_ENC.id); }catch(e){}
+      renderPartThanks('🙌','¡Gracias por participar!','Así van las respuestas hasta ahora:',barsHTML(PART_ENC,resps)+`<div class="pant-count" style="text-align:center">Total: <b>${resps.length}</b> respuestas</div>`);
+    } else {
+      renderPartThanks('🙌','¡Gracias por participar!','Tu respuesta fue registrada.');
+    }
+  }catch(e){
+    renderPartThanks('⚠️','No pudimos registrar tu respuesta','Revisa tu conexión e inténtalo nuevamente, o continúa explorando el portal.');
+  }
+}
+function renderPartThanks(ico,titulo,texto,extra=''){
+  document.getElementById('part-content').innerHTML=`
+    <img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+    <div class="part-kicker">EMRA 2023–2050</div>
+    <div class="part-thanks">
+      <div class="part-thanks-ico">${ico}</div>
+      <div class="part-thanks-t">${titulo}</div>
+      <div class="part-thanks-p">${texto}</div>
+      ${extra?`<div style="text-align:left;margin-bottom:22px">${extra}</div>`:''}
+      <button class="part-send" onclick="closeParticipa()">Explorar el Portal EMRA →</button>
+      <div style="font-size:11px;color:var(--sbm);margin-top:12px">Conoce el mapa de iniciativas y pregúntale a Gorito 🤖</div>
+    </div>`;
+}
+function closeParticipa(){
+  document.getElementById('participa-overlay').style.display='none';
+  history.replaceState(null,'',location.pathname);
+  // Mostrar el portal con la tab EMRA activa para seguir explorando
+  switchTab('e');
+}
+
+// ── VISTA PANTALLA (#pantalla — proyector) ──
+let PANT_TIMER=null, PANT_ENC=null;
+async function openPantalla(){
+  const ov=document.getElementById('pantalla-overlay');
+  const el=document.getElementById('pant-content');
+  ov.style.display='block';
+  el.innerHTML=`<div style="margin:auto;color:var(--sbm)">⏳ Cargando pregunta activa…</div>`;
+  try{ PANT_ENC=await sbGetEncuestaActiva(); }catch(e){ PANT_ENC=null; }
+  if(!PANT_ENC){
+    el.innerHTML=`<div style="margin:auto;text-align:center;color:var(--sbm)">
+      <div style="font-size:40px;margin-bottom:12px">🗳</div>
+      <div style="font-size:18px;color:#fff;font-weight:700;margin-bottom:6px">No hay pregunta activa</div>
+      <div style="font-size:13px">Activa una pregunta desde el Panel Admin → Participación</div></div>`;
+    return;
+  }
+  el.innerHTML=`
+    <div class="pant-left">
+      <img class="pant-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+      <div class="pant-q">${PANT_ENC.pregunta}</div>
+      <div id="pant-results" class="${PANT_ENC.tipo==='abierta'?'pant-feed':'pant-bars'}"></div>
+      <div class="pant-count">Respuestas: <b id="pant-total">0</b></div>
+    </div>
+    <div class="pant-right">
+      <div class="pant-scan">📱 Escanea y participa</div>
+      <div id="pant-qr"></div>
+      <div class="pant-url">${PART_URL.replace('https://','')}</div>
+    </div>`;
+  // QR
+  try{ new QRCode(document.getElementById('pant-qr'),{text:PART_URL,width:210,height:210,correctLevel:QRCode.CorrectLevel.M}); }
+  catch(e){ document.getElementById('pant-qr').innerHTML='<div style="color:#333;font-size:12px;padding:20px">QR no disponible</div>'; }
+  // Polling en vivo
+  await refreshPantalla();
+  PANT_TIMER=setInterval(refreshPantalla,4000);
+}
+async function refreshPantalla(){
+  if(!PANT_ENC)return;
+  let resps=[]; try{ resps=await sbGetRespuestas(PANT_ENC.id); }catch(e){ return; }
+  const el=document.getElementById('pant-results');
+  const tot=document.getElementById('pant-total');
+  if(tot)tot.textContent=resps.length;
+  if(!el)return;
+  if(PANT_ENC.tipo==='abierta'){
+    el.innerHTML=resps.slice(0,30).map(r=>`<div class="pant-feed-item">${String(r.respuesta).replace(/</g,'&lt;')}</div>`).join('')
+      ||'<div style="color:var(--sbm);font-size:14px">Esperando las primeras respuestas…</div>';
+  } else {
+    el.innerHTML=barsHTML(PANT_ENC,resps,true)||'';
+  }
+}
+function closePantalla(){
+  if(PANT_TIMER){clearInterval(PANT_TIMER);PANT_TIMER=null}
+  document.getElementById('pantalla-overlay').style.display='none';
+  history.replaceState(null,'',location.pathname);
+}
+
+// ── ADMIN — TAB PARTICIPACIÓN ──
+let ADMIN_ENCS=[];
+async function renderAdminPart(){
+  const el=document.getElementById('admin-content');
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando encuestas…</div>';
+  let err=null;
+  try{ ADMIN_ENCS=await sbGetEncuestas()||[]; }catch(e){ ADMIN_ENCS=[]; err=e.message; }
+  el.innerHTML=`
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudo leer la tabla <b>encuestas</b> (${err}).<br/>Ejecuta el SQL de creación de tablas en Supabase (archivo <b>participacion.sql</b>) y recarga.</div></div>`:''}
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div class="a-box">
+        <div class="a-box-title">➕ Nueva pregunta</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="a-field"><div class="a-label">Pregunta *</div>
+            <textarea id="pe-q" class="a-form-inp" style="min-height:60px" placeholder="Ej: ¿Qué tema te gustaría priorizar en tu ciudad?"></textarea></div>
+          <div class="a-field"><div class="a-label">Tipo</div>
+            <select id="pe-tipo" class="a-form-inp" onchange="document.getElementById('pe-ops-wrap').style.display=this.value==='alternativas'?'block':'none'">
+              <option value="alternativas">Alternativas (opción única)</option>
+              <option value="abierta">Respuesta libre</option>
+            </select></div>
+          <div class="a-field" id="pe-ops-wrap"><div class="a-label">Alternativas (una por línea)</div>
+            <textarea id="pe-ops" class="a-form-inp" style="min-height:80px" placeholder="Opción A&#10;Opción B&#10;Opción C"></textarea></div>
+          <button class="a-btn a-btn-p" onclick="crearEncuesta()">Crear pregunta</button>
+        </div>
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">🖥 Modo evento</div>
+        <div style="font-size:11px;color:var(--sbm);line-height:1.7;margin-bottom:12px">
+          <b style="color:var(--sbt)">1.</b> Activa una pregunta de la lista.<br/>
+          <b style="color:var(--sbt)">2.</b> Abre el <b>modo pantalla</b> y proyéctalo: muestra la pregunta, el QR y los resultados en vivo.<br/>
+          <b style="color:var(--sbt)">3.</b> Los asistentes escanean el QR, responden y quedan dentro del portal para seguir explorando.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="a-btn a-btn-p" onclick="closeAdmin();location.hash='#pantalla';openPantalla()">🖥 Abrir modo pantalla</button>
+          <button class="a-btn a-btn-g" onclick="navigator.clipboard.writeText(PART_URL).then(()=>showAdminToast('✓ Link de participación copiado'))">🔗 Copiar link de participación</button>
+          <div style="font-size:10px;color:var(--sbm);word-break:break-all">${PART_URL}</div>
+        </div>
+      </div>
+    </div>
+    <div class="a-box" style="margin-top:14px">
+      <div class="a-box-title">🗳 Preguntas (${ADMIN_ENCS.length})</div>
+      ${ADMIN_ENCS.length?ADMIN_ENCS.map(e=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;${e.activa?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">${e.pregunta}</div>
+            <div style="font-size:10px;color:var(--sbm)">${e.tipo==='abierta'?'Respuesta libre':'Alternativas: '+(e.opciones||[]).join(' · ')} ${e.activa?'· <b style="color:#10b981">● ACTIVA</b>':''}</div>
+          </div>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="verResultados(${e.id})">📊 Resultados</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarEncuesta(${e.id},${e.activa?'false':'true'})">${e.activa?'⏸ Desactivar':'▶ Activar'}</button>
+          <button class="a-btn a-btn-g" style="font-size:10px;color:#ff8a7a" onclick="if(confirm('¿Eliminar esta pregunta y todas sus respuestas?'))eliminarEncuesta(${e.id})">🗑</button>
+        </div>`).join(''):'<div style="font-size:12px;color:var(--sbm)">Aún no hay preguntas creadas.</div>'}
+      <div id="pe-resultados" style="margin-top:12px"></div>
+    </div>`;
+}
+async function crearEncuesta(){
+  const q=(document.getElementById('pe-q')?.value||'').trim();
+  const tipo=document.getElementById('pe-tipo')?.value||'alternativas';
+  const ops=(document.getElementById('pe-ops')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  if(!q){showAdminToast('⚠ Escribe la pregunta',true);return}
+  if(tipo==='alternativas'&&ops.length<2){showAdminToast('⚠ Ingresa al menos 2 alternativas',true);return}
+  try{
+    await sbCreateEncuesta({pregunta:q,tipo,opciones:tipo==='alternativas'?ops:null,activa:false});
+    showAdminToast('✓ Pregunta creada');renderAdminPart();
+  }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+async function activarEncuesta(id,on){
+  try{
+    if(on) await sbFetch('encuestas?activa=eq.true',{method:'PATCH',body:JSON.stringify({activa:false})}).catch(()=>{});
+    await sbPatchEncuesta(id,{activa:on});
+    showAdminToast(on?'✓ Pregunta activada':'✓ Pregunta desactivada');renderAdminPart();
+  }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+async function eliminarEncuesta(id){
+  try{ await sbDeleteEncuesta(id);showAdminToast('✓ Eliminada');renderAdminPart(); }
+  catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+async function verResultados(id){
+  const enc=ADMIN_ENCS.find(e=>e.id===id);if(!enc)return;
+  const box=document.getElementById('pe-resultados');
+  box.innerHTML='<div style="font-size:11px;color:var(--sbm)">⏳ Cargando resultados…</div>';
+  let resps=[];try{resps=await sbGetRespuestas(id)}catch(e){}
+  const csv='respuesta,fecha\n'+resps.map(r=>`"${String(r.respuesta).replace(/"/g,'""')}",${r.created_at||''}`).join('\n');
+  box.innerHTML=`<div class="a-box" style="border-color:rgba(3,143,207,.3)">
+    <div class="a-box-title">📊 ${enc.pregunta} — ${resps.length} respuestas</div>
+    ${enc.tipo==='abierta'
+      ? (resps.slice(0,50).map(r=>`<div style="font-size:11px;color:var(--sbt);padding:6px 9px;border-left:2px solid var(--e);background:var(--sb2);border-radius:5px;margin-bottom:5px">${String(r.respuesta).replace(/</g,'&lt;')}</div>`).join('')||'<div style="font-size:11px;color:var(--sbm)">Sin respuestas aún.</div>')
+      : barsHTML(enc,resps)}
+    <button class="a-btn a-btn-g" style="margin-top:8px;font-size:10px" onclick='descargarCSV(${JSON.stringify('respuestas-'+id+'.csv')},${JSON.stringify(csv)})'>⬇ Descargar CSV</button>
+  </div>`;
+}
+function descargarCSV(nombre,contenido){
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(contenido);
+  a.download=nombre;a.click();
+}
+
+
+// ═══════════════════════════════════════════════════════
+// SEGURIDAD v2 — usuarios reales (Supabase Auth vía worker)
+// Reemplaza la versión anterior de renderAdminSeg
+// ═══════════════════════════════════════════════════════
+async function workerAdmin(method, body){
+  const tok = await ensureFreshToken();
+  if(!tok) throw new Error('Sesión expirada — vuelve a iniciar sesión');
+  const res = await fetch(WORKER_BASE+'/admin/users',{
+    method,
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
+    body: body?JSON.stringify(body):undefined
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
+  return data;
+}
+async function renderAdminSeg(){
+  const el=document.getElementById('admin-content');
+  if(!SESSION||SESSION.rol!=='admin'){
+    el.innerHTML=`<div class="a-box"><div class="a-box-title">🔒 Seguridad</div>
+      <div style="font-size:12px;color:var(--sbm);line-height:1.7">La gestión de usuarios está disponible solo para el rol <b style="color:#fff">Administrador</b>.<br/>Tu cuenta (${SESSION?SESSION.email:'—'}) tiene rol <b>${SESSION?SESSION.rol:'—'}</b>. Pídele a un administrador los cambios que necesites.</div></div>`;
+    return;
+  }
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando usuarios…</div>';
+  let users=[],err=null;
+  try{ users=(await workerAdmin('GET')).users||[]; }catch(e){ err=e.message; }
+  el.innerHTML=`
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.7">⚠ No se pudo conectar con el servicio de usuarios (${err}).<br/>Verifica que el worker v2 esté desplegado con el secret <b>SUPABASE_SERVICE_ROLE</b> (ver instrucciones del deploy).</div></div>`:''}
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div class="a-box">
+        <div class="a-box-title">➕ Nuevo usuario</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="a-field"><div class="a-label">Nombre *</div><input id="nu-nombre" class="a-form-inp" placeholder="Ej: María Pérez"/></div>
+          <div class="a-field"><div class="a-label">Email *</div><input id="nu-email" type="email" class="a-form-inp" placeholder="maria@emra.cl"/></div>
+          <div class="a-field"><div class="a-label">Contraseña * (mín. 8)</div><input id="nu-pwd" type="text" class="a-form-inp" placeholder="Contraseña inicial"/></div>
+          <div class="a-field"><div class="a-label">Rol</div>
+            <select id="nu-rol" class="a-form-inp">
+              <option value="editor">Editor — gestiona contenido</option>
+              <option value="admin">Administrador — contenido + usuarios</option>
+            </select></div>
+          <button class="a-btn a-btn-p" onclick="crearUsuario()">Crear usuario</button>
+        </div>
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">👥 Usuarios (${users.length})</div>
+        ${users.map(u=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:6px;${u.banned?'opacity:.55':''}">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:#fff">${u.nombre||u.email} ${u.email===SESSION.email?'<span style="color:var(--e);font-size:9px">(tú)</span>':''}</div>
+              <div style="font-size:10px;color:var(--sbm)">${u.email} · <b style="color:${u.rol==='admin'?'#f59e0b':'#10b981'}">${u.rol==='admin'?'Admin':'Editor'}</b>${u.banned?' · <b style="color:#ff8a7a">SUSPENDIDO</b>':''}${u.last_sign_in?' · último acceso '+new Date(u.last_sign_in).toLocaleDateString('es-CL'):''}</div>
+            </div>
+            <button class="a-btn a-btn-g" style="font-size:9px" title="Cambiar rol" onclick="cambiarRolUsuario('${u.id}','${u.rol==='admin'?'editor':'admin'}')">${u.rol==='admin'?'→ Editor':'→ Admin'}</button>
+            <button class="a-btn a-btn-g" style="font-size:9px" title="Nueva contraseña" onclick="resetPwdUsuario('${u.id}','${u.email}')">🔑</button>
+            <button class="a-btn a-btn-g" style="font-size:9px" title="${u.banned?'Reactivar':'Suspender'}" onclick="banUsuario('${u.id}',${u.banned?'false':'true'})">${u.banned?'▶':'⏸'}</button>
+            ${u.email!==SESSION.email?`<button class="a-btn a-btn-g" style="font-size:9px;color:#ff8a7a" onclick="if(confirm('¿Eliminar a ${u.email}?'))eliminarUsuario('${u.id}')">🗑</button>`:''}
+          </div>`).join('')||'<div style="font-size:11px;color:var(--sbm)">Sin usuarios.</div>'}
+      </div>
+    </div>
+    <div class="a-box" style="margin-top:14px">
+      <div class="a-box-title">🔑 Mi contraseña</div>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div class="a-field" style="flex:1;min-width:180px"><div class="a-label">Nueva contraseña (mín. 8)</div><input id="mi-pwd" type="password" class="a-form-inp"/></div>
+        <button class="a-btn a-btn-p" onclick="cambiarMiPassword()">Actualizar</button>
+      </div>
+    </div>`;
+}
+async function crearUsuario(){
+  const nombre=(document.getElementById('nu-nombre')?.value||'').trim();
+  const email=(document.getElementById('nu-email')?.value||'').trim();
+  const password=document.getElementById('nu-pwd')?.value||'';
+  const rol=document.getElementById('nu-rol')?.value||'editor';
+  if(!nombre||!email||password.length<8){showAdminToast('⚠ Completa nombre, email y contraseña de 8+ caracteres',true);return}
+  try{ await workerAdmin('POST',{email,password,nombre,rol});showAdminToast('✓ Usuario creado');renderAdminSeg(); }
+  catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function cambiarRolUsuario(id,rol){
+  try{ await workerAdmin('PATCH',{id,rol});showAdminToast('✓ Rol actualizado');renderAdminSeg(); }
+  catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function resetPwdUsuario(id,email){
+  const p=prompt('Nueva contraseña para '+email+' (mín. 8):');
+  if(!p)return; if(p.length<8){showAdminToast('⚠ Mínimo 8 caracteres',true);return}
+  try{ await workerAdmin('PATCH',{id,password:p});showAdminToast('✓ Contraseña actualizada'); }
+  catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function banUsuario(id,ban){
+  try{ await workerAdmin('PATCH',{id,ban});showAdminToast(ban?'✓ Usuario suspendido':'✓ Usuario reactivado');renderAdminSeg(); }
+  catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function eliminarUsuario(id){
+  try{ await workerAdmin('DELETE',{id});showAdminToast('✓ Usuario eliminado');renderAdminSeg(); }
+  catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function cambiarMiPassword(){
+  const p=document.getElementById('mi-pwd')?.value||'';
+  if(p.length<8){showAdminToast('⚠ Mínimo 8 caracteres',true);return}
+  try{
+    const tok=await ensureFreshToken();
+    const res=await fetch(SB_URL+'/auth/v1/user',{method:'PUT',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({password:p})});
+    if(!res.ok)throw new Error('No se pudo actualizar');
+    document.getElementById('mi-pwd').value='';
+    showAdminToast('✓ Contraseña actualizada');
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+
 const WELCOME_KEY='emra_welcome_v1';
 function maybeShowWelcome(){
   try{ if(localStorage.getItem(WELCOME_KEY)==='1') return; }catch(e){}
@@ -3086,9 +3621,8 @@ let PDF_CONFIG = {
   colorFondo: '#0B1929',
 };
 
-// Contraseña codificada en base64 (cámbiala desde Admin → Seguridad)
-// Para cambiar: reemplaza btoa('tu_contraseña') con el valor codificado
-let _AP = atob('ZW1yYTIwNTA='); // ZW1yYTIwNTA= = 'emra2050'
+// OBSOLETA — el acceso ahora es con usuarios de Supabase Auth (Admin → Seguridad)
+let _AP = '';
 Object.defineProperty(window,'ADMIN_PASSWORD_ACTUAL',{
   get:()=>_AP, set:(v)=>{_AP=v}, configurable:true
 });
@@ -4286,7 +4820,10 @@ window.addEventListener('load',async()=>{
     renderChatSugs();
     const wOes=document.getElementById('welcome-oes');
     if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
-    maybeShowWelcome();
+    // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
+    if(location.hash==='#participa'){ openParticipa(); }
+    else if(location.hash==='#pantalla'){ openPantalla(); }
+    else { maybeShowWelcome(); }
     // Init Leaflet después de que el DOM sea visible
     setTimeout(()=>{
       initMap();
@@ -4303,7 +4840,7 @@ window.addEventListener('load',async()=>{
 <div id="lightbox" onclick="if(event.target===this)closeLightbox()">
   <button class="lb-close" onclick="closeLightbox()" aria-label="Cerrar">✕</button>
   <button class="lb-nav lb-prev" onclick="lightboxNav(-1)" aria-label="Anterior">‹</button>
-  <img id="lb-img" src="" alt="" onerror="this.src='https://picsum.photos/800/500?grayscale'"/>
+  <img id="lb-img" src="" alt="" onerror="this.src=PH_IMG"/>
   <button class="lb-nav lb-next" onclick="lightboxNav(1)" aria-label="Siguiente">›</button>
   <div class="lb-counter" id="lb-counter"></div>
 </div>
