@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.3.2 -->
+<!-- Portal EMRA 2023–2050 · v1.4.1 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -198,6 +198,56 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .pant-tabs{display:flex;gap:6px;margin-bottom:14px}
 .pant-tab{background:var(--sb2);border:1px solid var(--sbb);border-radius:8px;color:var(--sbt);font-size:12px;font-weight:800;padding:6px 13px;cursor:pointer;font-family:inherit}
 .pant-tab.on{background:var(--e);border-color:var(--e);color:#fff}
+
+/* ═══════════════ PORTADA ═══════════════ */
+#portada{display:none;position:fixed;inset:0;z-index:6500;background:linear-gradient(175deg,#0a1624 0%,#0B1929 40%,#0d1f33 100%);overflow-y:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.po-sec{max-width:960px;margin:0 auto;padding:0 22px}
+.po-hero{min-height:88vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:40px;padding-bottom:20px;position:relative}
+.po-logo{height:clamp(52px,8vw,76px);object-fit:contain;margin-bottom:22px}
+.po-kicker{font-size:clamp(10px,1.4vw,12px);letter-spacing:.16em;text-transform:uppercase;color:var(--e);font-weight:800;margin-bottom:14px}
+.po-title{font-size:clamp(26px,5vw,46px);font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;line-height:1.18;letter-spacing:-.02em;margin-bottom:16px;max-width:820px}
+.po-intro{font-size:clamp(14px,1.8vw,17px);color:rgba(205,225,240,.88);line-height:1.65;max-width:680px;margin-bottom:28px}
+.po-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:34px}
+.po-btn{border:none;border-radius:12px;font-family:inherit;font-weight:800;font-size:clamp(13px,1.6vw,15px);padding:15px 26px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:8px}
+.po-btn-p{background:var(--e);color:#fff;box-shadow:0 8px 28px rgba(3,143,207,.35)}
+.po-btn-p:hover{background:var(--ed);transform:translateY(-2px)}
+.po-btn-s{background:rgba(255,255,255,.07);color:#fff;border:1.5px solid rgba(255,255,255,.18)}
+.po-btn-s:hover{border-color:rgba(255,80,80,.6);background:rgba(255,0,0,.12)}
+.po-stats{display:flex;gap:clamp(18px,4vw,44px);flex-wrap:wrap;justify-content:center}
+.po-stat{text-align:center}
+.po-stat b{display:block;font-size:clamp(22px,3.4vw,34px);color:var(--e);font-family:'DM Sans',sans-serif;font-weight:800;line-height:1.1}
+.po-stat span{font-size:clamp(9px,1.2vw,11px);color:var(--sbm);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.po-scrollhint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);color:var(--sbm);font-size:11px;font-weight:600;animation:po-bounce 2s infinite;cursor:pointer}
+@keyframes po-bounce{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
+.po-h2{font-size:clamp(20px,3vw,30px);font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;letter-spacing:-.015em;margin-bottom:8px;text-align:center}
+.po-sub{font-size:clamp(12px,1.5vw,14px);color:var(--sbm);text-align:center;margin-bottom:26px;line-height:1.6}
+.po-que{padding:52px 22px 20px}
+.po-que-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:820px;margin:0 auto}
+.po-que-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;font-size:clamp(13px,1.6vw,14.5px);color:rgba(205,225,240,.88);line-height:1.7}
+.po-oes{padding:46px 22px 10px}
+.po-oes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.po-oe{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-top:3px solid transparent;border-radius:14px;padding:16px;transition:transform .15s}
+.po-oe:hover{transform:translateY(-3px)}
+.po-oe-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.po-oe-badge{border-radius:6px;color:#fff;font-size:10px;font-weight:800;padding:3px 8px}
+.po-oe-name{font-size:14.5px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;flex:1}
+.po-oe-vid{color:rgba(255,120,120,.9);text-decoration:none;font-size:11px;background:rgba(255,0,0,.12);border:1px solid rgba(255,80,80,.3);border-radius:6px;padding:2px 8px}
+.po-oe-vid:hover{background:rgba(255,0,0,.25)}
+.po-oe-desc{font-size:12.5px;color:var(--sbm);line-height:1.6;margin-bottom:10px}
+.po-oe-link{background:none;border:none;color:var(--e);font-size:11.5px;font-weight:800;cursor:pointer;padding:0;font-family:inherit}
+.po-oe-link:hover{opacity:.75}
+.po-cierre{padding:56px 22px 70px;text-align:center}
+.po-actores{font-size:clamp(9px,1.2vw,11px);color:var(--sbm);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:26px;line-height:1.8}
+.po-cta-big{background:var(--e);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-weight:800;font-size:clamp(15px,2vw,19px);padding:18px 38px;cursor:pointer;box-shadow:0 10px 34px rgba(3,143,207,.4);transition:all .18s}
+.po-cta-big:hover{background:var(--ed);transform:translateY(-2px)}
+.po-gorito-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:26px;cursor:pointer;opacity:.92;transition:opacity .15s}
+.po-gorito-row:hover{opacity:1}
+.po-gorito-row img{height:56px}
+.po-gorito-row span{font-size:13px;color:var(--sbt);font-weight:600;text-align:left;max-width:230px;line-height:1.45}
+#portada-video{display:none;position:fixed;inset:0;z-index:9500;background:rgba(4,10,18,.92);align-items:center;justify-content:center;padding:22px}
+#portada-video .pv-box{width:100%;max-width:900px;aspect-ratio:16/9;position:relative}
+#portada-video iframe{width:100%;height:100%;border:none;border-radius:14px}
+#portada-video .pv-close{position:absolute;top:-42px;right:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:13px;font-weight:700;padding:7px 14px;cursor:pointer;font-family:inherit}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -698,7 +748,7 @@ svg{display:block}
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-head">
-      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" onerror="this.style.display='none'"/>
+      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" style="cursor:pointer" title="Ver portada" onclick="showPortada()" onerror="this.style.display='none'"/>
       <div>
         <div class="sb-title">EMRA <span style="color:var(--e)">2023–2050</span></div>
         <div class="sb-sub">Región de Antofagasta · <span id="app-version"></span></div>
@@ -932,6 +982,15 @@ svg{display:block}
   </main>
 </div>
 
+<!-- Portada — resumen de la EMRA (entrada al portal) -->
+<div id="portada"></div>
+<div id="portada-video" onclick="if(event.target===this)closePortadaVideo()">
+  <div class="pv-box">
+    <button class="pv-close" onclick="closePortadaVideo()">✕ Cerrar</button>
+    <iframe id="portada-video-iframe" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="Video EMRA"></iframe>
+  </div>
+</div>
+
 <!-- Participación (asistentes vía QR) -->
 <div id="participa-overlay">
   <div class="part-wrap" id="part-content"></div>
@@ -1015,7 +1074,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.3.2';
+const APP_VERSION='v1.4.1';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -3178,12 +3237,11 @@ function renderEmraTab(){
           ${cfg.videoId?`<a class="emra-oe-vid" href="https://www.youtube.com/watch?v=${cfg.videoId}" target="_blank" title="Ver video de ${oe}">▶</a>`:''}
         </div>
         <div class="emra-oe-desc">${cfg.desc}</div>
-        <button class="emra-oe-link" onclick="filterByOEFromEmra('${oe}')">Ver ${INI.filter(i=>i.oe&&i.oe.includes(oe)).length} iniciativas en el mapa →</button>
+        <button class="emra-oe-link" onclick="filterByOEFromEmra('${oe}')">Ver iniciativas en el mapa →</button>
       </div>`).join('')}
     <div class="emra-foot-card">
-      <div class="stat-big" style="font-size:28px">${INI.length}</div>
-      <div class="stat-lbl">Iniciativas 2023–2050</div>
-      <button class="emra-btn" style="margin-top:8px;width:100%" onclick="switchTab('l')">Explorar todas las iniciativas →</button>
+      <div class="stat-lbl" style="font-size:11px">Iniciativas 2023–2050 · portafolio en constante actualización</div>
+      <button class="emra-btn" style="margin-top:8px;width:100%" onclick="switchTab('l')">Explorar las iniciativas →</button>
     </div>
     <div class="emra-actores">${EMRA_INFO.actores}</div>`;
 }
@@ -3729,6 +3787,104 @@ async function cambiarMiPassword(){
     document.getElementById('mi-pwd').value='';
     showAdminToast('✓ Contraseña actualizada');
   }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+
+// ═══════════════════════════════════════════════════════
+// PORTADA — resumen de la EMRA como puerta de entrada (v1.4)
+// Siempre se muestra al cargar; #mapa la salta; el logo del
+// sidebar la reabre.
+// ═══════════════════════════════════════════════════════
+function renderPortada(){
+  const el=document.getElementById('portada');
+  if(!el)return;
+  const oesHTML=Object.entries(OE_CONFIG).map(([oe,c])=>{
+    return `<div class="po-oe" style="border-top-color:${c.color}">
+      <div class="po-oe-head">
+        <span class="po-oe-badge" style="background:${c.color}">${oe}</span>
+        <span class="po-oe-name">${c.label}</span>
+        ${c.videoId?`<a class="po-oe-vid" href="javascript:void(0)" onclick="openPortadaVideoId('${c.videoId}')" title="Ver video de ${oe}">▶</a>`:''}
+      </div>
+      <div class="po-oe-desc">${c.desc}</div>
+      <button class="po-oe-link" onclick="entrarPortalOE('${oe}')">Ver iniciativas en el mapa →</button>
+    </div>`;
+  }).join('');
+  el.innerHTML=`
+    <section class="po-hero po-sec">
+      <img class="po-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+      <div class="po-kicker">Estrategia Minera para el Bienestar · Región de Antofagasta</div>
+      <h1 class="po-title">La hoja de ruta de la región hacia el 2050</h1>
+      <p class="po-intro">${EMRA_INFO.intro}</p>
+      <div class="po-btns">
+        <button class="po-btn po-btn-p" onclick="entrarPortal()">Explorar las iniciativas →</button>
+        <button class="po-btn po-btn-s" onclick="openPortadaVideo()">▶ Ver video · 10 min</button>
+      </div>
+      <div class="po-stats">
+        <div class="po-stat"><b>5</b><span>Objetivos</span></div>
+        <div class="po-stat"><b>2050</b><span>Horizonte</span></div>
+        <div class="po-stat"><b>5</b><span>Territorios</span></div>
+      </div>
+      <div class="po-scrollhint" onclick="document.getElementById('po-que').scrollIntoView({behavior:'smooth'})">Conoce la EMRA ↓</div>
+    </section>
+    <section class="po-que po-sec" id="po-que">
+      <h2 class="po-h2">¿Qué es la <span style="color:var(--e)">EMRA</span>?</h2>
+      <div class="po-sub">Un resumen en dos ideas — el detalle completo está en el portal y en <a href="https://emra.cl" target="_blank" style="color:var(--e);text-decoration:none;font-weight:700">emra.cl</a></div>
+      <div class="po-que-grid">
+        <div class="po-que-card">${EMRA_INFO.intro}</div>
+        <div class="po-que-card">${EMRA_INFO.detalle}</div>
+      </div>
+    </section>
+    <section class="po-oes po-sec">
+      <h2 class="po-h2">Los 5 Objetivos Estratégicos</h2>
+      <div class="po-sub">Cada iniciativa del mapa responde a uno o más de estos objetivos</div>
+      <div class="po-oes-grid">${oesHTML}</div>
+    </section>
+    <section class="po-cierre po-sec">
+      <div class="po-actores">${EMRA_INFO.actores}</div>
+      <button class="po-cta-big" onclick="entrarPortal()">Explorar el portal completo →</button>
+      <div class="po-gorito-row" onclick="entrarPortal(true)">
+        <img src="${typeof GORITO_URL!=='undefined'?GORITO_URL:''}" alt="Gorito" onerror="this.style.display='none'"/>
+        <span>¿Tienes dudas? Pregúntale a <b style="color:var(--e)">Gorito</b>, el asistente de la EMRA</span>
+      </div>
+    </section>`;
+}
+function showPortada(){
+  renderPortada();
+  const el=document.getElementById('portada');
+  if(el){el.style.display='block';el.scrollTop=0;}
+}
+function entrarPortal(abrirChat){
+  const el=document.getElementById('portada');
+  if(el)el.style.display='none';
+  closePortadaVideo();
+  if(abrirChat){
+    setTimeout(()=>{const inp=document.getElementById('chat-inp');if(inp)inp.focus();},300);
+  }
+}
+function entrarPortalOE(oe){
+  entrarPortal();
+  filterByOEFromEmra(oe);
+}
+function openPortadaVideo(){
+  let videoId='';
+  try{
+    const url=EMRA_VIDEO_URL||'';
+    if(url.includes('youtu.be/')) videoId=url.split('youtu.be/')[1].split('?')[0];
+    else if(url.includes('watch?v=')) videoId=url.split('watch?v=')[1].split('&')[0];
+  }catch(e){}
+  if(videoId) openPortadaVideoId(videoId);
+}
+function openPortadaVideoId(videoId){
+  const ov=document.getElementById('portada-video');
+  const ifr=document.getElementById('portada-video-iframe');
+  if(!ov||!ifr)return;
+  ifr.src='https://www.youtube.com/embed/'+videoId+'?autoplay=1&rel=0';
+  ov.style.display='flex';
+}
+function closePortadaVideo(){
+  const ov=document.getElementById('portada-video');
+  const ifr=document.getElementById('portada-video-iframe');
+  if(ifr)ifr.src='';
+  if(ov)ov.style.display='none';
 }
 
 const WELCOME_KEY='emra_welcome_v1';
@@ -4967,7 +5123,8 @@ window.addEventListener('load',async()=>{
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
     if(location.hash==='#participa'){ openParticipa(); }
     else if(location.hash==='#pantalla'){ openPantalla(); }
-    else { maybeShowWelcome(); }
+    else if(location.hash==='#mapa'){ /* acceso directo al mapa, sin portada */ }
+    else { showPortada(); }
     // Init Leaflet después de que el DOM sea visible
     setTimeout(()=>{
       initMap();
