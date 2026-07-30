@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.2 -->
+<!-- Portal EMRA 2023–2050 · v1.3 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -184,6 +184,20 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .pant-exit{position:fixed;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--sbb);border-radius:8px;color:var(--sbm);font-size:11px;font-weight:700;padding:7px 12px;cursor:pointer;font-family:inherit;z-index:10}
 .pant-exit:hover{color:#fff;border-color:var(--e)}
 @media(max-width:760px){.pant-wrap{flex-direction:column;overflow-y:auto;height:auto;min-height:100vh}.pant-left{flex:none}.pant-right{flex:none}}
+
+/* Campañas extra */
+.part-inp{width:100%;background:var(--sb2);border:1.5px solid var(--sbb);border-radius:12px;color:#fff;font-size:14px;padding:13px 14px;font-family:inherit;outline:none;margin-bottom:9px}
+.part-inp:focus{border-color:var(--e)}
+.part-skip{width:100%;background:none;border:none;color:var(--sbm);font-size:11.5px;font-weight:600;padding:10px;cursor:pointer;font-family:inherit;margin-top:4px}
+.part-skip:hover{color:#fff}
+.part-prog{display:flex;align-items:center;gap:5px;justify-content:center;margin:-8px 0 16px}
+.part-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12)}
+.part-dot.done{background:rgba(3,143,207,.5)}
+.part-dot.cur{background:var(--e);box-shadow:0 0 8px rgba(3,143,207,.6)}
+.part-prog-txt{font-size:10px;color:var(--sbm);margin-left:5px;font-weight:600}
+.pant-tabs{display:flex;gap:6px;margin-bottom:14px}
+.pant-tab{background:var(--sb2);border:1px solid var(--sbb);border-radius:8px;color:var(--sbt);font-size:12px;font-weight:800;padding:6px 13px;cursor:pointer;font-family:inherit}
+.pant-tab.on{background:var(--e);border-color:var(--e);color:#fff}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -1001,7 +1015,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.2';
+const APP_VERSION='v1.3';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -3205,121 +3219,157 @@ function askSug(btn){
 // ═══════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════
-// PARTICIPACIÓN — CONVERSATORIOS / SEMINARIOS
-// Tablas Supabase: encuestas, respuestas (ver SQL adjunto)
+// CAMPAÑAS DE PARTICIPACIÓN (v1.3)
+// Quiz multi-pregunta + datos de contacto + CTA / handoff a Gorito
+// Tablas: campanas, preguntas, participaciones (ver campanas.sql)
 // ═══════════════════════════════════════════════════════
 const PART_URL = location.origin + location.pathname + '#participa';
 
 // ── Helpers Supabase ──
-async function sbGetEncuestaActiva(){
-  const r = await sbFetch('encuestas?activa=eq.true&order=id.desc&limit=1');
-  return (r && r.length) ? r[0] : null;
+async function sbGetCampanaActiva(){
+  const r = await sbFetch('campanas?activa=eq.true&order=id.desc&limit=1');
+  if(!r||!r.length) return null;
+  const c = r[0];
+  c.preguntas = await sbFetch('preguntas?campana_id=eq.'+c.id+'&order=orden,id') || [];
+  return c;
 }
-async function sbGetEncuestas(){ return sbFetch('encuestas?order=id.desc'); }
-async function sbCreateEncuesta(e){
-  return sbFetch('encuestas',{method:'POST',body:JSON.stringify(e)});
-}
-async function sbPatchEncuesta(id,patch){
-  return sbFetch('encuestas?id=eq.'+id,{method:'PATCH',body:JSON.stringify(patch)});
-}
-async function sbDeleteEncuesta(id){
-  await sbFetch('respuestas?encuesta_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
-  return sbFetch('encuestas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
-}
-async function sbInsertRespuesta(encuesta_id,respuesta){
-  return sbFetch('respuestas',{method:'POST',body:JSON.stringify({encuesta_id,respuesta})});
-}
-async function sbGetRespuestas(encuesta_id){
-  return sbFetch('respuestas?encuesta_id=eq.'+encuesta_id+'&order=id.desc&limit=500');
+async function sbGetCampanas(){ return sbFetch('campanas?order=id.desc'); }
+async function sbGetParticipaciones(campana_id){
+  return sbFetch('participaciones?campana_id=eq.'+campana_id+'&order=id.desc&limit=1000');
 }
 
-function contarOpciones(enc,resps){
-  const counts={};(enc.opciones||[]).forEach(o=>counts[o]=0);
-  resps.forEach(r=>{if(counts[r.respuesta]!==undefined)counts[r.respuesta]++});
-  return counts;
+function aggPregunta(preg, parts){
+  // Cuenta respuestas de una pregunta de alternativas a partir de las participaciones
+  const counts={};(preg.opciones||[]).forEach(o=>counts[o]=0);
+  let total=0;
+  parts.forEach(p=>{
+    const r=(p.respuestas||[]).find(x=>x.pregunta_id===preg.id);
+    if(r&&counts[r.respuesta]!==undefined){counts[r.respuesta]++;total++;}
+  });
+  return {counts,total};
 }
-function barsHTML(enc,resps,big=false){
-  const counts=contarOpciones(enc,resps);
-  const total=resps.length||1;
-  return Object.entries(counts).map(([op,n])=>{
+function aggAbiertas(preg, parts){
+  const out=[];
+  parts.forEach(p=>{
+    const r=(p.respuestas||[]).find(x=>x.pregunta_id===preg.id);
+    if(r&&r.respuesta) out.push(r.respuesta);
+  });
+  return out;
+}
+function barsFromAgg(agg){
+  const total=agg.total||1;
+  return Object.entries(agg.counts).map(([op,n])=>{
     const pct=Math.round(n/total*100);
     return `<div class="part-bar-row"><div class="part-bar-head"><span>${op}</span><span>${n} · ${pct}%</span></div>
       <div class="part-bar-track"><div class="part-bar-fill" style="width:${pct}%"></div></div></div>`;
   }).join('');
 }
+const PART_LOGO=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>`;
 
-// ── VISTA ASISTENTE (#participa) ──
-let PART_ENC=null, PART_SEL=null;
+// ── VISTA ASISTENTE (#participa): quiz paso a paso ──
+let PCAMP=null, PIDX=0, PRESP=[], PSEL=null;
 async function openParticipa(){
   const ov=document.getElementById('participa-overlay');
   const el=document.getElementById('part-content');
   ov.style.display='block';
-  el.innerHTML=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
-    <div class="part-kicker">EMRA 2023–2050 · Participación</div>
+  el.innerHTML=PART_LOGO+`<div class="part-kicker">EMRA 2023–2050 · Participación</div>
     <div style="text-align:center;color:var(--sbm);font-size:13px;padding:30px 0">⏳ Cargando…</div>`;
-  try{ PART_ENC=await sbGetEncuestaActiva(); }catch(e){ PART_ENC=null; }
-  if(!PART_ENC){ renderPartThanks('👋','Por ahora no hay una pregunta activa','Pero puedes explorar el Portal EMRA y conocer la estrategia y sus iniciativas.'); return; }
-  let yaResp=false;
-  try{ yaResp=localStorage.getItem('emra_resp_'+PART_ENC.id)==='1'; }catch(e){}
-  if(yaResp){ renderPartThanks('✅','¡Ya registramos tu respuesta!','Gracias por participar. Ahora te invitamos a explorar el Portal EMRA.'); return; }
-  renderPartQuestion();
+  try{ PCAMP=await sbGetCampanaActiva(); }catch(e){ PCAMP=null; }
+  if(!PCAMP||!(PCAMP.preguntas||[]).length){
+    renderPartFinal('👋','Por ahora no hay una actividad activa','Pero puedes explorar el Portal EMRA y conocer la estrategia y sus iniciativas.');
+    return;
+  }
+  let ya=false; try{ ya=localStorage.getItem('emra_camp_'+PCAMP.id)==='1'; }catch(e){}
+  if(ya){ renderPartFinal('✅','¡Ya registramos tu participación!','Gracias por ser parte. Te invitamos a seguir explorando el Portal EMRA.'); return; }
+  PIDX=0;PRESP=[];
+  renderPartPregunta();
 }
-function renderPartQuestion(){
+function partProgress(){
+  const n=PCAMP.preguntas.length;
+  if(n<2) return '';
+  return `<div class="part-prog">${PCAMP.preguntas.map((_,i)=>`<span class="part-dot${i<PIDX?' done':i===PIDX?' cur':''}"></span>`).join('')}<span class="part-prog-txt">${PIDX+1} de ${n}</span></div>`;
+}
+function renderPartPregunta(){
   const el=document.getElementById('part-content');
-  const head=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
-    <div class="part-kicker">EMRA 2023–2050 · Tu opinión importa</div>
-    <div class="part-q">${PART_ENC.pregunta}</div>`;
-  if(PART_ENC.tipo==='abierta'){
+  const preg=PCAMP.preguntas[PIDX];
+  PSEL=null;
+  const head=PART_LOGO+`<div class="part-kicker">${PCAMP.nombre||'EMRA 2023–2050'}</div>${partProgress()}<div class="part-q">${preg.texto}</div>`;
+  if(preg.tipo==='abierta'){
     el.innerHTML=head+`<textarea class="part-ta" id="part-ta" maxlength="400" placeholder="Escribe tu respuesta…"></textarea>
-      <button class="part-send" onclick="enviarRespuesta()">Enviar respuesta</button>`;
+      <button class="part-send" onclick="partSiguiente()">${PIDX<PCAMP.preguntas.length-1?'Siguiente →':'Enviar'}</button>`;
   } else {
-    PART_SEL=null;
-    el.innerHTML=head+(PART_ENC.opciones||[]).map((o,i)=>
-      `<button class="part-opt" id="popt-${i}" onclick="selOpt(${i})">${o}</button>`).join('')+
-      `<button class="part-send" id="part-send-btn" style="margin-top:6px" onclick="enviarRespuesta()" disabled>Enviar respuesta</button>`;
+    el.innerHTML=head+(preg.opciones||[]).map((o,i)=>
+      `<button class="part-opt" id="popt-${i}" onclick="partSelOpt(${i})">${o}</button>`).join('')+
+      `<button class="part-send" id="part-next" style="margin-top:6px" onclick="partSiguiente()" disabled>${PIDX<PCAMP.preguntas.length-1?'Siguiente →':'Enviar'}</button>`;
   }
 }
-function selOpt(i){
-  PART_SEL=(PART_ENC.opciones||[])[i];
-  (PART_ENC.opciones||[]).forEach((_,j)=>{
+function partSelOpt(i){
+  const preg=PCAMP.preguntas[PIDX];
+  PSEL=(preg.opciones||[])[i];
+  (preg.opciones||[]).forEach((_,j)=>{
     const b=document.getElementById('popt-'+j);
     if(b)b.classList.toggle('sel',j===i);
   });
-  const s=document.getElementById('part-send-btn'); if(s)s.disabled=false;
+  const s=document.getElementById('part-next'); if(s)s.disabled=false;
 }
-async function enviarRespuesta(){
+function partSiguiente(){
+  const preg=PCAMP.preguntas[PIDX];
   let resp;
-  if(PART_ENC.tipo==='abierta'){
+  if(preg.tipo==='abierta'){
     resp=(document.getElementById('part-ta')?.value||'').trim();
     if(!resp)return;
-  } else {
-    resp=PART_SEL; if(!resp)return;
-  }
-  const btns=document.querySelectorAll('#part-content .part-send');
-  btns.forEach(b=>{b.disabled=true;b.textContent='Enviando…'});
+  } else { resp=PSEL; if(!resp)return; }
+  PRESP.push({pregunta_id:preg.id, pregunta:preg.texto, respuesta:resp});
+  PIDX++;
+  if(PIDX<PCAMP.preguntas.length){ renderPartPregunta(); return; }
+  const rec=PCAMP.recolectar||{};
+  if(rec.nombre||rec.correo||rec.whatsapp){ renderPartContacto(); }
+  else { enviarParticipacion({}); }
+}
+function renderPartContacto(){
+  const rec=PCAMP.recolectar||{};
+  const el=document.getElementById('part-content');
+  el.innerHTML=PART_LOGO+`<div class="part-kicker">${PCAMP.nombre||'EMRA 2023–2050'}</div>
+    <div class="part-q" style="font-size:18px">¡Última cosa! Cuéntanos quién eres</div>
+    <div style="font-size:11px;color:var(--sbm);text-align:center;margin:-12px 0 16px">Opcional — nos ayuda a mantenerte al tanto de la EMRA</div>
+    ${rec.nombre?`<input class="part-inp" id="pc-nombre" placeholder="Tu nombre" maxlength="80"/>`:''}
+    ${rec.correo?`<input class="part-inp" id="pc-correo" type="email" placeholder="Tu correo" maxlength="120"/>`:''}
+    ${rec.whatsapp?`<input class="part-inp" id="pc-wsp" type="tel" placeholder="Tu WhatsApp (+56 9 …)" maxlength="20"/>`:''}
+    <button class="part-send" onclick="enviarParticipacion({nombre:document.getElementById('pc-nombre')?.value||'',correo:document.getElementById('pc-correo')?.value||'',whatsapp:document.getElementById('pc-wsp')?.value||''})">Finalizar ✓</button>
+    <button class="part-skip" onclick="enviarParticipacion({})">Omitir este paso</button>`;
+}
+async function enviarParticipacion(contacto){
+  const el=document.getElementById('part-content');
+  el.innerHTML=PART_LOGO+`<div style="text-align:center;color:var(--sbm);font-size:13px;padding:30px 0">⏳ Enviando…</div>`;
   try{
-    await sbInsertRespuesta(PART_ENC.id,resp);
-    try{ localStorage.setItem('emra_resp_'+PART_ENC.id,'1'); }catch(e){}
-    if(PART_ENC.tipo!=='abierta'){
-      // Mostrar resultados en vivo al responder alternativas
-      let resps=[]; try{ resps=await sbGetRespuestas(PART_ENC.id); }catch(e){}
-      renderPartThanks('🙌','¡Gracias por participar!','Así van las respuestas hasta ahora:',barsHTML(PART_ENC,resps)+`<div class="pant-count" style="text-align:center">Total: <b>${resps.length}</b> respuestas</div>`);
-    } else {
-      renderPartThanks('🙌','¡Gracias por participar!','Tu respuesta fue registrada.');
+    await sbFetch('participaciones',{method:'POST',body:JSON.stringify({
+      campana_id:PCAMP.id,
+      nombre:(contacto.nombre||'').trim()||null,
+      correo:(contacto.correo||'').trim()||null,
+      whatsapp:(contacto.whatsapp||'').trim()||null,
+      respuestas:PRESP
+    })});
+    try{ localStorage.setItem('emra_camp_'+PCAMP.id,'1'); }catch(e){}
+    const cta=PCAMP.cta||{};
+    const nombre=(contacto.nombre||'').trim().split(' ')[0];
+    if(cta.gorito){
+      // Handoff: Gorito entrega el CTA en el chat del portal
+      window._PART_CTA={msg:cta.mensaje||'¡Gracias por participar! ¿Quieres que te cuente qué es la EMRA o qué iniciativas hay en tu ciudad? Pregúntame lo que quieras 🤖',nombre};
+      closeParticipa();
+      return;
     }
+    renderPartFinal('🙌',nombre?`¡Gracias por participar, ${nombre}!`:'¡Gracias por participar!',cta.mensaje||'Tu opinión nos ayuda a construir la EMRA. Ahora te invitamos a explorar el portal.');
   }catch(e){
-    renderPartThanks('⚠️','No pudimos registrar tu respuesta','Revisa tu conexión e inténtalo nuevamente, o continúa explorando el portal.');
+    renderPartFinal('⚠️','No pudimos registrar tu participación','Revisa tu conexión e inténtalo nuevamente, o continúa explorando el portal.');
   }
 }
-function renderPartThanks(ico,titulo,texto,extra=''){
-  document.getElementById('part-content').innerHTML=`
-    <img class="part-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
+function renderPartFinal(ico,titulo,texto){
+  document.getElementById('part-content').innerHTML=PART_LOGO+`
     <div class="part-kicker">EMRA 2023–2050</div>
     <div class="part-thanks">
       <div class="part-thanks-ico">${ico}</div>
       <div class="part-thanks-t">${titulo}</div>
       <div class="part-thanks-p">${texto}</div>
-      ${extra?`<div style="text-align:left;margin-bottom:22px">${extra}</div>`:''}
       <button class="part-send" onclick="closeParticipa()">Explorar el Portal EMRA →</button>
       <div style="font-size:11px;color:var(--sbm);margin-top:12px">Conoce el mapa de iniciativas y pregúntale a Gorito 🤖</div>
     </div>`;
@@ -3327,56 +3377,76 @@ function renderPartThanks(ico,titulo,texto,extra=''){
 function closeParticipa(){
   document.getElementById('participa-overlay').style.display='none';
   history.replaceState(null,'',location.pathname);
-  // Mostrar el portal con la tab EMRA activa para seguir explorando
   switchTab('e');
+  // Si hay handoff configurado, Gorito habla al entrar al portal
+  if(window._PART_CTA){
+    const {msg,nombre}=window._PART_CTA; window._PART_CTA=null;
+    setTimeout(()=>{
+      const resp=document.getElementById('chat-resp'),txt=document.getElementById('chat-text');
+      if(resp&&txt){
+        txt.textContent=(nombre?`¡Gracias por participar, ${nombre}! `:'')+msg;
+        resp.classList.add('on');
+        if(typeof gorito_bounce==='function')try{gorito_bounce()}catch(e){}
+      }
+      const inp=document.getElementById('chat-inp'); if(inp)inp.focus();
+    },400);
+  }
 }
 
-// ── VISTA PANTALLA (#pantalla — proyector) ──
-let PANT_TIMER=null, PANT_ENC=null;
+// ── VISTA PANTALLA (#pantalla — proyector, resultados en vivo) ──
+let PANT_TIMER=null, PANT_CAMP=null, PANT_PIDX=0;
 async function openPantalla(){
   const ov=document.getElementById('pantalla-overlay');
   const el=document.getElementById('pant-content');
   ov.style.display='block';
-  el.innerHTML=`<div style="margin:auto;color:var(--sbm)">⏳ Cargando pregunta activa…</div>`;
-  try{ PANT_ENC=await sbGetEncuestaActiva(); }catch(e){ PANT_ENC=null; }
-  if(!PANT_ENC){
+  el.innerHTML=`<div style="margin:auto;color:var(--sbm)">⏳ Cargando actividad activa…</div>`;
+  try{ PANT_CAMP=await sbGetCampanaActiva(); }catch(e){ PANT_CAMP=null; }
+  if(!PANT_CAMP||!(PANT_CAMP.preguntas||[]).length){
     el.innerHTML=`<div style="margin:auto;text-align:center;color:var(--sbm)">
       <div style="font-size:40px;margin-bottom:12px">🗳</div>
-      <div style="font-size:18px;color:#fff;font-weight:700;margin-bottom:6px">No hay pregunta activa</div>
-      <div style="font-size:13px">Activa una pregunta desde el Panel Admin → Participación</div></div>`;
+      <div style="font-size:18px;color:#fff;font-weight:700;margin-bottom:6px">No hay actividad activa</div>
+      <div style="font-size:13px">Activa una campaña desde el Panel Admin → Participación</div></div>`;
     return;
   }
+  PANT_PIDX=0;
   el.innerHTML=`
     <div class="pant-left">
       <img class="pant-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
-      <div class="pant-q">${PANT_ENC.pregunta}</div>
-      <div id="pant-results" class="${PANT_ENC.tipo==='abierta'?'pant-feed':'pant-bars'}"></div>
-      <div class="pant-count">Respuestas: <b id="pant-total">0</b></div>
+      ${PANT_CAMP.preguntas.length>1?`<div class="pant-tabs" id="pant-tabs">${PANT_CAMP.preguntas.map((p,i)=>`<button class="pant-tab${i===0?' on':''}" onclick="pantSel(${i})">P${i+1}</button>`).join('')}</div>`:''}
+      <div class="pant-q" id="pant-q"></div>
+      <div id="pant-results"></div>
+      <div class="pant-count">Participaciones: <b id="pant-total">0</b></div>
     </div>
     <div class="pant-right">
       <div class="pant-scan">📱 Escanea y participa</div>
       <div id="pant-qr"></div>
       <div class="pant-url">${PART_URL.replace('https://','')}</div>
     </div>`;
-  // QR
   try{ new QRCode(document.getElementById('pant-qr'),{text:PART_URL,width:210,height:210,correctLevel:QRCode.CorrectLevel.M}); }
   catch(e){ document.getElementById('pant-qr').innerHTML='<div style="color:#333;font-size:12px;padding:20px">QR no disponible</div>'; }
-  // Polling en vivo
   await refreshPantalla();
   PANT_TIMER=setInterval(refreshPantalla,4000);
 }
+function pantSel(i){
+  PANT_PIDX=i;
+  document.querySelectorAll('.pant-tab').forEach((b,j)=>b.classList.toggle('on',j===i));
+  refreshPantalla();
+}
 async function refreshPantalla(){
-  if(!PANT_ENC)return;
-  let resps=[]; try{ resps=await sbGetRespuestas(PANT_ENC.id); }catch(e){ return; }
-  const el=document.getElementById('pant-results');
-  const tot=document.getElementById('pant-total');
-  if(tot)tot.textContent=resps.length;
-  if(!el)return;
-  if(PANT_ENC.tipo==='abierta'){
-    el.innerHTML=resps.slice(0,30).map(r=>`<div class="pant-feed-item">${String(r.respuesta).replace(/</g,'&lt;')}</div>`).join('')
+  if(!PANT_CAMP)return;
+  let parts=[]; try{ parts=await sbGetParticipaciones(PANT_CAMP.id); }catch(e){ return; }
+  const preg=PANT_CAMP.preguntas[PANT_PIDX];
+  const q=document.getElementById('pant-q'), el=document.getElementById('pant-results'), tot=document.getElementById('pant-total');
+  if(tot)tot.textContent=parts.length;
+  if(!q||!el||!preg)return;
+  q.textContent=preg.texto;
+  if(preg.tipo==='abierta'){
+    el.className='pant-feed';
+    el.innerHTML=aggAbiertas(preg,parts).slice(0,30).map(r=>`<div class="pant-feed-item">${String(r).replace(/</g,'&lt;')}</div>`).join('')
       ||'<div style="color:var(--sbm);font-size:14px">Esperando las primeras respuestas…</div>';
   } else {
-    el.innerHTML=barsHTML(PANT_ENC,resps,true)||'';
+    el.className='pant-bars';
+    el.innerHTML=barsFromAgg(aggPregunta(preg,parts));
   }
 }
 function closePantalla(){
@@ -3385,37 +3455,51 @@ function closePantalla(){
   history.replaceState(null,'',location.pathname);
 }
 
-// ── ADMIN — TAB PARTICIPACIÓN ──
-let ADMIN_ENCS=[];
+// ── ADMIN — TAB PARTICIPACIÓN (campañas) ──
+let ADMIN_CAMPS=[], EDIT_PREGS=[];
 async function renderAdminPart(){
   const el=document.getElementById('admin-content');
-  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando encuestas…</div>';
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando campañas…</div>';
   let err=null;
-  try{ ADMIN_ENCS=await sbGetEncuestas()||[]; }catch(e){ ADMIN_ENCS=[]; err=e.message; }
+  try{
+    ADMIN_CAMPS=await sbGetCampanas()||[];
+    for(const c of ADMIN_CAMPS){
+      c.preguntas=await sbFetch('preguntas?campana_id=eq.'+c.id+'&order=orden,id')||[];
+      const n=await sbFetch('participaciones?campana_id=eq.'+c.id+'&select=id')||[];
+      c.n_parts=n.length;
+    }
+  }catch(e){ ADMIN_CAMPS=[]; err=e.message; }
+  if(!EDIT_PREGS.length) EDIT_PREGS=[{texto:'',tipo:'alternativas',opciones:''}];
   el.innerHTML=`
-    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudo leer la tabla <b>encuestas</b> (${err}).<br/>Ejecuta el SQL de creación de tablas en Supabase (archivo <b>participacion.sql</b>) y recarga.</div></div>`:''}
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudieron leer las tablas de campañas (${err}).<br/>Ejecuta el SQL <b>campanas.sql</b> en Supabase y recarga.</div></div>`:''}
     <div class="a-grid2" style="gap:14px;align-items:start">
       <div class="a-box">
-        <div class="a-box-title">➕ Nueva pregunta</div>
+        <div class="a-box-title">➕ Nueva campaña</div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="a-field"><div class="a-label">Pregunta *</div>
-            <textarea id="pe-q" class="a-form-inp" style="min-height:60px" placeholder="Ej: ¿Qué tema te gustaría priorizar en tu ciudad?"></textarea></div>
-          <div class="a-field"><div class="a-label">Tipo</div>
-            <select id="pe-tipo" class="a-form-inp" onchange="document.getElementById('pe-ops-wrap').style.display=this.value==='alternativas'?'block':'none'">
-              <option value="alternativas">Alternativas (opción única)</option>
-              <option value="abierta">Respuesta libre</option>
-            </select></div>
-          <div class="a-field" id="pe-ops-wrap"><div class="a-label">Alternativas (una por línea)</div>
-            <textarea id="pe-ops" class="a-form-inp" style="min-height:80px" placeholder="Opción A&#10;Opción B&#10;Opción C"></textarea></div>
-          <button class="a-btn a-btn-p" onclick="crearEncuesta()">Crear pregunta</button>
+          <div class="a-field"><div class="a-label">Nombre de la campaña *</div>
+            <input id="ca-nombre" class="a-form-inp" placeholder="Ej: Quiz EMRA · Semana de la Minería"/></div>
+          <div class="a-label" style="margin-bottom:-4px">Preguntas</div>
+          <div id="ca-pregs">${renderEditPregs()}</div>
+          <button class="a-btn a-btn-g" style="align-self:flex-start;font-size:10px" onclick="addEditPreg()">＋ Agregar pregunta</button>
+          <div class="a-label" style="margin-bottom:-4px">Datos de contacto al finalizar</div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--sbt)">
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-nombre"/> Nombre</label>
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-correo"/> Correo</label>
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-wsp"/> WhatsApp</label>
+          </div>
+          <div class="a-field"><div class="a-label">Mensaje final / Call to action</div>
+            <textarea id="ca-cta" class="a-form-inp" style="min-height:55px" placeholder="Ej: ¡Gracias! ¿Quieres saber qué iniciativas EMRA hay en tu ciudad? Pregúntame lo que quieras."></textarea></div>
+          <label style="display:flex;gap:6px;align-items:center;cursor:pointer;font-size:11px;color:var(--sbt)">
+            <input type="checkbox" id="ca-cta-gorito" checked/> 🤖 Que <b>Gorito</b> entregue el CTA en el chat (invita a seguir conversando)
+          </label>
+          <button class="a-btn a-btn-p" onclick="crearCampana()">Crear campaña</button>
         </div>
       </div>
       <div class="a-box">
-        <div class="a-box-title">🖥 Modo evento</div>
+        <div class="a-box-title">🖥 Cómo usarla</div>
         <div style="font-size:11px;color:var(--sbm);line-height:1.7;margin-bottom:12px">
-          <b style="color:var(--sbt)">1.</b> Activa una pregunta de la lista.<br/>
-          <b style="color:var(--sbt)">2.</b> Abre el <b>modo pantalla</b> y proyéctalo: muestra la pregunta, el QR y los resultados en vivo.<br/>
-          <b style="color:var(--sbt)">3.</b> Los asistentes escanean el QR, responden y quedan dentro del portal para seguir explorando.
+          <b style="color:var(--sbt)">En eventos:</b> activa la campaña, abre el modo pantalla y proyecta — QR + resultados en vivo.<br/>
+          <b style="color:var(--sbt)">En redes sociales:</b> comparte el link de participación directamente (o genera un QR para gráficas). Cada persona responde desde su teléfono y termina dentro del portal conversando con Gorito.
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="a-btn a-btn-p" onclick="closeAdmin();location.hash='#pantalla';openPantalla()">🖥 Abrir modo pantalla</button>
@@ -3425,54 +3509,112 @@ async function renderAdminPart(){
       </div>
     </div>
     <div class="a-box" style="margin-top:14px">
-      <div class="a-box-title">🗳 Preguntas (${ADMIN_ENCS.length})</div>
-      ${ADMIN_ENCS.length?ADMIN_ENCS.map(e=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;${e.activa?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
+      <div class="a-box-title">📣 Campañas (${ADMIN_CAMPS.length})</div>
+      ${ADMIN_CAMPS.length?ADMIN_CAMPS.map(c=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;${c.activa?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
           <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">${e.pregunta}</div>
-            <div style="font-size:10px;color:var(--sbm)">${e.tipo==='abierta'?'Respuesta libre':'Alternativas: '+(e.opciones||[]).join(' · ')} ${e.activa?'· <b style="color:#10b981">● ACTIVA</b>':''}</div>
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">${c.nombre}</div>
+            <div style="font-size:10px;color:var(--sbm)">${(c.preguntas||[]).length} pregunta(s) · ${c.n_parts||0} participaciones ${c.activa?'· <b style="color:#10b981">● ACTIVA</b>':''}</div>
           </div>
-          <button class="a-btn a-btn-g" style="font-size:10px" onclick="verResultados(${e.id})">📊 Resultados</button>
-          <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarEncuesta(${e.id},${e.activa?'false':'true'})">${e.activa?'⏸ Desactivar':'▶ Activar'}</button>
-          <button class="a-btn a-btn-g" style="font-size:10px;color:#ff8a7a" onclick="if(confirm('¿Eliminar esta pregunta y todas sus respuestas?'))eliminarEncuesta(${e.id})">🗑</button>
-        </div>`).join(''):'<div style="font-size:12px;color:var(--sbm)">Aún no hay preguntas creadas.</div>'}
-      <div id="pe-resultados" style="margin-top:12px"></div>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="verResultadosCampana(${c.id})">📊 Resultados</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarCampana(${c.id},${c.activa?'false':'true'})">${c.activa?'⏸ Desactivar':'▶ Activar'}</button>
+          <button class="a-btn a-btn-g" style="font-size:10px;color:#ff8a7a" onclick="if(confirm('¿Eliminar esta campaña y todas sus participaciones?'))eliminarCampana(${c.id})">🗑</button>
+        </div>`).join(''):'<div style="font-size:12px;color:var(--sbm)">Aún no hay campañas creadas.</div>'}
+      <div id="ca-resultados" style="margin-top:12px"></div>
     </div>`;
 }
-async function crearEncuesta(){
-  const q=(document.getElementById('pe-q')?.value||'').trim();
-  const tipo=document.getElementById('pe-tipo')?.value||'alternativas';
-  const ops=(document.getElementById('pe-ops')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!q){showAdminToast('⚠ Escribe la pregunta',true);return}
-  if(tipo==='alternativas'&&ops.length<2){showAdminToast('⚠ Ingresa al menos 2 alternativas',true);return}
+function renderEditPregs(){
+  return EDIT_PREGS.map((p,i)=>`
+    <div style="border:1px solid var(--sbb);border-radius:8px;padding:9px;margin-bottom:7px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <span style="font-size:10px;font-weight:800;color:var(--e)">P${i+1}</span>
+        <input class="a-form-inp" style="flex:1" placeholder="Texto de la pregunta" value="${(p.texto||'').replace(/"/g,'&quot;')}" onchange="EDIT_PREGS[${i}].texto=this.value"/>
+        <button class="a-btn a-btn-g" style="font-size:9px;padding:4px 7px" title="Subir" onclick="moveEditPreg(${i},-1)" ${i===0?'disabled':''}>▲</button>
+        <button class="a-btn a-btn-g" style="font-size:9px;padding:4px 7px" title="Bajar" onclick="moveEditPreg(${i},1)" ${i===EDIT_PREGS.length-1?'disabled':''}>▼</button>
+        <button class="a-btn a-btn-g" style="font-size:9px;padding:4px 7px;color:#ff8a7a" onclick="delEditPreg(${i})" ${EDIT_PREGS.length<2?'disabled':''}>✕</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <select class="a-form-inp" style="width:170px" onchange="EDIT_PREGS[${i}].tipo=this.value;refreshEditPregs()">
+          <option value="alternativas" ${p.tipo!=='abierta'?'selected':''}>Alternativas</option>
+          <option value="abierta" ${p.tipo==='abierta'?'selected':''}>Respuesta libre</option>
+        </select>
+        ${p.tipo!=='abierta'?`<textarea class="a-form-inp" style="flex:1;min-height:44px" placeholder="Alternativas (una por línea)" onchange="EDIT_PREGS[${i}].opciones=this.value">${p.opciones||''}</textarea>`:''}
+      </div>
+    </div>`).join('');
+}
+function refreshEditPregs(){ const el=document.getElementById('ca-pregs'); if(el)el.innerHTML=renderEditPregs(); }
+function addEditPreg(){ EDIT_PREGS.push({texto:'',tipo:'alternativas',opciones:''}); refreshEditPregs(); }
+function delEditPreg(i){ EDIT_PREGS.splice(i,1); refreshEditPregs(); }
+function moveEditPreg(i,d){ const j=i+d; if(j<0||j>=EDIT_PREGS.length)return; [EDIT_PREGS[i],EDIT_PREGS[j]]=[EDIT_PREGS[j],EDIT_PREGS[i]]; refreshEditPregs(); }
+async function crearCampana(){
+  const nombre=(document.getElementById('ca-nombre')?.value||'').trim();
+  if(!nombre){showAdminToast('⚠ Ponle nombre a la campaña',true);return}
+  const pregs=EDIT_PREGS.map(p=>({
+    texto:(p.texto||'').trim(), tipo:p.tipo==='abierta'?'abierta':'alternativas',
+    opciones:p.tipo==='abierta'?null:(p.opciones||'').split('\n').map(s=>s.trim()).filter(Boolean)
+  })).filter(p=>p.texto);
+  if(!pregs.length){showAdminToast('⚠ Agrega al menos una pregunta',true);return}
+  for(const p of pregs){ if(p.tipo==='alternativas'&&(!p.opciones||p.opciones.length<2)){showAdminToast('⚠ Cada pregunta de alternativas necesita 2+ opciones',true);return} }
   try{
-    await sbCreateEncuesta({pregunta:q,tipo,opciones:tipo==='alternativas'?ops:null,activa:false});
-    showAdminToast('✓ Pregunta creada');renderAdminPart();
+    const c=(await sbFetch('campanas',{method:'POST',body:JSON.stringify({
+      nombre, activa:false,
+      recolectar:{nombre:!!document.getElementById('ca-rec-nombre')?.checked,correo:!!document.getElementById('ca-rec-correo')?.checked,whatsapp:!!document.getElementById('ca-rec-wsp')?.checked},
+      cta:{mensaje:(document.getElementById('ca-cta')?.value||'').trim(),gorito:!!document.getElementById('ca-cta-gorito')?.checked}
+    })}))[0];
+    for(let i=0;i<pregs.length;i++){
+      await sbFetch('preguntas',{method:'POST',body:JSON.stringify({campana_id:c.id,orden:i,texto:pregs[i].texto,tipo:pregs[i].tipo,opciones:pregs[i].opciones})});
+    }
+    EDIT_PREGS=[];
+    showAdminToast('✓ Campaña creada');renderAdminPart();
   }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
 }
-async function activarEncuesta(id,on){
+async function activarCampana(id,on){
   try{
-    if(on) await sbFetch('encuestas?activa=eq.true',{method:'PATCH',body:JSON.stringify({activa:false})}).catch(()=>{});
-    await sbPatchEncuesta(id,{activa:on});
-    showAdminToast(on?'✓ Pregunta activada':'✓ Pregunta desactivada');renderAdminPart();
+    if(on) await sbFetch('campanas?activa=eq.true',{method:'PATCH',body:JSON.stringify({activa:false})}).catch(()=>{});
+    await sbFetch('campanas?id=eq.'+id,{method:'PATCH',body:JSON.stringify({activa:on})});
+    showAdminToast(on?'✓ Campaña activada':'✓ Campaña desactivada');renderAdminPart();
   }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
 }
-async function eliminarEncuesta(id){
-  try{ await sbDeleteEncuesta(id);showAdminToast('✓ Eliminada');renderAdminPart(); }
-  catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+async function eliminarCampana(id){
+  try{
+    await sbFetch('participaciones?campana_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+    await sbFetch('preguntas?campana_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+    await sbFetch('campanas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+    showAdminToast('✓ Campaña eliminada');renderAdminPart();
+  }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
 }
-async function verResultados(id){
-  const enc=ADMIN_ENCS.find(e=>e.id===id);if(!enc)return;
-  const box=document.getElementById('pe-resultados');
+async function verResultadosCampana(id){
+  const c=ADMIN_CAMPS.find(x=>x.id===id);if(!c)return;
+  const box=document.getElementById('ca-resultados');
   box.innerHTML='<div style="font-size:11px;color:var(--sbm)">⏳ Cargando resultados…</div>';
-  let resps=[];try{resps=await sbGetRespuestas(id)}catch(e){}
-  const csv='respuesta,fecha\n'+resps.map(r=>`"${String(r.respuesta).replace(/"/g,'""')}",${r.created_at||''}`).join('\n');
+  let parts=[];try{parts=await sbGetParticipaciones(id)}catch(e){}
+  // CSV: una fila por participante, columnas contacto + cada pregunta
+  const cols=['fecha','nombre','correo','whatsapp',...c.preguntas.map((p,i)=>'P'+(i+1))];
+  const rows=parts.map(p=>{
+    const vals=[p.created_at||'',p.nombre||'',p.correo||'',p.whatsapp||''];
+    c.preguntas.forEach(preg=>{
+      const r=(p.respuestas||[]).find(x=>x.pregunta_id===preg.id);
+      vals.push(r?r.respuesta:'');
+    });
+    return vals.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
+  });
+  const csv=cols.join(',')+'\n'+rows.join('\n');
+  const conContacto=parts.filter(p=>p.nombre||p.correo||p.whatsapp);
   box.innerHTML=`<div class="a-box" style="border-color:rgba(3,143,207,.3)">
-    <div class="a-box-title">📊 ${enc.pregunta} — ${resps.length} respuestas</div>
-    ${enc.tipo==='abierta'
-      ? (resps.slice(0,50).map(r=>`<div style="font-size:11px;color:var(--sbt);padding:6px 9px;border-left:2px solid var(--e);background:var(--sb2);border-radius:5px;margin-bottom:5px">${String(r.respuesta).replace(/</g,'&lt;')}</div>`).join('')||'<div style="font-size:11px;color:var(--sbm)">Sin respuestas aún.</div>')
-      : barsHTML(enc,resps)}
-    <button class="a-btn a-btn-g" style="margin-top:8px;font-size:10px" onclick='descargarCSV(${JSON.stringify('respuestas-'+id+'.csv')},${JSON.stringify(csv)})'>⬇ Descargar CSV</button>
+    <div class="a-box-title">📊 ${c.nombre} — ${parts.length} participaciones</div>
+    ${c.preguntas.map((preg,i)=>`
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:6px">P${i+1}. ${preg.texto}</div>
+        ${preg.tipo==='abierta'
+          ? (aggAbiertas(preg,parts).slice(0,30).map(r=>`<div style="font-size:11px;color:var(--sbt);padding:5px 9px;border-left:2px solid var(--e);background:var(--sb2);border-radius:5px;margin-bottom:4px">${String(r).replace(/</g,'&lt;')}</div>`).join('')||'<div style="font-size:10px;color:var(--sbm)">Sin respuestas.</div>')
+          : barsFromAgg(aggPregunta(preg,parts))}
+      </div>`).join('')}
+    ${conContacto.length?`
+      <div style="font-size:11px;font-weight:700;color:#fff;margin:10px 0 6px">👥 Contactos captados (${conContacto.length})</div>
+      <div style="max-height:180px;overflow-y:auto">
+      ${conContacto.map(p=>`<div style="font-size:10.5px;color:var(--sbt);padding:4px 8px;background:var(--sb2);border-radius:5px;margin-bottom:3px">${[p.nombre,p.correo,p.whatsapp].filter(Boolean).join(' · ')}</div>`).join('')}
+      </div>`:''}
+    <button class="a-btn a-btn-g" style="margin-top:8px;font-size:10px" onclick='descargarCSV(${JSON.stringify('campana-'+id+'.csv')},${JSON.stringify(csv)})'>⬇ Descargar CSV (participantes + respuestas)</button>
   </div>`;
 }
 function descargarCSV(nombre,contenido){
@@ -3480,7 +3622,6 @@ function descargarCSV(nombre,contenido){
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(contenido);
   a.download=nombre;a.click();
 }
-
 
 // ═══════════════════════════════════════════════════════
 // SEGURIDAD v2 — usuarios reales (Supabase Auth vía worker)
