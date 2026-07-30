@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- Gorito · Asistente EMRA — versión embebible v1.0 -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gorito · Asistente EMRA 2023–2050</title>
+<style>
+:root{--bg:#0B1929;--bg2:#0f2033;--bd:rgba(255,255,255,.09);--tx:#dce8f2;--mut:#7e93a8;--e:#038FCF;--ed:#0277ad}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--bd);flex-shrink:0}
+header img{height:28px;object-fit:contain}
+.h-t{flex:1;min-width:0}
+.h-name{font-size:14px;font-weight:800;color:#fff}
+.h-sub{font-size:10px;color:var(--mut)}
+.h-dot{width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0}
+#msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:86%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.m.bot{background:var(--bg2);border:1px solid var(--bd);border-bottom-left-radius:4px;align-self:flex-start}
+.m.user{background:var(--e);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.m.load{color:var(--mut);font-style:italic}
+.m a{color:var(--e);font-weight:700;text-decoration:none}
+#sugs{display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none;flex-shrink:0}
+#sugs::-webkit-scrollbar{display:none}
+.sug{flex-shrink:0;background:var(--bg2);border:1px solid rgba(3,143,207,.4);border-radius:99px;color:var(--tx);font-size:11px;font-weight:600;padding:6px 12px;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s}
+.sug:hover{background:rgba(3,143,207,.2);color:#fff}
+#bar{display:flex;gap:8px;padding:10px 14px 14px;flex-shrink:0}
+#inp{flex:1;background:var(--bg2);border:1.5px solid var(--bd);border-radius:12px;color:#fff;font-size:13px;padding:11px 14px;outline:none;font-family:inherit}
+#inp:focus{border-color:var(--e)}
+#send{background:var(--e);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:800;padding:0 18px;cursor:pointer;font-family:inherit}
+#send:hover{background:var(--ed)}
+#send:disabled{opacity:.4}
+.foot{font-size:9px;color:var(--mut);text-align:center;padding:0 14px 10px;flex-shrink:0}
+.foot a{color:var(--e);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" alt="EMRA" onerror="this.style.display='none'"/>
+  <div class="h-t">
+    <div class="h-name">Gorito 🤖</div>
+    <div class="h-sub">Asistente de la EMRA 2023–2050</div>
+  </div>
+  <div class="h-dot" title="En línea"></div>
+</header>
+<div id="msgs"></div>
+<div id="sugs"></div>
+<div id="bar">
+  <input id="inp" placeholder="Pregúntale a Gorito sobre la EMRA…" maxlength="500" onkeydown="if(event.key==='Enter')enviar()"/>
+  <button id="send" onclick="enviar()">➤</button>
+</div>
+<div class="foot">Conoce el mapa completo de iniciativas en el <a id="portal-link" href="/" target="_blank">Portal EMRA →</a></div>
+
+<script>
+// ── Configuración (misma infraestructura del portal) ──
+const SB_URL='https://tjoveoqolrfxntvvdjwh.supabase.co';
+const SB_KEY='sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE';
+const _prod=location.protocol.startsWith('http')&&!['localhost','127.0.0.1'].includes(location.hostname);
+const PROXY=_prod?location.origin+'/api/w/v1/messages':'https://emra-ai-proxy.emraportal.workers.dev/v1/messages';
+document.getElementById('portal-link').href=_prod?location.origin:'https://emra.cl';
+
+const EMRA_CTX=`CONTEXTO GENERAL DE LA EMRA:
+Estrategia Minera para el Bienestar de la Región de Antofagasta (EMRA 2023–2050). La EMRA es la hoja de ruta de la Región de Antofagasta hacia el 2050: busca que la minería sea un motor de bienestar para las personas, comunidades y territorios de la región. Se organiza en 5 Objetivos Estratégicos y se materializa en iniciativas concretas de corto, mediano y largo plazo en Antofagasta, Calama, Tocopilla, Mejillones y a escala regional, impulsadas por actores públicos y privados (GORE Antofagasta, CORE, Clúster Minero).
+Objetivos Estratégicos:
+OE 1 — Calidad de vida: mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la región.
+OE 2 — Minería sustentable: minería que contemple la rehabilitación y preservación del patrimonio natural y cultural.
+OE 3 — Empresas regionales: incentivar la creación y fortalecer las empresas regionales en la cadena de valor minera.
+OE 4 — Gobernanza: mejorar la institucionalidad pública y gobernanza para un sector minero más competitivo.
+OE 5 — Conocimiento e innovación: reforzar el ecosistema del conocimiento e innovación en la cadena de valor minera.`;
+
+const SUGS=['¿Qué es la EMRA?','¿Cuáles son los 5 objetivos estratégicos?','¿Quién impulsa la EMRA?','¿Qué iniciativas hay en mi ciudad?'];
+let INI=[], HIST=[];
+
+const msgs=document.getElementById('msgs');
+function add(rol,txt,load=false){
+  const d=document.createElement('div');
+  d.className='m '+rol+(load?' load':'');
+  d.textContent=txt;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+  return d;
+}
+function renderSugs(){
+  document.getElementById('sugs').innerHTML=SUGS.map(q=>`<button class="sug" onclick="pregunta(this.textContent)">${q}</button>`).join('');
+}
+function pregunta(q){document.getElementById('inp').value=q;enviar();}
+
+async function cargarIniciativas(){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/iniciativas?select=id,nombre,ciudad,oe,plazo,descripcion&order=id',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    if(r.ok)INI=await r.json();
+  }catch(e){}
+}
+
+async function enviar(){
+  const inp=document.getElementById('inp');
+  const q=inp.value.trim();if(!q)return;
+  inp.value='';
+  add('user',q);
+  HIST.push({role:'user',content:q});
+  const btn=document.getElementById('send');btn.disabled=true;
+  const load=add('bot','Gorito está pensando…',true);
+  try{
+    const ctx=INI.map(i=>({id:i.id,n:i.nombre,c:i.ciudad,oe:i.oe,p:i.plazo,d:(i.descripcion||'').slice(0,150)}));
+    const sys=`Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve, cercano y directo (máx ~120 palabras). Puedes explicar la EMRA en general y también iniciativas específicas. No uses formato markdown.\n\n${EMRA_CTX}\n\nIniciativas:\n${JSON.stringify(ctx)}`;
+    const res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:400,system:sys,messages:HIST.slice(-8)
+    })});
+    const data=await res.json();
+    let txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    if(!txt)throw new Error(data.error?.message||'Sin respuesta');
+    txt=txt.replace(/IDS:\s*\[[^\]]*\]\s*$/,'').trim();
+    HIST.push({role:'assistant',content:txt});
+    load.remove();add('bot',txt);
+  }catch(e){
+    load.remove();
+    add('bot','⚠ No pude responder en este momento. Inténtalo de nuevo en unos segundos.');
+    HIST.pop();
+  }
+  btn.disabled=false;inp.focus();
+}
+
+// Arranque
+renderSugs();
+cargarIniciativas();
+add('bot','¡Hola! 👋 Soy Gorito, el asistente de la EMRA — la Estrategia Minera para el Bienestar de la Región de Antofagasta. Pregúntame qué es la EMRA, sus objetivos o las iniciativas de tu ciudad.');
+</script>
+</body>
+</html>
