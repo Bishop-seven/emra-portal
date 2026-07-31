@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.9 -->
+<!-- Portal EMRA 2023–2050 · v2.0 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -351,6 +351,8 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .tot-cd-box span{font-size:clamp(8px,1.2vh,10px);color:var(--sbm);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
 .tot-cd.compact .tot-cd-box{padding:6px 10px;min-width:52px;border-radius:10px}
 .tot-cd.compact .tot-cd-box b{font-size:clamp(17px,2.6vh,24px)}
+
+.part-qimg{width:100%;max-height:260px;object-fit:cover;border-radius:14px;border:1px solid rgba(255,255,255,.12);margin-bottom:14px;display:block}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -1182,7 +1184,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.9';
+const APP_VERSION='v2.0';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -3395,12 +3397,24 @@ function askSug(btn){
 const PART_URL = location.origin + location.pathname + '#participa';
 
 // ── Helpers Supabase ──
-async function sbGetCampanaActiva(){
-  const r = await sbFetch('campanas?activa=eq.true&order=id.desc&limit=1');
-  if(!r||!r.length) return null;
-  const c = r[0];
+async function sbGetCampanaActiva(id){
+  let c=null;
+  if(id){
+    const r=await sbFetch('campanas?id=eq.'+id+'&limit=1');
+    c=(r&&r.length)?r[0]:null;
+    if(c&&!c.activa) c._cerrada=true;   // existe pero está cerrada
+  } else {
+    let r=await sbFetch('campanas?destacada=eq.true&activa=eq.true&order=id.desc&limit=1');
+    if(!r||!r.length) r=await sbFetch('campanas?activa=eq.true&order=id.desc&limit=1');
+    c=(r&&r.length)?r[0]:null;
+  }
+  if(!c) return null;
   c.preguntas = await sbFetch('preguntas?campana_id=eq.'+c.id+'&order=orden,id') || [];
   return c;
+}
+async function sbGetCampanasAbiertas(){
+  const r=await sbFetch('campanas?activa=eq.true&order=destacada.desc,id.desc')||[];
+  return r;
 }
 async function sbGetCampanas(){ return sbFetch('campanas?order=id.desc'); }
 async function sbGetParticipaciones(campana_id){
@@ -3437,13 +3451,17 @@ const PART_LOGO=`<img class="part-logo" src="https://res.cloudinary.com/diajsuwp
 
 // ── VISTA ASISTENTE (#participa): quiz paso a paso ──
 let PCAMP=null, PIDX=0, PRESP=[], PSEL=null;
-async function openParticipa(){
+async function openParticipa(campId){
   const ov=document.getElementById('participa-overlay');
   const el=document.getElementById('part-content');
   ov.style.display='block';
   el.innerHTML=PART_LOGO+`<div class="part-kicker">EMRA 2023–2050 · Participación</div>
     <div style="text-align:center;color:var(--sbm);font-size:13px;padding:30px 0">⏳ Cargando…</div>`;
-  try{ PCAMP=await sbGetCampanaActiva(); }catch(e){ PCAMP=null; }
+  try{ PCAMP=await sbGetCampanaActiva(campId); }catch(e){ PCAMP=null; }
+  if(PCAMP&&PCAMP._cerrada){
+    renderPartFinal('🔒','Esta actividad ya cerró','Gracias por tu interés — te invitamos a explorar el Portal EMRA.');
+    return;
+  }
   if(!PCAMP||!(PCAMP.preguntas||[]).length){
     renderPartFinal('👋','Por ahora no hay una actividad activa','Pero puedes explorar el Portal EMRA y conocer la estrategia y sus iniciativas.');
     return;
@@ -3462,7 +3480,9 @@ function renderPartPregunta(){
   const el=document.getElementById('part-content');
   const preg=PCAMP.preguntas[PIDX];
   PSEL=null;
-  const head=PART_LOGO+`<div class="part-kicker">${PCAMP.nombre||'EMRA 2023–2050'}</div>${partProgress()}<div class="part-q">${preg.texto}</div>`;
+  const head=PART_LOGO+`<div class="part-kicker">${PCAMP.nombre||'EMRA 2023–2050'}</div>${partProgress()}
+    ${preg.imagen?`<img class="part-qimg" src="${preg.imagen}" alt="" onerror="this.remove()"/>`:''}
+    <div class="part-q">${preg.texto}</div>`;
   if(preg.tipo==='abierta'){
     el.innerHTML=head+`<textarea class="part-ta" id="part-ta" maxlength="400" placeholder="Escribe tu respuesta…"></textarea>
       <button class="part-send" onclick="partSiguiente()">${PIDX<PCAMP.preguntas.length-1?'Siguiente →':'Enviar'}</button>`;
@@ -3522,7 +3542,8 @@ async function enviarParticipacion(contacto){
     const cta=PCAMP.cta||{};
     const nombre=(contacto.nombre||'').trim().split(' ')[0];
     if(cta.gorito){
-      // Handoff: Gorito entrega el CTA en el chat del portal
+      // Handoff: Gorito entrega el CTA en el chat del portal (con contexto de la campaña)
+      if((PCAMP.contexto||'').trim()) window.CHAT_EXTRA_CTX='CONTEXTO DEL EVENTO/CAMPAÑA desde donde viene esta persona (úsalo si es pertinente):\n'+PCAMP.contexto.trim();
       window._PART_CTA={msg:cta.mensaje||'¡Gracias por participar! ¿Quieres que te cuente qué es la EMRA o qué iniciativas hay en tu ciudad? Pregúntame lo que quieras 🤖',nombre};
       closeParticipa();
       return;
@@ -3569,7 +3590,10 @@ async function openPantalla(){
   const el=document.getElementById('pant-content');
   ov.style.display='block';
   el.innerHTML=`<div style="margin:auto;color:var(--sbm)">⏳ Cargando actividad activa…</div>`;
-  try{ PANT_CAMP=await sbGetCampanaActiva(); }catch(e){ PANT_CAMP=null; }
+  let abiertas=[];
+  try{ abiertas=await sbGetCampanasAbiertas(); }catch(e){}
+  window._PANT_ABIERTAS=abiertas;
+  try{ PANT_CAMP=await sbGetCampanaActiva(window._PANT_SEL||undefined); }catch(e){ PANT_CAMP=null; }
   if(!PANT_CAMP||!(PANT_CAMP.preguntas||[]).length){
     el.innerHTML=`<div style="margin:auto;text-align:center;color:var(--sbm)">
       <div style="font-size:40px;margin-bottom:12px">🗳</div>
@@ -3578,8 +3602,10 @@ async function openPantalla(){
     return;
   }
   PANT_PIDX=0;
+  const selHTML=(window._PANT_ABIERTAS||[]).length>1?`<div class="pant-tabs" style="margin-bottom:10px">${window._PANT_ABIERTAS.map(c=>`<button class="pant-tab${c.id===PANT_CAMP.id?' on':''}" onclick="window._PANT_SEL=${c.id};closePantalla();location.hash='#pantalla';openPantalla()">${c.destacada?'⭐ ':''}${c.nombre.slice(0,26)}</button>`).join('')}</div>`:'';
   el.innerHTML=`
     <div class="pant-left">
+      ${selHTML}
       <img class="pant-logo" src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" onerror="this.style.display='none'"/>
       ${PANT_CAMP.preguntas.length>1?`<div class="pant-tabs" id="pant-tabs">${PANT_CAMP.preguntas.map((p,i)=>`<button class="pant-tab${i===0?' on':''}" onclick="pantSel(${i})">P${i+1}</button>`).join('')}</div>`:''}
       <div class="pant-q" id="pant-q"></div>
@@ -3589,9 +3615,10 @@ async function openPantalla(){
     <div class="pant-right">
       <div class="pant-scan">📱 Escanea y participa</div>
       <div id="pant-qr"></div>
-      <div class="pant-url">${PART_URL.replace('https://','')}</div>
+      <div class="pant-url">${pantUrl.replace('https://','')}</div>
     </div>`;
-  try{ new QRCode(document.getElementById('pant-qr'),{text:PART_URL,width:210,height:210,correctLevel:QRCode.CorrectLevel.M}); }
+  const pantUrl=location.origin+location.pathname+'#participa-'+PANT_CAMP.id;
+  try{ new QRCode(document.getElementById('pant-qr'),{text:pantUrl,width:210,height:210,correctLevel:QRCode.CorrectLevel.M}); }
   catch(e){ document.getElementById('pant-qr').innerHTML='<div style="color:#333;font-size:12px;padding:20px">QR no disponible</div>'; }
   await refreshPantalla();
   PANT_TIMER=setInterval(refreshPantalla,4000);
@@ -3608,7 +3635,7 @@ async function refreshPantalla(){
   const q=document.getElementById('pant-q'), el=document.getElementById('pant-results'), tot=document.getElementById('pant-total');
   if(tot)tot.textContent=parts.length;
   if(!q||!el||!preg)return;
-  q.textContent=preg.texto;
+  q.innerHTML=(preg.imagen?`<img src="${preg.imagen}" style="max-height:22vh;border-radius:14px;display:block;margin-bottom:12px;border:1px solid rgba(255,255,255,.15)" onerror="this.remove()"/>`:'')+preg.texto;
   if(preg.tipo==='abierta'){
     el.className='pant-feed';
     el.innerHTML=aggAbiertas(preg,parts).slice(0,30).map(r=>`<div class="pant-feed-item">${String(r).replace(/</g,'&lt;')}</div>`).join('')
@@ -3624,55 +3651,58 @@ function closePantalla(){
   history.replaceState(null,'',location.pathname);
 }
 
-// ── ADMIN — TAB PARTICIPACIÓN (campañas) ──
-let ADMIN_CAMPS=[], EDIT_PREGS=[];
+// ── ADMIN — TAB PARTICIPACIÓN (campañas v2) ──
+let ADMIN_CAMPS=[], EDIT_PREGS=[], EDIT_ID=null, EDIT_ORIG_IDS=[];
 async function renderAdminPart(){
   const el=document.getElementById('admin-content');
   el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando campañas…</div>';
   let err=null;
   try{
-    ADMIN_CAMPS=await sbGetCampanas()||[];
+    ADMIN_CAMPS=await sbFetch('campanas?order=id.desc')||[];
     for(const c of ADMIN_CAMPS){
       c.preguntas=await sbFetch('preguntas?campana_id=eq.'+c.id+'&order=orden,id')||[];
       const n=await sbFetch('participaciones?campana_id=eq.'+c.id+'&select=id')||[];
       c.n_parts=n.length;
     }
   }catch(e){ ADMIN_CAMPS=[]; err=e.message; }
-  if(!EDIT_PREGS.length) EDIT_PREGS=[{texto:'',tipo:'alternativas',opciones:''}];
+  if(!EDIT_PREGS.length) EDIT_PREGS=[{texto:'',tipo:'alternativas',opciones:'',imagen:''}];
+  const ed = EDIT_ID ? ADMIN_CAMPS.find(c=>c.id===EDIT_ID) : null;
   el.innerHTML=`
-    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudieron leer las tablas de campañas (${err}).<br/>Ejecuta el SQL <b>campanas.sql</b> en Supabase y recarga.</div></div>`:''}
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudieron leer las campañas (${err}).<br/>Si es un error de columna, ejecuta <b>campanas-v2.sql</b> en Supabase y recarga.</div></div>`:''}
     <div class="a-grid2" style="gap:14px;align-items:start">
-      <div class="a-box">
-        <div class="a-box-title">➕ Nueva campaña</div>
+      <div class="a-box" ${EDIT_ID?'style="border-color:rgba(245,158,11,.5)"':''}>
+        <div class="a-box-title">${EDIT_ID?'✏️ Editando: '+(ed?ed.nombre:''):'➕ Nueva campaña'}
+          ${EDIT_ID?`<button class="a-btn a-btn-g" style="font-size:9px;float:right" onclick="cancelarEdicion()">✕ Cancelar edición</button>`:''}</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div class="a-field"><div class="a-label">Nombre de la campaña *</div>
-            <input id="ca-nombre" class="a-form-inp" placeholder="Ej: Quiz EMRA · Semana de la Minería"/></div>
+            <input id="ca-nombre" class="a-form-inp" placeholder="Ej: Quiz EMRA · Semana de la Minería" value="${EDIT_ID&&ed?ed.nombre.replace(/"/g,'&quot;'):''}"/></div>
           <div class="a-label" style="margin-bottom:-4px">Preguntas</div>
           <div id="ca-pregs">${renderEditPregs()}</div>
           <button class="a-btn a-btn-g" style="align-self:flex-start;font-size:10px" onclick="addEditPreg()">＋ Agregar pregunta</button>
           <div class="a-label" style="margin-bottom:-4px">Datos de contacto al finalizar</div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--sbt)">
-            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-nombre"/> Nombre</label>
-            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-correo"/> Correo</label>
-            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-wsp"/> WhatsApp</label>
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-nombre" ${ed?.recolectar?.nombre?'checked':''}/> Nombre</label>
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-correo" ${ed?.recolectar?.correo?'checked':''}/> Correo</label>
+            <label style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="ca-rec-wsp" ${ed?.recolectar?.whatsapp?'checked':''}/> WhatsApp</label>
           </div>
           <div class="a-field"><div class="a-label">Mensaje final / Call to action</div>
-            <textarea id="ca-cta" class="a-form-inp" style="min-height:55px" placeholder="Ej: ¡Gracias! ¿Quieres saber qué iniciativas EMRA hay en tu ciudad? Pregúntame lo que quieras."></textarea></div>
+            <textarea id="ca-cta" class="a-form-inp" style="min-height:55px" placeholder="Ej: ¡Gracias! ¿Quieres saber qué iniciativas EMRA hay en tu ciudad? Pregúntame lo que quieras.">${ed?.cta?.mensaje||''}</textarea></div>
           <label style="display:flex;gap:6px;align-items:center;cursor:pointer;font-size:11px;color:var(--sbt)">
-            <input type="checkbox" id="ca-cta-gorito" checked/> 🤖 Que <b>Gorito</b> entregue el CTA en el chat (invita a seguir conversando)
+            <input type="checkbox" id="ca-cta-gorito" ${(!ed||ed?.cta?.gorito!==false)?'checked':''}/> 🤖 Que <b>Gorito</b> entregue el CTA en el chat (invita a seguir conversando)
           </label>
-          <button class="a-btn a-btn-p" onclick="crearCampana()">Crear campaña</button>
+          <div class="a-field"><div class="a-label">🎪 Contexto para Gorito (evento/campaña — lo usa al conversar tras el quiz)</div>
+            <textarea id="ca-contexto" class="a-form-inp" style="min-height:55px" placeholder="Ej: Esta encuesta es parte del Seminario de Habitabilidad, 15 de mayo en Calama. Los resultados se presentan al cierre de la jornada.">${ed?.contexto||''}</textarea></div>
+          <button class="a-btn a-btn-p" onclick="guardarCampana()">${EDIT_ID?'💾 Guardar cambios':'Crear campaña'}</button>
         </div>
       </div>
       <div class="a-box">
         <div class="a-box-title">🖥 Cómo usarla</div>
         <div style="font-size:11px;color:var(--sbm);line-height:1.7;margin-bottom:12px">
-          <b style="color:var(--sbt)">En eventos:</b> activa la campaña, abre el modo pantalla y proyecta — QR + resultados en vivo.<br/>
-          <b style="color:var(--sbt)">En redes sociales:</b> comparte el link de participación directamente (o genera un QR para gráficas). Cada persona responde desde su teléfono y termina dentro del portal conversando con Gorito.
+          Ahora pueden convivir <b style="color:var(--sbt)">varias campañas abiertas</b>: cada una tiene su propio link y QR (botones 🔗 y ⬇QR). La <b style="color:#F59E0B">⭐ Destacada</b> es la que responde el link genérico y abre el modo pantalla por defecto.
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <button class="a-btn a-btn-p" onclick="closeAdmin();location.hash='#pantalla';openPantalla()">🖥 Abrir modo pantalla</button>
-          <button class="a-btn a-btn-g" onclick="navigator.clipboard.writeText(PART_URL).then(()=>showAdminToast('✓ Link de participación copiado'))">🔗 Copiar link de participación</button>
+          <button class="a-btn a-btn-g" onclick="navigator.clipboard.writeText(PART_URL).then(()=>showAdminToast('✓ Link genérico copiado (campaña destacada)'))">🔗 Copiar link genérico</button>
           <div style="font-size:10px;color:var(--sbm);word-break:break-all">${PART_URL}</div>
         </div>
       </div>
@@ -3680,13 +3710,18 @@ async function renderAdminPart(){
     <div class="a-box" style="margin-top:14px">
       <div class="a-box-title">📣 Campañas (${ADMIN_CAMPS.length})</div>
       ${ADMIN_CAMPS.length?ADMIN_CAMPS.map(c=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;${c.activa?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:2px">${c.nombre}</div>
-            <div style="font-size:10px;color:var(--sbm)">${(c.preguntas||[]).length} pregunta(s) · ${c.n_parts||0} participaciones ${c.activa?'· <b style="color:#10b981">● ACTIVA</b>':''}</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;flex-wrap:wrap;${c.activa?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:12px;font-weight:700;color:#fff">${c.destacada?'⭐ ':''}${c.nombre}</div>
+            <div style="font-size:10px;color:var(--sbm)">${(c.preguntas||[]).length} pregunta(s) · ${c.n_parts||0} participaciones · ${c.activa?'<b style="color:#10b981">● ABIERTA</b>':'<b style="color:#ff8a7a">○ Cerrada</b>'}</div>
           </div>
-          <button class="a-btn a-btn-g" style="font-size:10px" onclick="verResultadosCampana(${c.id})">📊 Resultados</button>
-          <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarCampana(${c.id},${c.activa?'false':'true'})">${c.activa?'⏸ Desactivar':'▶ Activar'}</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="editarCampana(${c.id})">✏️ Editar</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="verResultadosCampana(${c.id})">📊</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" title="Copiar link propio" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'#participa-${c.id}').then(()=>showAdminToast('✓ Link de la campaña copiado'))">🔗</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" title="Descargar QR" onclick="descargarQRCampana(${c.id},'${c.nombre.replace(/'/g,'')}')">⬇QR</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" title="Duplicar" onclick="duplicarCampana(${c.id})">⧉</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" title="${c.destacada?'Es la destacada':'Marcar destacada'}" onclick="destacarCampana(${c.id})" ${c.destacada?'disabled':''}>⭐</button>
+          <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarCampana(${c.id},${c.activa?'false':'true'})">${c.activa?'⏸ Cerrar':'▶ Abrir'}</button>
           <button class="a-btn a-btn-g" style="font-size:10px;color:#ff8a7a" onclick="if(confirm('¿Eliminar esta campaña y todas sus participaciones?'))eliminarCampana(${c.id})">🗑</button>
         </div>`).join(''):'<div style="font-size:12px;color:var(--sbm)">Aún no hay campañas creadas.</div>'}
       <div id="ca-resultados" style="margin-top:12px"></div>
@@ -3702,53 +3737,138 @@ function renderEditPregs(){
         <button class="a-btn a-btn-g" style="font-size:9px;padding:4px 7px" title="Bajar" onclick="moveEditPreg(${i},1)" ${i===EDIT_PREGS.length-1?'disabled':''}>▼</button>
         <button class="a-btn a-btn-g" style="font-size:9px;padding:4px 7px;color:#ff8a7a" onclick="delEditPreg(${i})" ${EDIT_PREGS.length<2?'disabled':''}>✕</button>
       </div>
-      <div style="display:flex;gap:6px">
+      <div style="display:flex;gap:6px;margin-bottom:6px">
         <select class="a-form-inp" style="width:170px" onchange="EDIT_PREGS[${i}].tipo=this.value;refreshEditPregs()">
           <option value="alternativas" ${p.tipo!=='abierta'?'selected':''}>Alternativas</option>
           <option value="abierta" ${p.tipo==='abierta'?'selected':''}>Respuesta libre</option>
         </select>
         ${p.tipo!=='abierta'?`<textarea class="a-form-inp" style="flex:1;min-height:44px" placeholder="Alternativas (una por línea)" onchange="EDIT_PREGS[${i}].opciones=this.value">${p.opciones||''}</textarea>`:''}
       </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${p.imagen?`<img src="${p.imagen}" style="height:34px;border-radius:5px;border:1px solid var(--sbb)" onerror="this.style.display='none'"/>`:''}
+        <input class="a-form-inp" style="flex:1;font-size:10px" placeholder="🖼 Imagen (opcional) — URL" value="${(p.imagen||'').replace(/"/g,'&quot;')}" onchange="EDIT_PREGS[${i}].imagen=this.value;refreshEditPregs()"/>
+        <label class="a-btn a-btn-g" style="cursor:pointer;font-size:9px">📤<input type="file" accept="image/*" style="display:none" onchange="subirImgPreg(${i},this.files[0])"/></label>
+        ${p.imagen?`<button class="a-btn a-btn-g" style="font-size:9px;color:#ff8a7a" onclick="EDIT_PREGS[${i}].imagen='';refreshEditPregs()">✕</button>`:''}
+      </div>
     </div>`).join('');
 }
+async function subirImgPreg(i,file){
+  if(!file)return;
+  showAdminToast('⏳ Subiendo imagen…');
+  try{
+    const url=await uploadToCloudinary(file);
+    if(url){EDIT_PREGS[i].imagen=url;refreshEditPregs();showAdminToast('✓ Imagen lista');}
+  }catch(e){showAdminToast('⚠ Error al subir',true)}
+}
 function refreshEditPregs(){ const el=document.getElementById('ca-pregs'); if(el)el.innerHTML=renderEditPregs(); }
-function addEditPreg(){ EDIT_PREGS.push({texto:'',tipo:'alternativas',opciones:''}); refreshEditPregs(); }
+function addEditPreg(){ EDIT_PREGS.push({texto:'',tipo:'alternativas',opciones:'',imagen:''}); refreshEditPregs(); }
 function delEditPreg(i){ EDIT_PREGS.splice(i,1); refreshEditPregs(); }
 function moveEditPreg(i,d){ const j=i+d; if(j<0||j>=EDIT_PREGS.length)return; [EDIT_PREGS[i],EDIT_PREGS[j]]=[EDIT_PREGS[j],EDIT_PREGS[i]]; refreshEditPregs(); }
-async function crearCampana(){
+function editarCampana(id){
+  const c=ADMIN_CAMPS.find(x=>x.id===id);if(!c)return;
+  EDIT_ID=id;
+  EDIT_PREGS=(c.preguntas||[]).map(p=>({id:p.id,texto:p.texto,tipo:p.tipo,opciones:(p.opciones||[]).join('\n'),imagen:p.imagen||''}));
+  EDIT_ORIG_IDS=(c.preguntas||[]).map(p=>p.id);
+  if(!EDIT_PREGS.length)EDIT_PREGS=[{texto:'',tipo:'alternativas',opciones:'',imagen:''}];
+  renderAdminPart();
+  window.scrollTo(0,0);
+}
+function cancelarEdicion(){ EDIT_ID=null;EDIT_PREGS=[];EDIT_ORIG_IDS=[];renderAdminPart(); }
+async function guardarCampana(){
   const nombre=(document.getElementById('ca-nombre')?.value||'').trim();
   if(!nombre){showAdminToast('⚠ Ponle nombre a la campaña',true);return}
   const pregs=EDIT_PREGS.map(p=>({
-    texto:(p.texto||'').trim(), tipo:p.tipo==='abierta'?'abierta':'alternativas',
-    opciones:p.tipo==='abierta'?null:(p.opciones||'').split('\n').map(s=>s.trim()).filter(Boolean)
+    id:p.id, texto:(p.texto||'').trim(), tipo:p.tipo==='abierta'?'abierta':'alternativas',
+    opciones:p.tipo==='abierta'?null:(p.opciones||'').split('\n').map(s=>s.trim()).filter(Boolean),
+    imagen:(p.imagen||'').trim()||null
   })).filter(p=>p.texto);
   if(!pregs.length){showAdminToast('⚠ Agrega al menos una pregunta',true);return}
   for(const p of pregs){ if(p.tipo==='alternativas'&&(!p.opciones||p.opciones.length<2)){showAdminToast('⚠ Cada pregunta de alternativas necesita 2+ opciones',true);return} }
+  const body={
+    nombre,
+    recolectar:{nombre:!!document.getElementById('ca-rec-nombre')?.checked,correo:!!document.getElementById('ca-rec-correo')?.checked,whatsapp:!!document.getElementById('ca-rec-wsp')?.checked},
+    cta:{mensaje:(document.getElementById('ca-cta')?.value||'').trim(),gorito:!!document.getElementById('ca-cta-gorito')?.checked},
+    contexto:(document.getElementById('ca-contexto')?.value||'').trim()||null
+  };
   try{
-    const c=(await sbFetch('campanas',{method:'POST',body:JSON.stringify({
-      nombre, activa:false,
-      recolectar:{nombre:!!document.getElementById('ca-rec-nombre')?.checked,correo:!!document.getElementById('ca-rec-correo')?.checked,whatsapp:!!document.getElementById('ca-rec-wsp')?.checked},
-      cta:{mensaje:(document.getElementById('ca-cta')?.value||'').trim(),gorito:!!document.getElementById('ca-cta-gorito')?.checked}
-    })}))[0];
-    for(let i=0;i<pregs.length;i++){
-      await sbFetch('preguntas',{method:'POST',body:JSON.stringify({campana_id:c.id,orden:i,texto:pregs[i].texto,tipo:pregs[i].tipo,opciones:pregs[i].opciones})});
+    let campId=EDIT_ID;
+    if(EDIT_ID){
+      await sbFetch('campanas?id=eq.'+EDIT_ID,{method:'PATCH',body:JSON.stringify(body)});
+      // sincronizar preguntas: actualizar existentes, crear nuevas, borrar eliminadas
+      const keep=pregs.filter(p=>p.id).map(p=>p.id);
+      for(const oid of EDIT_ORIG_IDS){ if(!keep.includes(oid)) await sbFetch('preguntas?id=eq.'+oid,{method:'DELETE',prefer:'return=minimal'}); }
+      for(let i=0;i<pregs.length;i++){
+        const p=pregs[i];
+        const data={orden:i,texto:p.texto,tipo:p.tipo,opciones:p.opciones,imagen:p.imagen};
+        if(p.id) await sbFetch('preguntas?id=eq.'+p.id,{method:'PATCH',body:JSON.stringify(data)});
+        else await sbFetch('preguntas',{method:'POST',body:JSON.stringify(Object.assign({campana_id:EDIT_ID},data))});
+      }
+      showAdminToast('✓ Campaña actualizada');
+    } else {
+      body.activa=false;body.destacada=false;
+      const c=(await sbFetch('campanas',{method:'POST',body:JSON.stringify(body)}))[0];
+      campId=c.id;
+      for(let i=0;i<pregs.length;i++){
+        await sbFetch('preguntas',{method:'POST',body:JSON.stringify({campana_id:campId,orden:i,texto:pregs[i].texto,tipo:pregs[i].tipo,opciones:pregs[i].opciones,imagen:pregs[i].imagen})});
+      }
+      showAdminToast('✓ Campaña creada');
     }
-    EDIT_PREGS=[];
-    showAdminToast('✓ Campaña creada');renderAdminPart();
+    EDIT_ID=null;EDIT_PREGS=[];EDIT_ORIG_IDS=[];
+    renderAdminPart();
   }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
 }
 async function activarCampana(id,on){
   try{
-    if(on) await sbFetch('campanas?activa=eq.true',{method:'PATCH',body:JSON.stringify({activa:false})}).catch(()=>{});
     await sbFetch('campanas?id=eq.'+id,{method:'PATCH',body:JSON.stringify({activa:on})});
-    showAdminToast(on?'✓ Campaña activada':'✓ Campaña desactivada');renderAdminPart();
+    showAdminToast(on?'✓ Campaña abierta':'✓ Campaña cerrada');renderAdminPart();
   }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+async function destacarCampana(id){
+  try{
+    await sbFetch('campanas?destacada=eq.true',{method:'PATCH',body:JSON.stringify({destacada:false})}).catch(()=>{});
+    await sbFetch('campanas?id=eq.'+id,{method:'PATCH',body:JSON.stringify({destacada:true,activa:true})});
+    showAdminToast('✓ Campaña destacada (responde el link genérico)');renderAdminPart();
+  }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+async function duplicarCampana(id){
+  const c=ADMIN_CAMPS.find(x=>x.id===id);if(!c)return;
+  try{
+    const nueva=(await sbFetch('campanas',{method:'POST',body:JSON.stringify({
+      nombre:c.nombre+' (copia)',activa:false,destacada:false,
+      recolectar:c.recolectar,cta:c.cta,contexto:c.contexto
+    })}))[0];
+    for(let i=0;i<(c.preguntas||[]).length;i++){
+      const p=c.preguntas[i];
+      await sbFetch('preguntas',{method:'POST',body:JSON.stringify({campana_id:nueva.id,orden:i,texto:p.texto,tipo:p.tipo,opciones:p.opciones,imagen:p.imagen||null})});
+    }
+    showAdminToast('✓ Campaña duplicada');renderAdminPart();
+  }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
+}
+function descargarQRCampana(id,nombre){
+  const tmp=document.createElement('div');
+  tmp.style.position='fixed';tmp.style.left='-9999px';
+  document.body.appendChild(tmp);
+  try{
+    new QRCode(tmp,{text:location.origin+location.pathname+'#participa-'+id,width:800,height:800,correctLevel:QRCode.CorrectLevel.M});
+    setTimeout(()=>{
+      const cv=tmp.querySelector('canvas');
+      const img=tmp.querySelector('img');
+      const url=cv?cv.toDataURL('image/png'):(img?img.src:null);
+      if(url){
+        const a=document.createElement('a');
+        a.href=url;a.download='QR-'+(nombre||'campana-'+id).replace(/\s+/g,'-')+'.png';a.click();
+        showAdminToast('✓ QR descargado');
+      }
+      tmp.remove();
+    },300);
+  }catch(e){tmp.remove();showAdminToast('⚠ No se pudo generar el QR',true)}
 }
 async function eliminarCampana(id){
   try{
     await sbFetch('participaciones?campana_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
     await sbFetch('preguntas?campana_id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
     await sbFetch('campanas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+    if(EDIT_ID===id)cancelarEdicion();
     showAdminToast('✓ Campaña eliminada');renderAdminPart();
   }catch(e){showAdminToast('⚠ Error: '+e.message,true)}
 }
@@ -3757,7 +3877,6 @@ async function verResultadosCampana(id){
   const box=document.getElementById('ca-resultados');
   box.innerHTML='<div style="font-size:11px;color:var(--sbm)">⏳ Cargando resultados…</div>';
   let parts=[];try{parts=await sbGetParticipaciones(id)}catch(e){}
-  // CSV: una fila por participante, columnas contacto + cada pregunta
   const cols=['fecha','nombre','correo','whatsapp',...c.preguntas.map((p,i)=>'P'+(i+1))];
   const rows=parts.map(p=>{
     const vals=[p.created_at||'',p.nombre||'',p.correo||'',p.whatsapp||''];
@@ -4259,6 +4378,7 @@ function goritoSystemPrompt(ctxJson){
   const avs=(G('avisos')||[]).filter(avisoVigente);
   if(avs.length) partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente a la conversación):\n'+avs.map(a=>'- '+a.texto).join('\n'));
   partes.push(emraContextText());
+  if(window.CHAT_EXTRA_CTX) partes.push(window.CHAT_EXTRA_CTX);
   partes.push('Si hay iniciativas relevantes en tu respuesta, termina con IDS:[id1,id2,...]');
   partes.push('Iniciativas:\n'+ctxJson);
   return partes.join('\n\n');
@@ -6277,7 +6397,10 @@ window.addEventListener('load',async()=>{
     const wOes=document.getElementById('welcome-oes');
     if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
-    if(location.hash==='#participa'){ openParticipa(); }
+    if(location.hash.startsWith('#participa')){
+      const m=location.hash.match(/^#participa-(\d+)$/);
+      openParticipa(m?parseInt(m[1]):undefined);
+    }
     else if(location.hash==='#pantalla'){ openPantalla(); }
     else if(location.hash==='#totem'){ openTotem(); }
     else if(location.hash==='#mapa'){ /* acceso directo al mapa, sin portada */ }
