@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.8 -->
+<!-- Portal EMRA 2023–2050 · v1.9 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -344,6 +344,13 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .tot-r-ahora{background:rgba(3,143,207,.12);border:1.5px solid rgba(3,143,207,.35);border-radius:16px;padding:14px 22px;max-width:560px}
 .tot-r-toca{position:absolute;bottom:clamp(26px,5vh,46px);left:0;right:0;font-size:clamp(13px,2vh,16px);color:var(--e);font-weight:800;animation:po-bounce 2s infinite}
 .tot-r-hora{position:absolute;top:clamp(18px,3vh,30px);right:clamp(18px,3vw,30px);text-align:right}
+
+.tot-cd{display:flex;gap:10px;justify-content:center;margin:8px 0}
+.tot-cd-box{background:rgba(255,255,255,.06);border:1.5px solid rgba(3,143,207,.4);border-radius:14px;padding:clamp(8px,1.4vh,14px) clamp(10px,1.8vw,18px);min-width:clamp(58px,9vw,84px);text-align:center}
+.tot-cd-box b{display:block;font-size:clamp(24px,4.5vh,40px);font-weight:800;color:var(--e);line-height:1;font-variant-numeric:tabular-nums}
+.tot-cd-box span{font-size:clamp(8px,1.2vh,10px);color:var(--sbm);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.tot-cd.compact .tot-cd-box{padding:6px 10px;min-width:52px;border-radius:10px}
+.tot-cd.compact .tot-cd-box b{font-size:clamp(17px,2.6vh,24px)}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -1175,7 +1182,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.8';
+const APP_VERSION='v1.9';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -4401,6 +4408,28 @@ function totNow(){
 function totHoy(){ const d=totNow(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function totHM(){ const d=totNow(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 function hm(t){ return (t||'').slice(0,5); }
+function estadoEvento(){
+  if(!TEV)return 'durante';
+  const hoy=totHoy();
+  if(TEV.fecha_inicio&&hoy<TEV.fecha_inicio)return 'antes';
+  if(TEV.fecha_fin&&hoy>TEV.fecha_fin)return 'despues';
+  return 'durante';
+}
+function cuentaRegresiva(){
+  const target=new Date(TEV.fecha_inicio+'T08:00:00');
+  let ms=target-totNow();
+  if(ms<0)ms=0;
+  const d=Math.floor(ms/86400000), hh=Math.floor(ms%86400000/3600000),
+        mm=Math.floor(ms%3600000/60000), ss=Math.floor(ms%60000/1000);
+  return {d,hh,mm,ss};
+}
+function cdHTML(compact){
+  const c=cuentaRegresiva();
+  const lbl=TLANG==='en'?['Days','Hours','Min','Sec']:['Días','Horas','Min','Seg'];
+  const vals=[c.d,c.hh,c.mm,c.ss];
+  return `<div class="tot-cd${compact?' compact':''}">${vals.map((v,i)=>
+    `<div class="tot-cd-box"><b>${String(v).padStart(2,'0')}</b><span>${lbl[i]}</span></div>`).join('')}</div>`;
+}
 
 async function openTotem(){
   const el=document.getElementById('totem');
@@ -4432,7 +4461,7 @@ async function openTotem(){
   renderTotem();
   irReposo();
   if(TCLOCK)clearInterval(TCLOCK);
-  TCLOCK=setInterval(()=>{tickTotem()},15000);
+  TCLOCK=setInterval(()=>{tickTotem()},estadoEvento()==='antes'?1000:15000);
   ['touchstart','mousedown','keydown'].forEach(ev=>el.addEventListener(ev,totActividad,{passive:true}));
 }
 function totActividad(){
@@ -4518,6 +4547,17 @@ function renderTotChrome(){
 function renderTotAhora(){
   const el=document.getElementById('tot-ahora');
   if(!el)return;
+  if(estadoEvento()==='antes'){
+    el.innerHTML=`<div class="tot-ahora-k">${TLANG==='en'?'The event starts in':'El evento comienza en'}</div>
+      ${cdHTML(true)}
+      <div class="tot-prox" style="border:none;margin-top:6px;padding-top:0"><b>${fFecha(TEV.fecha_inicio)}</b>${TEV.lugar?' · '+TEV.lugar:''}</div>`;
+    return;
+  }
+  if(estadoEvento()==='despues'){
+    el.innerHTML=`<div class="tot-ahora-k">${TLANG==='en'?'Thank you!':'¡Gracias!'}</div>
+      <div class="tot-ahora-m">${TLANG==='en'?'The event has concluded. Explore the program or ask Gorito about EMRA.':'El evento ha concluido. Revisa el programa o pregúntale a Gorito por la EMRA.'}</div>`;
+    return;
+  }
   const a=bloqueAhora(),px=bloquesProx(2);
   let html='';
   if(a){
@@ -4673,13 +4713,19 @@ function renderReposoAhora(){
     <img class="tot-r-gorito" src="${typeof GORITO_URL!=='undefined'?GORITO_URL:''}" onerror="this.style.display='none'"/>
     <div class="tot-r-hola">${tt('hola')}</div>
     <div class="tot-r-sub">${tt('sub')}</div>
-    ${a?`<div class="tot-r-ahora"><div class="tot-ahora-k"><span class="tot-dot-live"></span>${tt('ahora')}</div>
+    ${estadoEvento()==='antes'?`<div class="tot-r-ahora" style="max-width:640px"><div class="tot-ahora-k">${TLANG==='en'?'The event starts in':'El evento comienza en'}</div>${cdHTML(false)}<div class="tot-ahora-m" style="margin-top:8px">${fFecha(TEV.fecha_inicio)}${TEV.lugar?' · '+TEV.lugar:''}</div></div>`
+    :a?`<div class="tot-r-ahora"><div class="tot-ahora-k"><span class="tot-dot-live"></span>${tt('ahora')}</div>
       <div class="tot-ahora-t" style="font-size:clamp(14px,2.2vh,19px)">${tTxt(a,'titulo')}</div>
       <div class="tot-ahora-m">${hm(a.hora_inicio)}–${hm(a.hora_fin)||''}${a.sala?' · 📍 '+a.sala:''}</div></div>`
     :px.length?`<div class="tot-r-ahora"><div class="tot-ahora-k">${tt('prox')}</div>
       <div class="tot-ahora-t" style="font-size:clamp(14px,2.2vh,19px)">${tTxt(px[0],'titulo')}</div>
       <div class="tot-ahora-m">${hm(px[0].hora_inicio)}${px[0].sala?' · 📍 '+px[0].sala:''}</div></div>`:''}
-    <div class="tot-r-toca">${tt('toca')}</div>`;
+    <div class="tot-r-toca">${tt('toca')}</div>
+    ${(necesitaPrime()&&!TPRIMED)?`<div id="tot-prime" onclick="event.stopPropagation();primeTotem()" style="position:absolute;inset:0;background:rgba(4,10,18,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:6">
+      <div style="font-size:clamp(16px,2.6vh,22px);font-weight:800;color:#fff">🖥 ${TLANG==='en'?'Start totem':'Iniciar tótem'}</div>
+      <div style="font-size:clamp(11px,1.6vh,13px);color:var(--sbm);max-width:400px;text-align:center;line-height:1.6">${TLANG==='en'?'Tap to enable Gorito\'s voice greeting and presence detection':'Toca para activar el saludo con voz de Gorito y la detección de presencia'}</div>
+      <div style="background:var(--e);color:#fff;font-weight:800;border-radius:12px;padding:13px 26px;font-size:clamp(13px,2vh,16px)">▶ ${TLANG==='en'?'Start':'Iniciar'}</div>
+    </div>`:''}`;
 }
 
 
@@ -4838,7 +4884,53 @@ async function gestionarEvento(id){
         <button class="a-btn a-btn-g" style="font-size:10px" onclick="addFaq(${id})">＋ Agregar FAQ</button>
       </div>
     </div>
+    <div style="border-top:1px solid var(--sbb);margin-top:14px;padding-top:12px">
+      <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:8px">🖥 Tótem avanzado — saludo con presencia (como el Espejo Mágico)</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+        <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--sbt);cursor:pointer;padding-bottom:9px">
+          <input type="checkbox" id="tv-cam" ${(ev.config||{}).camara?'checked':''}/> 📷 Detección de presencia por cámara
+        </label>
+        <div class="a-field" style="flex:1;min-width:240px">
+          <div class="a-label">Audio de saludo de Gorito (mp3) — se reproduce al detectar a alguien</div>
+          <input id="tv-audio" class="a-form-inp" placeholder="https://…/saludo-gorito.mp3" value="${((ev.config||{}).saludoAudioUrl||'').replace(/"/g,'&quot;')}"/>
+        </div>
+        <label class="a-btn a-btn-g" style="cursor:pointer;font-size:10px;margin-bottom:2px">📤 Subir audio
+          <input type="file" accept="audio/*" style="display:none" onchange="subirAudioTotem(this.files[0])"/></label>
+        <button class="a-btn a-btn-p" style="font-size:10px;margin-bottom:2px" onclick="guardarTotemAvanzado(${id})">💾 Guardar tótem</button>
+      </div>
+      <div id="tv-status" style="font-size:9px;color:var(--sbm);margin-top:6px">Al abrir el tótem con saludo o cámara activos, aparece un botón "Iniciar tótem" — es el toque del operador que habilita el audio y la cámara (requisito de los navegadores). El saludo no se repite antes de 45 segundos.</div>
+    </div>
   </div>`;
+}
+async function subirAudioTotem(file){
+  if(!file)return;
+  const st=document.getElementById('tv-status');
+  if(st)st.textContent='⏳ Subiendo audio…';
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset',CL_CONFIG.uploadPreset);
+    const res=await fetch(`https://api.cloudinary.com/v1_1/${CL_CONFIG.cloudName}/auto/upload`,{method:'POST',body:fd});
+    const data=await res.json();
+    if(!data.secure_url)throw new Error(data.error?.message||'sin URL');
+    document.getElementById('tv-audio').value=data.secure_url;
+    if(st)st.textContent='✓ Audio subido — recuerda Guardar tótem';
+    showAdminToast('✓ Audio de saludo listo');
+  }catch(e){
+    if(st)st.textContent='⚠ Error al subir: '+e.message+' — puedes pegar una URL de mp3 directamente';
+    showAdminToast('⚠ Error al subir el audio',true);
+  }
+}
+async function guardarTotemAvanzado(evId){
+  const ev=EADM_LIST.find(e=>e.id===evId);
+  const cfg=Object.assign({},ev?.config||{});
+  cfg.camara=!!document.getElementById('tv-cam')?.checked;
+  cfg.saludoAudioUrl=(document.getElementById('tv-audio')?.value||'').trim();
+  try{
+    await sbFetch('eventos?id=eq.'+evId,{method:'PATCH',body:JSON.stringify({config:cfg})});
+    if(ev)ev.config=cfg;
+    showAdminToast('✓ Configuración del tótem guardada');
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
 }
 async function addBloque(evId){
   const dia=document.getElementById('bq-dia')?.value, hi=document.getElementById('bq-hi')?.value;
@@ -4895,6 +4987,61 @@ async function addFaq(evId){
   }catch(e){showAdminToast('⚠ '+e.message,true)}
 }
 async function delFaq(id){ try{await sbFetch('evento_faq?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});gestionarEvento(EADM_SEL);}catch(e){} }
+
+// ── Presencia por cámara + saludo de Gorito con audio (opcional por evento) ──
+let TCAM=null, TCAMTIMER=null, TCAMPREV=null, TSALUDO_T=0, TAUDIO=null, TPRIMED=false;
+const SALUDO_COOLDOWN=45000;
+function totConfig(){ return (TEV&&TEV.config)||{}; }
+function necesitaPrime(){ const c=totConfig(); return !!(c.camara||c.saludoAudioUrl); }
+function primeTotem(){
+  // Primer toque del operador: desbloquea audio y pide cámara
+  TPRIMED=true;
+  const c=totConfig();
+  if(c.saludoAudioUrl){ TAUDIO=new Audio(c.saludoAudioUrl); TAUDIO.preload='auto'; }
+  if(c.camara) iniciarCamaraTotem();
+  const p=document.getElementById('tot-prime');
+  if(p)p.remove();
+  totActividad();
+}
+async function iniciarCamaraTotem(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:160},height:{ideal:120}},audio:false});
+    TCAM=document.createElement('video');
+    TCAM.srcObject=stream;TCAM.muted=true;TCAM.playsInline=true;
+    await TCAM.play();
+    const cv=document.createElement('canvas');cv.width=64;cv.height=48;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    if(TCAMTIMER)clearInterval(TCAMTIMER);
+    TCAMTIMER=setInterval(()=>{
+      if(!TCAM)return;
+      try{
+        cx.drawImage(TCAM,0,0,64,48);
+        const cur=cx.getImageData(0,0,64,48).data;
+        if(TCAMPREV){
+          let diff=0;
+          for(let i=0;i<cur.length;i+=16){ if(Math.abs(cur[i]-TCAMPREV[i])>26)diff++; }
+          // Presencia detectada: alguien se mueve frente al tótem en reposo
+          if(diff>60 && TREPOSO && Date.now()-TSALUDO_T>SALUDO_COOLDOWN){
+            TSALUDO_T=Date.now();
+            saludarPresencia();
+          }
+        }
+        TCAMPREV=cur;
+      }catch(e){}
+    },500);
+  }catch(e){ /* sin permiso de cámara: el tótem sigue normal */ }
+}
+function saludarPresencia(){
+  if(TAUDIO){ try{ TAUDIO.currentTime=0; TAUDIO.play().catch(()=>{}); }catch(e){} }
+  // Gorito "reacciona" en el reposo
+  const g=document.querySelector('.tot-r-gorito');
+  if(g){ g.style.transition='transform .3s'; g.style.transform='scale(1.12)'; setTimeout(()=>{g.style.transform='';},900); }
+}
+function detenerCamaraTotem(){
+  if(TCAMTIMER){clearInterval(TCAMTIMER);TCAMTIMER=null}
+  if(TCAM&&TCAM.srcObject){ TCAM.srcObject.getTracks().forEach(t=>t.stop()); }
+  TCAM=null;TCAMPREV=null;
+}
 
 const WELCOME_KEY='emra_welcome_v1';
 function maybeShowWelcome(){
