@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v2.0 -->
+<!-- Portal EMRA 2023–2050 · v2.0.1 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -1184,7 +1184,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v2.0';
+const APP_VERSION='v2.0.1';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -2377,6 +2377,7 @@ async function sendChat(){
   resp.classList.add('on');txt.textContent='…';
   const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c,tipo:i.tipo}));
   try{
+    window._CHAT_N=(window._CHAT_N||0)+1;
     const sysPrompt = goritoSystemPrompt(JSON.stringify(ctx));
     const maxTok=(typeof CLAUDE_CONFIG!=='undefined')?CLAUDE_CONFIG.maxTokens:600;
     const apiEndpoint = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
@@ -2392,7 +2393,7 @@ async function sendChat(){
     const text=data.content?.[0]?.text||'Sin respuesta.';
     const m=text.match(/IDS:\[([^\]]+)\]/);
     if(m){highlighted=new Set(m[1].split(',').map(s=>s.trim()));renderMarkers()}
-    txt.textContent=text.replace(/IDS:\[[^\]]*\]/g,'').trim();
+    txt.textContent=text.replace(/IDS:\[[^\]]*\]/g,'').replace(/\*\*/g,'').replace(/^#+\s*/gm,'').trim();
   }catch(e){txt.textContent='Error de conexión.'}
   btn.disabled=false;
   gorito_stopTalking();
@@ -4363,12 +4364,19 @@ function estadoAviso(a){
 }
 function lineas(txt){ return String(txt||'').split('\n').map(s=>s.trim()).filter(Boolean); }
 // Compone el system prompt final del asistente
+function reglaConversacion(){
+  const primera=!(window._CHAT_N>1);
+  return 'REGLAS DE CONVERSACIÓN: '+(primera
+    ? 'Este es tu primer mensaje: puedes saludar brevemente una sola vez.'
+    : 'Ya estás en medio de la conversación: NO saludes, NO digas "¡Hola!" ni te presentes de nuevo — responde directo al contenido.')
+    +' No uses formato markdown en tus respuestas (nada de **, #, listas con guiones); escribe en texto plano natural.';
+}
 function goritoSystemPrompt(ctxJson){
   // Modo experto: se usa el prompt libre tal cual (con placeholders)
   if(GORITO_CFG.usarExperto && (GORITO_CFG.promptExperto||'').trim()){
     let p=GORITO_CFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
     p = p.includes('{{EMRA}}') ? p.replace('{{EMRA}}',emraContextText()) : emraContextText()+'\n\n'+p;
-    return p;
+    return p+'\n\n'+reglaConversacion();
   }
   const partes=[G('identidad')];
   const si=lineas(G('hacer'));
@@ -4379,6 +4387,7 @@ function goritoSystemPrompt(ctxJson){
   if(avs.length) partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente a la conversación):\n'+avs.map(a=>'- '+a.texto).join('\n'));
   partes.push(emraContextText());
   if(window.CHAT_EXTRA_CTX) partes.push(window.CHAT_EXTRA_CTX);
+  partes.push(reglaConversacion());
   partes.push('Si hay iniciativas relevantes en tu respuesta, termina con IDS:[id1,id2,...]');
   partes.push('Iniciativas:\n'+ctxJson);
   return partes.join('\n\n');

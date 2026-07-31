@@ -95,10 +95,17 @@ function avisoVigente(a){
   return true;
 }
 function lineas(t){return String(t||'').split('\n').map(s=>s.trim()).filter(Boolean);}
+function reglaConv(){
+  const primera=HIST.filter(m=>m.role==='user').length<=1;
+  return 'REGLAS DE CONVERSACIÓN: '+(primera
+    ? 'Este es tu primer mensaje: puedes saludar brevemente una sola vez.'
+    : 'Ya estás en medio de la conversación: NO saludes ni te presentes de nuevo — responde directo.')
+    +' No uses formato markdown; texto plano natural.';
+}
 function armarPrompt(ctxJson){
   if(GCFG.usarExperto&&(GCFG.promptExperto||'').trim()){
     let p=GCFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
-    return p.includes('{{EMRA}}')?p.replace('{{EMRA}}',EMRA_CTX):EMRA_CTX+'\n\n'+p;
+    return (p.includes('{{EMRA}}')?p.replace('{{EMRA}}',EMRA_CTX):EMRA_CTX+'\n\n'+p)+'\n\n'+reglaConv();
   }
   const partes=[GCFG.identidad||'Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve, cercano y directo (máx ~120 palabras). No uses formato markdown.'];
   const si=lineas(GCFG.hacer); if(si.length)partes.push('DEBES:\n'+si.map(s=>'- '+s).join('\n'));
@@ -106,7 +113,7 @@ function armarPrompt(ctxJson){
   const avs=(GCFG.avisos||[]).filter(avisoVigente);
   if(avs.length)partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente):\n'+avs.map(a=>'- '+a.texto).join('\n'));
   partes.push(EMRA_CTX);
-  partes.push('No uses formato markdown en tus respuestas.');
+  partes.push(reglaConv());
   partes.push('Iniciativas:\n'+ctxJson);
   return partes.join('\n\n');
 }
@@ -148,7 +155,7 @@ async function enviar(){
     const data=await res.json();
     let txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
     if(!txt)throw new Error(data.error?.message||'Sin respuesta');
-    txt=txt.replace(/IDS:\s*\[[^\]]*\]\s*$/,'').trim();
+    txt=txt.replace(/IDS:\s*\[[^\]]*\]\s*$/,'').replace(/\*\*/g,'').trim();
     HIST.push({role:'assistant',content:txt});
     load.remove();add('bot',txt);
   }catch(e){
