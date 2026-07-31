@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.7 -->
+<!-- Portal EMRA 2023–2050 · v1.8 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -274,6 +274,76 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
   .po-rev{opacity:1;transform:none;transition:none}
   .po-marquee-track,.po-gorito-hero,.po-scrollhint{animation:none}
 }
+
+/* ═══════════════ MODO TÓTEM ═══════════════ */
+#totem{display:none;position:fixed;inset:0;z-index:8800;background:linear-gradient(178deg,#0a1624,#0B1929 45%,#0d2036);overflow:hidden;font-family:'DM Sans',-apple-system,sans-serif;-webkit-user-select:none;user-select:none}
+.tot-wrap{max-width:760px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:clamp(14px,2.5vh,28px) clamp(14px,3vw,26px)}
+.tot-head{display:flex;align-items:center;gap:12px;margin-bottom:clamp(8px,1.5vh,16px)}
+.tot-head img{height:clamp(30px,4.5vh,44px);object-fit:contain}
+.tot-head-t{flex:1;min-width:0}
+.tot-ev-nombre{font-size:clamp(13px,2vh,17px);font-weight:800;color:#fff;line-height:1.2}
+.tot-ev-lugar{font-size:clamp(9px,1.3vh,11px);color:var(--sbm)}
+.tot-reloj{text-align:right}
+.tot-hora{font-size:clamp(20px,3.4vh,30px);font-weight:800;color:var(--e);line-height:1;font-variant-numeric:tabular-nums}
+.tot-fecha{font-size:clamp(8px,1.2vh,10px);color:var(--sbm);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.tot-lang{display:flex;gap:4px}
+.tot-lang button{background:rgba(255,255,255,.06);border:1.5px solid var(--sbb);border-radius:9px;color:var(--sbm);font-size:clamp(11px,1.6vh,13px);font-weight:800;padding:8px 13px;cursor:pointer;font-family:inherit}
+.tot-lang button.on{background:var(--e);border-color:var(--e);color:#fff}
+.tot-ahora{background:linear-gradient(160deg,rgba(3,143,207,.16),rgba(3,143,207,.05));border:1.5px solid rgba(3,143,207,.35);border-radius:18px;padding:clamp(12px,2vh,20px);margin-bottom:clamp(8px,1.4vh,14px)}
+.tot-ahora-k{font-size:clamp(9px,1.3vh,11px);color:var(--e);font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tot-dot-live{width:9px;height:9px;border-radius:50%;background:#10b981;animation:tot-pulse 1.6s infinite}
+@keyframes tot-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.tot-ahora-t{font-size:clamp(15px,2.4vh,21px);font-weight:800;color:#fff;line-height:1.25;margin-bottom:4px}
+.tot-ahora-m{font-size:clamp(11px,1.7vh,14px);color:var(--sbt)}
+.tot-prox{font-size:clamp(10px,1.5vh,12.5px);color:var(--sbm);line-height:1.65;border-top:1px solid rgba(255,255,255,.08);margin-top:10px;padding-top:9px}
+.tot-prox b{color:var(--sbt)}
+.tot-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:clamp(8px,1.4vh,14px)}
+.tot-nav button{background:rgba(255,255,255,.05);border:1.5px solid var(--sbb);border-radius:14px;color:var(--sbt);font-size:clamp(10px,1.6vh,13px);font-weight:800;padding:clamp(10px,1.8vh,16px) 4px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+.tot-nav button .i{font-size:clamp(16px,2.6vh,22px)}
+.tot-nav button.on{background:rgba(3,143,207,.2);border-color:var(--e);color:#fff}
+.tot-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:16px}
+.tot-dia-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.tot-dia-tabs button{background:rgba(255,255,255,.05);border:1.5px solid var(--sbb);border-radius:99px;color:var(--sbt);font-size:clamp(10px,1.5vh,12px);font-weight:800;padding:8px 15px;cursor:pointer;font-family:inherit}
+.tot-dia-tabs button.on{background:var(--e);border-color:var(--e);color:#fff}
+.tot-blq{display:flex;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:clamp(10px,1.7vh,15px);margin-bottom:8px}
+.tot-blq.now{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.07)}
+.tot-blq.past{opacity:.45}
+.tot-blq-h{min-width:86px;text-align:center}
+.tot-blq-hi{font-size:clamp(13px,2vh,16px);font-weight:800;color:var(--e);font-variant-numeric:tabular-nums}
+.tot-blq-hf{font-size:clamp(9px,1.4vh,11px);color:var(--sbm);font-variant-numeric:tabular-nums}
+.tot-blq-tipo{font-size:clamp(8px,1.2vh,9.5px);font-weight:800;border-radius:99px;padding:2px 8px;display:inline-block;margin-top:5px}
+.tot-blq-c{flex:1;min-width:0}
+.tot-blq-t{font-size:clamp(12.5px,1.9vh,15.5px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:3px}
+.tot-blq-m{font-size:clamp(10px,1.5vh,12px);color:var(--sbm);line-height:1.5}
+.tot-blq-m b{color:var(--sbt)}
+.tot-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:clamp(12px,1.8vh,16px);margin-bottom:8px}
+.tot-card-t{font-size:clamp(13px,2vh,16px);font-weight:800;color:#fff;margin-bottom:4px}
+.tot-card-d{font-size:clamp(11px,1.6vh,13px);color:var(--sbt);line-height:1.6}
+.tot-chat{display:flex;flex-direction:column;height:100%}
+.tot-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:4px 2px}
+.tot-m{max-width:88%;padding:clamp(10px,1.6vh,14px) clamp(12px,1.8vh,16px);border-radius:16px;font-size:clamp(12px,1.9vh,15px);line-height:1.55;white-space:pre-wrap}
+.tot-m.bot{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-bottom-left-radius:5px;align-self:flex-start;color:var(--sbt)}
+.tot-m.user{background:var(--e);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.tot-sugs{display:flex;gap:7px;overflow-x:auto;padding:8px 2px;flex-shrink:0;scrollbar-width:none}
+.tot-sugs::-webkit-scrollbar{display:none}
+.tot-sug{flex-shrink:0;background:rgba(3,143,207,.12);border:1.5px solid rgba(3,143,207,.4);border-radius:99px;color:#fff;font-size:clamp(11px,1.6vh,13px);font-weight:700;padding:10px 16px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tot-bar{display:flex;gap:8px;flex-shrink:0;padding-top:6px}
+.tot-inp{flex:1;background:rgba(255,255,255,.06);border:1.5px solid var(--sbb);border-radius:14px;color:#fff;font-size:clamp(13px,2vh,16px);padding:clamp(12px,1.8vh,16px);outline:none;font-family:inherit}
+.tot-inp:focus{border-color:var(--e)}
+.tot-send{background:var(--e);border:none;border-radius:14px;color:#fff;font-size:clamp(14px,2vh,17px);font-weight:800;padding:0 clamp(18px,3vw,26px);cursor:pointer;font-family:inherit}
+.tot-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:clamp(8px,1.2vh,12px);flex-shrink:0}
+.tot-qr-mini{display:flex;align-items:center;gap:9px;font-size:clamp(8.5px,1.2vh,10px);color:var(--sbm);line-height:1.4}
+#tot-qr{background:#fff;padding:5px;border-radius:8px}
+#tot-qr img,#tot-qr canvas{display:block;width:clamp(44px,6.5vh,60px)!important;height:clamp(44px,6.5vh,60px)!important}
+.tot-gorito-mini{height:clamp(40px,6vh,56px);cursor:pointer}
+/* Reposo (attract) */
+#tot-reposo{position:absolute;inset:0;background:linear-gradient(178deg,#0a1624,#0B1929 45%,#0d2036);z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;cursor:pointer}
+.tot-r-gorito{height:clamp(150px,26vh,240px);animation:po-float 3.4s ease-in-out infinite;filter:drop-shadow(0 14px 34px rgba(3,143,207,.4))}
+.tot-r-hola{font-size:clamp(22px,4vh,34px);font-weight:800;color:#fff;margin:18px 0 6px;line-height:1.25}
+.tot-r-sub{font-size:clamp(13px,2vh,17px);color:var(--sbt);margin-bottom:22px}
+.tot-r-ahora{background:rgba(3,143,207,.12);border:1.5px solid rgba(3,143,207,.35);border-radius:16px;padding:14px 22px;max-width:560px}
+.tot-r-toca{position:absolute;bottom:clamp(26px,5vh,46px);left:0;right:0;font-size:clamp(13px,2vh,16px);color:var(--e);font-weight:800;animation:po-bounce 2s infinite}
+.tot-r-hora{position:absolute;top:clamp(18px,3vh,30px);right:clamp(18px,3vw,30px);text-align:right}
 
 /* Timeline */
 .tl-wrap{position:relative;padding-left:15px}
@@ -1008,6 +1078,9 @@ svg{display:block}
   </main>
 </div>
 
+<!-- Modo Tótem — asistente de eventos -->
+<div id="totem"></div>
+
 <!-- Portada — resumen de la EMRA (entrada al portal) -->
 <div id="portada"></div>
 <div id="portada-video" onclick="if(event.target===this)closePortadaVideo()">
@@ -1091,6 +1164,7 @@ svg{display:block}
       <button class="a-tab" id="at-diseno" onclick="setAdminTab('diseno')">🎨 Diseño</button>
       <button class="a-tab" id="at-part" onclick="setAdminTab('part')">🗳 Participación</button>
       <button class="a-tab" id="at-porta" onclick="setAdminTab('porta')">🖼 Portada</button>
+      <button class="a-tab" id="at-evt" onclick="setAdminTab('evt')">🎪 Eventos</button>
     </div>
     <div class="admin-content" id="admin-content"></div>
   </div>
@@ -1101,7 +1175,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.7';
+const APP_VERSION='v1.8';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -2410,7 +2484,7 @@ function authLogout(){
 }
 
 function setAdminTab(id){
-  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta'].forEach(t=>{
+  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta','evt'].forEach(t=>{
     const el=document.getElementById('at-'+t);
     if(el)el.classList.toggle('on',t===id);
   });
@@ -2418,7 +2492,7 @@ function setAdminTab(id){
     dash:renderAdminDash,ini:renderAdminIni,new:renderAdminNew,
     tl:renderAdminTL,pres:renderAdminPres,portal:renderAdminPortal,
     oe:renderAdminOE,rutas:renderAdminRutas,claude:renderAdminClaude,
-    pdf:renderAdminPDF,seg:renderAdminSeg,diseno:renderAdminDiseno,part:renderAdminPart,porta:renderAdminPortada,
+    pdf:renderAdminPDF,seg:renderAdminSeg,diseno:renderAdminDiseno,part:renderAdminPart,porta:renderAdminPortada,evt:renderAdminEventos,
     importar:renderImportExcel,
   };
   if(fn[id])fn[id]();
@@ -4302,6 +4376,526 @@ async function guardarGorito(){
 // La versión antigua del tab se declara más abajo; esta asignación asegura la V2:
 renderAdminClaude = renderAdminClaudeV2;
 
+// ═══════════════════════════════════════════════════════
+// MODO TÓTEM (v1.8) — Gorito asistente de eventos
+// Bilingüe ES/EN · vertical · kiosko con auto-reset
+// ═══════════════════════════════════════════════════════
+let TEV=null, TBLQ=[], TSALAS=[], TFAQ=[];      // datos del evento
+let TLANG='es', TVIEW='chat', TDIA=null;         // estado UI
+let TCHAT=[], TIDLE=null, TCLOCK=null, TREPOSO=true;
+const TOT_IDLE_MS=75000;
+const TIPOS_BLQ={apertura:['🎬','#F59E0B'],keynote:['🎤','#8B5CF6'],panel:['💬','#038FCF'],paralela:['🔀','#10B981'],reunion:['🤝','#F97316'],coffee:['☕','#A78BFA'],almuerzo:['🍽','#22C55E'],visita:['🚌','#06B6D4'],clausura:['🏁','#EF4444'],otro:['📌','#7e93a8']};
+const TT={
+  es:{ahora:'Ahora',prox:'A continuación',sin_ahora:'Sin actividades en curso',programa:'Programa',salas:'Salas',faq:'Info útil',gorito:'Gorito',emra:'Conoce la EMRA',hola:'¡Hola! Soy Gorito 👋',sub:'Tu asistente del evento. Pregúntame por el programa, las salas o lo que necesites.',toca:'👆 Toca la pantalla para comenzar',ph:'Escribe tu pregunta…',enviar:'Enviar',qr:'Escanea y llévate el programa en tu teléfono',dia:'Día',pensando:'Gorito está pensando…',err:'No pude responder ahora. Inténtalo de nuevo.',saludo:'¡Hola! 👋 Soy Gorito, tu asistente del evento. Pregúntame a qué hora es una sesión, dónde queda una sala, o lo que necesites.',volver:'← Volver',en_sala:'Sala',expositores:'Participan'},
+  en:{ahora:'Now',prox:'Up next',sin_ahora:'No sessions in progress',programa:'Program',salas:'Rooms',faq:'Useful info',gorito:'Gorito',emra:'About EMRA',hola:'Hi! I\'m Gorito 👋',sub:'Your event assistant. Ask me about the program, the rooms, or anything you need.',toca:'👆 Touch the screen to start',ph:'Type your question…',enviar:'Send',qr:'Scan to take the program on your phone',dia:'Day',pensando:'Gorito is thinking…',err:'I could not answer right now. Please try again.',saludo:'Hi! 👋 I\'m Gorito, your event assistant. Ask me when a session starts, where a room is, or anything you need.',volver:'← Back',en_sala:'Room',expositores:'Speakers'}
+};
+function tt(k){ return (TT[TLANG]||TT.es)[k]||k; }
+function tTxt(obj,base){ return (TLANG==='en'&&obj[base+'_en'])?obj[base+'_en']:obj[base]; }
+
+// Hora del tótem (simulable con ?simular=2026-10-28T10:30)
+function totNow(){
+  const p=new URLSearchParams(location.search).get('simular');
+  if(p){ const d=new Date(p); if(!isNaN(d)) return d; }
+  return new Date();
+}
+function totHoy(){ const d=totNow(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function totHM(){ const d=totNow(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function hm(t){ return (t||'').slice(0,5); }
+
+async function openTotem(){
+  const el=document.getElementById('totem');
+  el.style.display='block';
+  el.innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--sbm)">⏳</div>';
+  try{
+    const evs=await sbFetch('eventos?activo=eq.true&order=id.desc&limit=1');
+    TEV=(evs&&evs.length)?evs[0]:null;
+    if(TEV){
+      [TBLQ,TSALAS,TFAQ]=await Promise.all([
+        sbFetch('evento_bloques?evento_id=eq.'+TEV.id+'&order=dia,hora_inicio,orden'),
+        sbFetch('evento_salas?evento_id=eq.'+TEV.id+'&order=id'),
+        sbFetch('evento_faq?evento_id=eq.'+TEV.id+'&order=orden,id')
+      ]);
+      TBLQ=TBLQ||[];TSALAS=TSALAS||[];TFAQ=TFAQ||[];
+    }
+  }catch(e){ TEV=null; }
+  if(!TEV){
+    el.innerHTML=`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--sbm);padding:30px">
+      <div style="font-size:44px;margin-bottom:14px">🎪</div>
+      <div style="font-size:19px;color:#fff;font-weight:800;margin-bottom:8px">No hay un evento activo</div>
+      <div style="font-size:13px">Actívalo desde el Panel Admin → Eventos</div></div>`;
+    return;
+  }
+  TDIA=totHoy();
+  const dias=[...new Set(TBLQ.map(b=>b.dia))];
+  if(dias.length&&!dias.includes(TDIA)) TDIA=dias[0];
+  TCHAT=[];TLANG='es';TVIEW='chat';
+  renderTotem();
+  irReposo();
+  if(TCLOCK)clearInterval(TCLOCK);
+  TCLOCK=setInterval(()=>{tickTotem()},15000);
+  ['touchstart','mousedown','keydown'].forEach(ev=>el.addEventListener(ev,totActividad,{passive:true}));
+}
+function totActividad(){
+  if(TREPOSO){ salirReposo(); }
+  if(TIDLE)clearTimeout(TIDLE);
+  TIDLE=setTimeout(irReposo,TOT_IDLE_MS);
+}
+function irReposo(){
+  TREPOSO=true;TCHAT=[];TLANG='es';TVIEW='chat';
+  const r=document.getElementById('tot-reposo');
+  if(r){r.style.display='flex';renderReposoAhora();}
+}
+function salirReposo(){
+  TREPOSO=false;
+  const r=document.getElementById('tot-reposo');
+  if(r)r.style.display='none';
+  renderTotView();renderTotChatInit();
+}
+function bloquesDeHoy(){ return TBLQ.filter(b=>b.dia===totHoy()); }
+function bloqueAhora(){
+  const now=totHM();
+  return bloquesDeHoy().find(b=>hm(b.hora_inicio)<=now&&(b.hora_fin?now<hm(b.hora_fin):now<=hm(b.hora_inicio)));
+}
+function bloquesProx(n=3){
+  const now=totHM();
+  return bloquesDeHoy().filter(b=>hm(b.hora_inicio)>now).slice(0,n);
+}
+function tickTotem(){
+  const hEls=document.querySelectorAll('.tot-hora-live');
+  hEls.forEach(e=>e.textContent=totHM());
+  if(TREPOSO)renderReposoAhora();else renderTotAhora();
+}
+function fFecha(iso,largo=true){
+  try{
+    const d=new Date(iso+'T12:00:00');
+    return d.toLocaleDateString(TLANG==='en'?'en-GB':'es-CL',largo?{weekday:'long',day:'numeric',month:'long'}:{day:'numeric',month:'short'});
+  }catch(e){return iso}
+}
+function renderTotem(){
+  const el=document.getElementById('totem');
+  const cfg=TEV.config||{};
+  el.innerHTML=`
+    <div class="tot-wrap">
+      <div class="tot-head">
+        <img src="${cfg.logoUrl||'https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png'}" onerror="this.style.display='none'"/>
+        <div class="tot-head-t">
+          <div class="tot-ev-nombre" id="tot-ev-nombre"></div>
+          <div class="tot-ev-lugar">${TEV.lugar||''}</div>
+        </div>
+        <div class="tot-reloj">
+          <div class="tot-hora tot-hora-live">${totHM()}</div>
+          <div class="tot-fecha" id="tot-fecha"></div>
+        </div>
+        <div class="tot-lang">
+          <button id="tl-es" onclick="setTotLang('es')">ES</button>
+          <button id="tl-en" onclick="setTotLang('en')">EN</button>
+        </div>
+      </div>
+      <div class="tot-ahora" id="tot-ahora"></div>
+      <div class="tot-nav" id="tot-nav"></div>
+      <div class="tot-body" id="tot-body"></div>
+      <div class="tot-foot">
+        <div class="tot-qr-mini"><div id="tot-qr"></div><span id="tot-qr-txt"></span></div>
+        <img class="tot-gorito-mini" src="${typeof GORITO_URL!=='undefined'?GORITO_URL:''}" onclick="setTotView('chat')" onerror="this.style.display='none'"/>
+      </div>
+      <div id="tot-reposo" onclick="totActividad()"></div>
+    </div>`;
+  try{ new QRCode(document.getElementById('tot-qr'),{text:location.origin+location.pathname+'#totem',width:120,height:120,correctLevel:QRCode.CorrectLevel.L}); }catch(e){}
+  renderTotChrome();
+}
+function setTotLang(l){ TLANG=l; renderTotChrome(); renderTotView(); if(TREPOSO)renderReposoAhora(); }
+function renderTotChrome(){
+  document.getElementById('tot-ev-nombre').textContent=tTxt(TEV,'nombre');
+  document.getElementById('tot-fecha').textContent=fFecha(totHoy(),false);
+  document.getElementById('tot-qr-txt').textContent=tt('qr');
+  document.getElementById('tl-es').classList.toggle('on',TLANG==='es');
+  document.getElementById('tl-en').classList.toggle('on',TLANG==='en');
+  renderTotAhora();
+  const navs=[['chat','🤖',tt('gorito')],['prog','📅',tt('programa')],['salas','📍',tt('salas')],['faq','ℹ️',tt('faq')]];
+  document.getElementById('tot-nav').innerHTML=navs.map(([id,i,l])=>
+    `<button id="tn-${id}" class="${TVIEW===id?'on':''}" onclick="setTotView('${id}')"><span class="i">${i}</span>${l}</button>`).join('');
+}
+function renderTotAhora(){
+  const el=document.getElementById('tot-ahora');
+  if(!el)return;
+  const a=bloqueAhora(),px=bloquesProx(2);
+  let html='';
+  if(a){
+    html=`<div class="tot-ahora-k"><span class="tot-dot-live"></span>${tt('ahora')} · ${hm(a.hora_inicio)}–${hm(a.hora_fin)||''}</div>
+      <div class="tot-ahora-t">${tTxt(a,'titulo')}</div>
+      <div class="tot-ahora-m">${a.sala?('📍 '+a.sala):''}${a.expositores?' · '+a.expositores:''}</div>`;
+  } else {
+    html=`<div class="tot-ahora-k">${tt('ahora')}</div><div class="tot-ahora-m">${tt('sin_ahora')}</div>`;
+  }
+  if(px.length){
+    html+=`<div class="tot-prox">${tt('prox')}: `+px.map(b=>`<b>${hm(b.hora_inicio)}</b> ${tTxt(b,'titulo')}${b.sala?' ('+b.sala+')':''}`).join(' · ')+`</div>`;
+  }
+  el.innerHTML=html;
+}
+function setTotView(v){ TVIEW=v; renderTotChrome(); renderTotView(); }
+function renderTotView(){
+  const el=document.getElementById('tot-body');
+  if(!el)return;
+  if(TVIEW==='prog'){
+    const dias=[...new Set(TBLQ.map(b=>b.dia))];
+    const now=totHM(),hoy=totHoy();
+    el.innerHTML=`
+      <div class="tot-dia-tabs">${dias.map((d,i)=>`<button class="${TDIA===d?'on':''}" onclick="TDIA='${d}';renderTotView()">${tt('dia')} ${i+1} · ${fFecha(d,false)}</button>`).join('')}</div>
+      ${TBLQ.filter(b=>b.dia===TDIA).map(b=>{
+        const [ico,color]=TIPOS_BLQ[b.tipo]||TIPOS_BLQ.otro;
+        const esNow=b.dia===hoy&&hm(b.hora_inicio)<=now&&b.hora_fin&&now<hm(b.hora_fin);
+        const past=b.dia<hoy||(b.dia===hoy&&b.hora_fin&&hm(b.hora_fin)<=now);
+        return `<div class="tot-blq${esNow?' now':past?' past':''}">
+          <div class="tot-blq-h">
+            <div class="tot-blq-hi">${hm(b.hora_inicio)}</div>
+            <div class="tot-blq-hf">${b.hora_fin?hm(b.hora_fin):''}</div>
+            <span class="tot-blq-tipo" style="background:${color}22;color:${color};border:1px solid ${color}55">${ico} ${b.tipo}</span>
+          </div>
+          <div class="tot-blq-c">
+            <div class="tot-blq-t">${tTxt(b,'titulo')}</div>
+            <div class="tot-blq-m">${b.sala?('📍 <b>'+b.sala+'</b>'):''}${b.expositores?(b.sala?' · ':'')+tt('expositores')+': '+b.expositores:''}${b.descripcion?'<br/>'+b.descripcion:''}</div>
+          </div>
+        </div>`;
+      }).join('')||'<div style="color:var(--sbm);font-size:13px;padding:16px">—</div>'}`;
+  }
+  else if(TVIEW==='salas'){
+    el.innerHTML=TSALAS.map(s=>`<div class="tot-card">
+      <div class="tot-card-t">📍 ${s.nombre}${s.capacidad?' <span style="font-size:.7em;color:var(--sbm);font-weight:600">· '+s.capacidad+'</span>':''}</div>
+      <div class="tot-card-d">${tTxt(s,'ubicacion')||''}${s.notas?'<br/><span style="color:var(--sbm)">'+s.notas+'</span>':''}</div>
+    </div>`).join('')||'<div style="color:var(--sbm);font-size:13px;padding:16px">—</div>';
+  }
+  else if(TVIEW==='faq'){
+    const wifi=(TEV.config||{}).wifi;
+    el.innerHTML=(wifi?`<div class="tot-card"><div class="tot-card-t">📶 WiFi</div><div class="tot-card-d">${wifi}</div></div>`:'')+
+      TFAQ.map(f=>`<div class="tot-card">
+        <div class="tot-card-t">${tTxt(f,'pregunta')}</div>
+        <div class="tot-card-d">${tTxt(f,'respuesta')}</div>
+      </div>`).join('')||'<div style="color:var(--sbm);font-size:13px;padding:16px">—</div>';
+  }
+  else if(TVIEW==='emra'){
+    el.innerHTML=`<button class="tot-dia-tabs" style="border:none;background:none;color:var(--e);font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;padding:2px" onclick="setTotView('chat')">${tt('volver')}</button>
+      <div class="tot-card"><div class="tot-card-t">¿Qué es la EMRA? / What is EMRA?</div>
+      <div class="tot-card-d">${EMRA_INFO.intro}<br/><br/>${EMRA_INFO.detalle}</div></div>
+      ${Object.entries(OE_CONFIG).map(([oe,c])=>`<div class="tot-card" style="border-left:3px solid ${c.color}">
+        <div class="tot-card-t">${oe} · ${c.label}</div><div class="tot-card-d">${c.desc}</div></div>`).join('')}
+      <div class="tot-card"><div class="tot-card-d" style="text-align:center">${EMRA_INFO.actores}<br/>portal.emra.cl · emra.cl</div></div>`;
+  }
+  else{ renderTotChatUI(); }
+}
+// ── Chat del tótem ──
+function totSugs(){
+  return TLANG==='en'
+    ? ["What's happening now?","Where is the parallel session?","What time is lunch?","What is EMRA?"]
+    : ['¿Qué viene ahora?','¿Dónde son las sesiones paralelas?','¿A qué hora es el almuerzo?','¿Qué es la EMRA?'];
+}
+function renderTotChatUI(){
+  const el=document.getElementById('tot-body');
+  el.innerHTML=`<div class="tot-chat">
+    <div class="tot-msgs" id="tot-msgs"></div>
+    <div class="tot-sugs">${totSugs().map(q=>`<button class="tot-sug" onclick="totPregunta(this.textContent)">${q}</button>`).join('')}
+      <button class="tot-sug" style="background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.5)" onclick="setTotView('emra')">🧭 ${tt('emra')}</button>
+    </div>
+    <div class="tot-bar">
+      <input class="tot-inp" id="tot-inp" placeholder="${tt('ph')}" maxlength="300" onkeydown="if(event.key==='Enter')totEnviar()"/>
+      <button class="tot-send" onclick="totEnviar()">${tt('enviar')} ➤</button>
+    </div>
+  </div>`;
+  renderTotMsgs();
+}
+function renderTotChatInit(){
+  if(!TCHAT.length){ TCHAT=[{rol:'bot',txt:tt('saludo')}]; }
+  if(TVIEW==='chat')renderTotChatUI();
+}
+function renderTotMsgs(){
+  const el=document.getElementById('tot-msgs');
+  if(!el)return;
+  el.innerHTML=TCHAT.map(m=>`<div class="tot-m ${m.rol}">${m.txt.replace(/</g,'&lt;')}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function totPregunta(q){ const i=document.getElementById('tot-inp'); if(i)i.value=q; totEnviar(); }
+function eventoPromptContext(){
+  const cfg=TEV.config||{};
+  const dias=[...new Set(TBLQ.map(b=>b.dia))];
+  const prog=dias.map(d=>'DÍA '+d+':\n'+TBLQ.filter(b=>b.dia===d).map(b=>`  ${hm(b.hora_inicio)}${b.hora_fin?'-'+hm(b.hora_fin):''} [${b.tipo}] ${b.titulo}${b.titulo_en?' / '+b.titulo_en:''}${b.sala?' — Sala: '+b.sala:''}${b.expositores?' — Participan: '+b.expositores:''}`).join('\n')).join('\n');
+  const salas=TSALAS.map(s=>`- ${s.nombre}: ${s.ubicacion||''}${s.ubicacion_en?' / '+s.ubicacion_en:''}${s.capacidad?' (cap. '+s.capacidad+')':''}${s.notas?' — '+s.notas:''}`).join('\n');
+  const faq=TFAQ.map(f=>`- ${f.pregunta}: ${f.respuesta}${f.respuesta_en?' / EN: '+f.respuesta_en:''}`).join('\n');
+  return `EVENTO EN CURSO: ${TEV.nombre}${TEV.nombre_en?' / '+TEV.nombre_en:''}
+Lugar: ${TEV.lugar||'-'} · Fechas: ${TEV.fecha_inicio||''} a ${TEV.fecha_fin||''}
+${TEV.descripcion||''}
+FECHA Y HORA ACTUAL: ${totHoy()} ${totHM()} (hora local)
+${cfg.wifi?'WIFI: '+cfg.wifi:''}
+
+PROGRAMA COMPLETO:
+${prog||'(sin programa cargado)'}
+
+SALAS Y UBICACIONES:
+${salas||'(sin salas cargadas)'}
+
+INFO ÚTIL / FAQ:
+${faq||'(sin FAQ)'}`;
+}
+async function totEnviar(){
+  const inp=document.getElementById('tot-inp');
+  const q=(inp?.value||'').trim();
+  if(!q)return;
+  inp.value='';
+  TCHAT.push({rol:'user',txt:q});
+  TCHAT.push({rol:'bot',txt:tt('pensando')});
+  renderTotMsgs();
+  const hist=TCHAT.filter(m=>m.txt!==tt('pensando')).slice(-8).map(m=>({role:m.rol==='user'?'user':'assistant',content:m.txt}));
+  const no=lineas(G('noHacer'));
+  const sys=[
+    'Eres Gorito, el asistente oficial de este evento en un tótem táctil. Respondes MUY breve (máx ~80 palabras), claro y amable. Responde SIEMPRE en el idioma del usuario (español o inglés). No uses markdown.',
+    'Usa la FECHA Y HORA ACTUAL para responder qué está pasando ahora, qué viene después y cuánto falta. Si preguntan por una sala, indica cómo llegar según SALAS.',
+    no.length?('REGLAS ESTRICTAS:\n'+no.map(s=>'- '+s).join('\n')):'',
+    eventoPromptContext(),
+    'CONTEXTO EMRA (por si preguntan por la estrategia):\n'+emraContextText()
+  ].filter(Boolean).join('\n\n');
+  try{
+    const r=await fetch(CLAUDE_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:350,system:sys,messages:hist})});
+    const data=await r.json();
+    let txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    if(!txt)throw new Error('sin respuesta');
+    txt=txt.replace(/IDS:\s*\[[^\]]*\]\s*$/,'').trim();
+    TCHAT[TCHAT.length-1]={rol:'bot',txt};
+  }catch(e){
+    TCHAT[TCHAT.length-1]={rol:'bot',txt:tt('err')};
+  }
+  renderTotMsgs();
+}
+function renderReposoAhora(){
+  const r=document.getElementById('tot-reposo');
+  if(!r)return;
+  const a=bloqueAhora(),px=bloquesProx(2);
+  r.innerHTML=`
+    <div class="tot-r-hora"><div class="tot-hora tot-hora-live" style="font-size:clamp(26px,4.5vh,40px)">${totHM()}</div><div class="tot-fecha">${fFecha(totHoy(),false)}</div></div>
+    <img class="tot-r-gorito" src="${typeof GORITO_URL!=='undefined'?GORITO_URL:''}" onerror="this.style.display='none'"/>
+    <div class="tot-r-hola">${tt('hola')}</div>
+    <div class="tot-r-sub">${tt('sub')}</div>
+    ${a?`<div class="tot-r-ahora"><div class="tot-ahora-k"><span class="tot-dot-live"></span>${tt('ahora')}</div>
+      <div class="tot-ahora-t" style="font-size:clamp(14px,2.2vh,19px)">${tTxt(a,'titulo')}</div>
+      <div class="tot-ahora-m">${hm(a.hora_inicio)}–${hm(a.hora_fin)||''}${a.sala?' · 📍 '+a.sala:''}</div></div>`
+    :px.length?`<div class="tot-r-ahora"><div class="tot-ahora-k">${tt('prox')}</div>
+      <div class="tot-ahora-t" style="font-size:clamp(14px,2.2vh,19px)">${tTxt(px[0],'titulo')}</div>
+      <div class="tot-ahora-m">${hm(px[0].hora_inicio)}${px[0].sala?' · 📍 '+px[0].sala:''}</div></div>`:''}
+    <div class="tot-r-toca">${tt('toca')}</div>`;
+}
+
+
+// ═══════════════════════════════════════════════════════
+// ADMIN — TAB EVENTOS (tótem)
+// ═══════════════════════════════════════════════════════
+let EADM_LIST=[], EADM_SEL=null;
+async function renderAdminEventos(){
+  const el=document.getElementById('admin-content');
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando eventos…</div>';
+  let err=null;
+  try{ EADM_LIST=await sbFetch('eventos?order=id.desc')||[]; }catch(e){ EADM_LIST=[]; err=e.message; }
+  el.innerHTML=`
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudieron leer las tablas de eventos (${err}).<br/>Ejecuta <b>eventos.sql</b> en Supabase y recarga.</div></div>`:''}
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div class="a-box">
+        <div class="a-box-title">➕ Nuevo evento</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="a-field"><div class="a-label">Nombre *</div><input id="ev-nombre" class="a-form-inp" placeholder="Ej: 7ª Conferencia OCDE Regiones y Ciudades Mineras"/></div>
+          <div class="a-field"><div class="a-label">Nombre en inglés</div><input id="ev-nombre-en" class="a-form-inp" placeholder="7th OECD Mining Regions and Cities Conference"/></div>
+          <div class="a-field"><div class="a-label">Lugar</div><input id="ev-lugar" class="a-form-inp" placeholder="Ej: Hotel Antofagasta, Salón Principal"/></div>
+          <div style="display:flex;gap:8px">
+            <div class="a-field" style="flex:1"><div class="a-label">Inicio</div><input id="ev-fi" type="date" class="a-form-inp"/></div>
+            <div class="a-field" style="flex:1"><div class="a-label">Término</div><input id="ev-ff" type="date" class="a-form-inp"/></div>
+          </div>
+          <div class="a-field"><div class="a-label">WiFi (red y clave, se muestra en Info útil)</div><input id="ev-wifi" class="a-form-inp" placeholder="Red: OCDE2026 · Clave: mineria2026"/></div>
+          <div class="a-field"><div class="a-label">Descripción breve (contexto para Gorito)</div><textarea id="ev-desc" class="a-form-inp" style="min-height:55px"></textarea></div>
+          <button class="a-btn a-btn-p" onclick="crearEvento()">Crear evento</button>
+        </div>
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">🎪 Eventos (${EADM_LIST.length})</div>
+        ${EADM_LIST.map(e=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:7px;${e.activo?'border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.06)':''}">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:#fff">${e.nombre}</div>
+              <div style="font-size:10px;color:var(--sbm)">${e.fecha_inicio||''}${e.fecha_fin?' → '+e.fecha_fin:''} ${e.activo?'· <b style="color:#10b981">● ACTIVO</b>':''}</div>
+            </div>
+            <button class="a-btn a-btn-g" style="font-size:10px" onclick="gestionarEvento(${e.id})">⚙ Gestionar</button>
+            <button class="a-btn a-btn-g" style="font-size:10px" onclick="activarEvento(${e.id},${e.activo?'false':'true'})">${e.activo?'⏸':'▶'}</button>
+            <button class="a-btn a-btn-g" style="font-size:10px;color:#ff8a7a" onclick="if(confirm('¿Eliminar este evento con todo su programa?'))eliminarEvento(${e.id})">🗑</button>
+          </div>`).join('')||'<div style="font-size:12px;color:var(--sbm)">Sin eventos aún.</div>'}
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="a-btn a-btn-p" onclick="closeAdmin();location.hash='#totem';openTotem()">🖥 Abrir modo tótem</button>
+          <button class="a-btn a-btn-g" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'#totem').then(()=>showAdminToast('✓ Link del tótem copiado'))">🔗 Copiar link</button>
+        </div>
+        <div style="font-size:9px;color:var(--sbm);margin-top:8px;line-height:1.6">Tip: para ensayar el evento antes del día, abre el tótem con <b>?simular=2026-10-28T10:30#totem</b> al final de la URL.</div>
+      </div>
+    </div>
+    <div id="ev-gestion" style="margin-top:14px"></div>`;
+  if(EADM_SEL) gestionarEvento(EADM_SEL);
+}
+async function crearEvento(){
+  const nombre=(document.getElementById('ev-nombre')?.value||'').trim();
+  if(!nombre){showAdminToast('⚠ Ponle nombre al evento',true);return}
+  try{
+    await sbFetch('eventos',{method:'POST',body:JSON.stringify({
+      nombre, nombre_en:(document.getElementById('ev-nombre-en')?.value||'').trim()||null,
+      lugar:(document.getElementById('ev-lugar')?.value||'').trim()||null,
+      fecha_inicio:document.getElementById('ev-fi')?.value||null,
+      fecha_fin:document.getElementById('ev-ff')?.value||null,
+      descripcion:(document.getElementById('ev-desc')?.value||'').trim()||null,
+      activo:false,
+      config:{wifi:(document.getElementById('ev-wifi')?.value||'').trim()}
+    })});
+    showAdminToast('✓ Evento creado — ahora gestiónalo para cargar el programa');renderAdminEventos();
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function activarEvento(id,on){
+  try{
+    if(on) await sbFetch('eventos?activo=eq.true',{method:'PATCH',body:JSON.stringify({activo:false})}).catch(()=>{});
+    await sbFetch('eventos?id=eq.'+id,{method:'PATCH',body:JSON.stringify({activo:on})});
+    showAdminToast(on?'✓ Evento activado (el tótem ya lo muestra)':'✓ Evento desactivado');renderAdminEventos();
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function eliminarEvento(id){
+  try{
+    await sbFetch('eventos?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});
+    if(EADM_SEL===id)EADM_SEL=null;
+    showAdminToast('✓ Evento eliminado');renderAdminEventos();
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function gestionarEvento(id){
+  EADM_SEL=id;
+  const ev=EADM_LIST.find(e=>e.id===id);if(!ev)return;
+  const box=document.getElementById('ev-gestion');
+  box.innerHTML='<div style="font-size:11px;color:var(--sbm)">⏳ Cargando programa…</div>';
+  let blqs=[],salas=[],faq=[];
+  try{
+    [blqs,salas,faq]=await Promise.all([
+      sbFetch('evento_bloques?evento_id=eq.'+id+'&order=dia,hora_inicio,orden'),
+      sbFetch('evento_salas?evento_id=eq.'+id+'&order=id'),
+      sbFetch('evento_faq?evento_id=eq.'+id+'&order=orden,id')
+    ]);
+  }catch(e){}
+  blqs=blqs||[];salas=salas||[];faq=faq||[];
+  const tipos=Object.keys(TIPOS_BLQ);
+  box.innerHTML=`<div class="a-box" style="border-color:rgba(3,143,207,.35)">
+    <div class="a-box-title">⚙ ${ev.nombre}</div>
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:8px">📅 Programa (${blqs.length} bloques)</div>
+        <div style="max-height:260px;overflow-y:auto;margin-bottom:10px">
+        ${blqs.map(b=>`<div style="display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--sbt);padding:5px 8px;background:var(--sb2);border-radius:6px;margin-bottom:4px">
+          <b style="color:var(--e);min-width:100px">${b.dia.slice(5)} ${b.hora_inicio.slice(0,5)}${b.hora_fin?'-'+b.hora_fin.slice(0,5):''}</b>
+          <span style="flex:1">[${b.tipo}] ${b.titulo}${b.sala?' · 📍'+b.sala:''}</span>
+          <button class="a-btn a-btn-g" style="font-size:9px;padding:2px 6px;color:#ff8a7a" onclick="delBloque(${b.id})">✕</button>
+        </div>`).join('')||'<div style="font-size:10px;color:var(--sbm)">Sin bloques aún.</div>'}
+        </div>
+        <div style="border:1px solid var(--sbb);border-radius:8px;padding:9px;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:800;color:#fff;margin-bottom:6px">＋ Agregar bloque</div>
+          <div style="display:grid;grid-template-columns:1fr 82px 82px;gap:6px;margin-bottom:6px">
+            <input id="bq-dia" type="date" class="a-form-inp" value="${ev.fecha_inicio||''}"/>
+            <input id="bq-hi" type="time" class="a-form-inp"/>
+            <input id="bq-hf" type="time" class="a-form-inp"/>
+          </div>
+          <input id="bq-titulo" class="a-form-inp" placeholder="Título de la sesión" style="margin-bottom:6px"/>
+          <input id="bq-titulo-en" class="a-form-inp" placeholder="Title in English (opcional)" style="margin-bottom:6px"/>
+          <div style="display:grid;grid-template-columns:140px 1fr;gap:6px;margin-bottom:6px">
+            <select id="bq-tipo" class="a-form-inp">${tipos.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>
+            <input id="bq-sala" class="a-form-inp" placeholder="Sala"/>
+          </div>
+          <input id="bq-exp" class="a-form-inp" placeholder="Expositores / participantes (opcional)" style="margin-bottom:6px"/>
+          <button class="a-btn a-btn-p" style="font-size:10px" onclick="addBloque(${id})">Agregar</button>
+        </div>
+        <details style="border:1px solid var(--sbb);border-radius:8px;padding:9px">
+          <summary style="font-size:10px;font-weight:800;color:#fff;cursor:pointer">📋 Carga masiva (pegar líneas)</summary>
+          <div style="font-size:9px;color:var(--sbm);margin:6px 0;line-height:1.6">Una por línea, separada por | :<br/><b>fecha|inicio|fin|título|tipo|sala|expositores</b><br/>Ej: 2026-10-28|08:30|09:00|Sesión de apertura|apertura|Salón Principal|</div>
+          <textarea id="bq-masivo" class="a-form-inp" style="min-height:80px;font-family:monospace;font-size:10px"></textarea>
+          <button class="a-btn a-btn-g" style="font-size:10px;margin-top:6px" onclick="addBloquesMasivo(${id})">Importar líneas</button>
+        </details>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:8px">📍 Salas (${salas.length})</div>
+        ${salas.map(s=>`<div style="display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--sbt);padding:5px 8px;background:var(--sb2);border-radius:6px;margin-bottom:4px">
+          <span style="flex:1"><b>${s.nombre}</b> — ${s.ubicacion||''}</span>
+          <button class="a-btn a-btn-g" style="font-size:9px;padding:2px 6px;color:#ff8a7a" onclick="delSala(${s.id})">✕</button>
+        </div>`).join('')}
+        <div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin:6px 0">
+          <input id="sa-nombre" class="a-form-inp" placeholder="Nombre"/>
+          <input id="sa-ubi" class="a-form-inp" placeholder="Cómo llegar (Piso 2, ala norte…)"/>
+        </div>
+        <input id="sa-ubi-en" class="a-form-inp" placeholder="Location in English (opcional)" style="margin-bottom:6px"/>
+        <button class="a-btn a-btn-g" style="font-size:10px;margin-bottom:14px" onclick="addSala(${id})">＋ Agregar sala</button>
+        <div style="font-size:11px;font-weight:800;color:#fff;margin-bottom:8px">ℹ️ Info útil / FAQ (${faq.length})</div>
+        ${faq.map(f=>`<div style="display:flex;gap:8px;align-items:center;font-size:10.5px;color:var(--sbt);padding:5px 8px;background:var(--sb2);border-radius:6px;margin-bottom:4px">
+          <span style="flex:1"><b>${f.pregunta}</b> — ${f.respuesta}</span>
+          <button class="a-btn a-btn-g" style="font-size:9px;padding:2px 6px;color:#ff8a7a" onclick="delFaq(${f.id})">✕</button>
+        </div>`).join('')}
+        <input id="fq-p" class="a-form-inp" placeholder="Pregunta (Ej: ¿Dónde es el almuerzo?)" style="margin:6px 0"/>
+        <input id="fq-r" class="a-form-inp" placeholder="Respuesta" style="margin-bottom:6px"/>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+          <input id="fq-p-en" class="a-form-inp" placeholder="Question EN (opcional)"/>
+          <input id="fq-r-en" class="a-form-inp" placeholder="Answer EN (opcional)"/>
+        </div>
+        <button class="a-btn a-btn-g" style="font-size:10px" onclick="addFaq(${id})">＋ Agregar FAQ</button>
+      </div>
+    </div>
+  </div>`;
+}
+async function addBloque(evId){
+  const dia=document.getElementById('bq-dia')?.value, hi=document.getElementById('bq-hi')?.value;
+  const titulo=(document.getElementById('bq-titulo')?.value||'').trim();
+  if(!dia||!hi||!titulo){showAdminToast('⚠ Día, hora de inicio y título son obligatorios',true);return}
+  try{
+    await sbFetch('evento_bloques',{method:'POST',body:JSON.stringify({
+      evento_id:evId,dia,hora_inicio:hi,hora_fin:document.getElementById('bq-hf')?.value||null,
+      titulo,titulo_en:(document.getElementById('bq-titulo-en')?.value||'').trim()||null,
+      tipo:document.getElementById('bq-tipo')?.value||'panel',
+      sala:(document.getElementById('bq-sala')?.value||'').trim()||null,
+      expositores:(document.getElementById('bq-exp')?.value||'').trim()||null
+    })});
+    showAdminToast('✓ Bloque agregado');gestionarEvento(evId);
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function addBloquesMasivo(evId){
+  const lns=lineas(document.getElementById('bq-masivo')?.value||'');
+  if(!lns.length)return;
+  let ok=0;
+  for(const ln of lns){
+    const p=ln.split('|').map(s=>s.trim());
+    if(p.length<4||!p[0]||!p[1]||!p[3])continue;
+    try{
+      await sbFetch('evento_bloques',{method:'POST',body:JSON.stringify({
+        evento_id:evId,dia:p[0],hora_inicio:p[1],hora_fin:p[2]||null,titulo:p[3],
+        tipo:(p[4]||'panel'),sala:p[5]||null,expositores:p[6]||null
+      })});ok++;
+    }catch(e){}
+  }
+  showAdminToast('✓ '+ok+' bloque(s) importado(s)');gestionarEvento(evId);
+}
+async function delBloque(id){ try{await sbFetch('evento_bloques?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});gestionarEvento(EADM_SEL);}catch(e){} }
+async function addSala(evId){
+  const nombre=(document.getElementById('sa-nombre')?.value||'').trim();
+  if(!nombre){showAdminToast('⚠ Nombre de la sala',true);return}
+  try{
+    await sbFetch('evento_salas',{method:'POST',body:JSON.stringify({
+      evento_id:evId,nombre,ubicacion:(document.getElementById('sa-ubi')?.value||'').trim()||null,
+      ubicacion_en:(document.getElementById('sa-ubi-en')?.value||'').trim()||null
+    })});gestionarEvento(evId);
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function delSala(id){ try{await sbFetch('evento_salas?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});gestionarEvento(EADM_SEL);}catch(e){} }
+async function addFaq(evId){
+  const p=(document.getElementById('fq-p')?.value||'').trim(), r=(document.getElementById('fq-r')?.value||'').trim();
+  if(!p||!r){showAdminToast('⚠ Pregunta y respuesta',true);return}
+  try{
+    await sbFetch('evento_faq',{method:'POST',body:JSON.stringify({
+      evento_id:evId,pregunta:p,respuesta:r,
+      pregunta_en:(document.getElementById('fq-p-en')?.value||'').trim()||null,
+      respuesta_en:(document.getElementById('fq-r-en')?.value||'').trim()||null
+    })});gestionarEvento(evId);
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
+}
+async function delFaq(id){ try{await sbFetch('evento_faq?id=eq.'+id,{method:'DELETE',prefer:'return=minimal'});gestionarEvento(EADM_SEL);}catch(e){} }
+
 const WELCOME_KEY='emra_welcome_v1';
 function maybeShowWelcome(){
   try{ if(localStorage.getItem(WELCOME_KEY)==='1') return; }catch(e){}
@@ -5538,6 +6132,7 @@ window.addEventListener('load',async()=>{
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
     if(location.hash==='#participa'){ openParticipa(); }
     else if(location.hash==='#pantalla'){ openPantalla(); }
+    else if(location.hash==='#totem'){ openTotem(); }
     else if(location.hash==='#mapa'){ /* acceso directo al mapa, sin portada */ }
     else { showPortada(); }
     // Init Leaflet después de que el DOM sea visible
