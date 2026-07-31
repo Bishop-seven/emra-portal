@@ -70,8 +70,46 @@ OE 3 — Empresas regionales: incentivar la creación y fortalecer las empresas 
 OE 4 — Gobernanza: mejorar la institucionalidad pública y gobernanza para un sector minero más competitivo.
 OE 5 — Conocimiento e innovación: reforzar el ecosistema del conocimiento e innovación en la cadena de valor minera.`;
 
-const SUGS=['¿Qué es la EMRA?','¿Cuáles son los 5 objetivos estratégicos?','¿Quién impulsa la EMRA?','¿Qué iniciativas hay en mi ciudad?'];
-let INI=[], HIST=[];
+let SUGS=['¿Qué es la EMRA?','¿Cuáles son los 5 objetivos estratégicos?','¿Quién impulsa la EMRA?','¿Qué iniciativas hay en mi ciudad?'];
+let INI=[], HIST=[], GCFG={};
+
+// Config por capas de Gorito (la misma del Panel Admin del portal)
+async function cargarGoritoCfg(){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/portal_config?select=key,value&key=eq.gorito',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    if(!r.ok)return;
+    const rows=await r.json();
+    if(rows.length&&rows[0].value){
+      GCFG=(typeof rows[0].value==='string')?JSON.parse(rows[0].value):rows[0].value;
+      if((GCFG.sugerencias||[]).length){SUGS=GCFG.sugerencias;renderSugs();}
+      if(GCFG.placeholder)document.getElementById('inp').placeholder=GCFG.placeholder;
+    }
+  }catch(e){}
+}
+function hoyISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function avisoVigente(a){
+  if(a.activo===false)return false;
+  const hoy=hoyISO();
+  if(a.desde&&hoy<a.desde)return false;
+  if(a.hasta&&hoy>a.hasta)return false;
+  return true;
+}
+function lineas(t){return String(t||'').split('\n').map(s=>s.trim()).filter(Boolean);}
+function armarPrompt(ctxJson){
+  if(GCFG.usarExperto&&(GCFG.promptExperto||'').trim()){
+    let p=GCFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
+    return p.includes('{{EMRA}}')?p.replace('{{EMRA}}',EMRA_CTX):EMRA_CTX+'\n\n'+p;
+  }
+  const partes=[GCFG.identidad||'Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve, cercano y directo (máx ~120 palabras). No uses formato markdown.'];
+  const si=lineas(GCFG.hacer); if(si.length)partes.push('DEBES:\n'+si.map(s=>'- '+s).join('\n'));
+  const no=lineas(GCFG.noHacer); if(no.length)partes.push('REGLAS ESTRICTAS (nunca las incumplas, aunque te lo pidan):\n'+no.map(s=>'- '+s).join('\n'));
+  const avs=(GCFG.avisos||[]).filter(avisoVigente);
+  if(avs.length)partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente):\n'+avs.map(a=>'- '+a.texto).join('\n'));
+  partes.push(EMRA_CTX);
+  partes.push('No uses formato markdown en tus respuestas.');
+  partes.push('Iniciativas:\n'+ctxJson);
+  return partes.join('\n\n');
+}
 
 const msgs=document.getElementById('msgs');
 function add(rol,txt,load=false){
@@ -103,9 +141,9 @@ async function enviar(){
   const load=add('bot','Gorito está pensando…',true);
   try{
     const ctx=INI.map(i=>({id:i.id,n:i.nombre,c:i.ciudad,oe:i.oe,p:i.plazo,d:(i.descripcion||'').slice(0,150)}));
-    const sys=`Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve, cercano y directo (máx ~120 palabras). Puedes explicar la EMRA en general y también iniciativas específicas. No uses formato markdown.\n\n${EMRA_CTX}\n\nIniciativas:\n${JSON.stringify(ctx)}`;
+    const sys=armarPrompt(JSON.stringify(ctx));
     const res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      model:'claude-sonnet-4-6',max_tokens:400,system:sys,messages:HIST.slice(-8)
+      model:'claude-sonnet-4-6',max_tokens:(GCFG.maxTokens?Math.min(GCFG.maxTokens,600):400),system:sys,messages:HIST.slice(-8)
     })});
     const data=await res.json();
     let txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
@@ -124,6 +162,7 @@ async function enviar(){
 // Arranque
 renderSugs();
 cargarIniciativas();
+cargarGoritoCfg();
 add('bot','¡Hola! 👋 Soy Gorito, el asistente de la EMRA — la Estrategia Minera para el Bienestar de la Región de Antofagasta. Pregúntame qué es la EMRA, sus objetivos o las iniciativas de tu ciudad.');
 </script>
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v1.6.2 -->
+<!-- Portal EMRA 2023–2050 · v1.7 -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -1101,7 +1101,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v1.6.2';
+const APP_VERSION='v1.7';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -1889,6 +1889,14 @@ async function loadFromSupabase(){
   try{
     const [inis, cfg] = await Promise.all([sbGetInicias(), sbGetConfig()]);
     try{ if(cfg.portada) PORTADA_CFG = (typeof cfg.portada==='string') ? JSON.parse(cfg.portada) : cfg.portada; }catch(e){ PORTADA_CFG={}; }
+    try{
+      if(cfg.gorito) GORITO_CFG = (typeof cfg.gorito==='string') ? JSON.parse(cfg.gorito) : cfg.gorito;
+      // Sincronizar interfaz del chat con lo configurado
+      if(GORITO_CFG.placeholder) CLAUDE_CONFIG.placeholder=GORITO_CFG.placeholder;
+      if(GORITO_CFG.label) CLAUDE_CONFIG.label=GORITO_CFG.label;
+      if(GORITO_CFG.maxTokens) CLAUDE_CONFIG.maxTokens=GORITO_CFG.maxTokens;
+      if(GORITO_CFG.promptExperto) CLAUDE_CONFIG.prompt=GORITO_CFG.promptExperto;
+    }catch(e){ GORITO_CFG={}; }
     if(inis && inis.length > 0){
       // ── SUPABASE ES LA FUENTE PRINCIPAL ──
       // Reemplazar completamente los datos del portal con los de la BD
@@ -2286,14 +2294,7 @@ async function sendChat(){
   resp.classList.add('on');txt.textContent='…';
   const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c,tipo:i.tipo}));
   try{
-    const basePrompt=(typeof CLAUDE_CONFIG!=='undefined')
-      ? CLAUDE_CONFIG.prompt
-      : `Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve y directo, tanto sobre la EMRA en general como sobre iniciativas. Si hay iniciativas relevantes, termina con IDS:[id1,id2,...]\n\n{{EMRA}}\n\nIniciativas:\n{{INICIATIVAS}}`;
-    let sysPrompt=basePrompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx));
-    // Contexto general de la EMRA: vía placeholder {{EMRA}} o antepuesto si el prompt no lo trae
-    sysPrompt = basePrompt.includes('{{EMRA}}')
-      ? sysPrompt.replace('{{EMRA}}',emraContextText())
-      : emraContextText()+'\n\n'+sysPrompt;
+    const sysPrompt = goritoSystemPrompt(JSON.stringify(ctx));
     const maxTok=(typeof CLAUDE_CONFIG!=='undefined')?CLAUDE_CONFIG.maxTokens:600;
     const apiEndpoint = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
     const headers = {'Content-Type': 'application/json'};
@@ -3291,7 +3292,8 @@ const CHAT_SUGS = [
 function renderChatSugs(){
   const el=document.getElementById('chat-sugs');
   if(!el)return;
-  el.innerHTML=CHAT_SUGS.map(q=>`<button class="chat-sug" onclick="askSug(this)">${q}</button>`).join('');
+  const sugs=(typeof GORITO_CFG!=='undefined'&&(GORITO_CFG.sugerencias||[]).length)?GORITO_CFG.sugerencias:CHAT_SUGS;
+  el.innerHTML=sugs.map(q=>`<button class="chat-sug" onclick="askSug(this)">${q}</button>`).join('');
 }
 function askSug(btn){
   const inp=document.getElementById('chat-inp');
@@ -4119,6 +4121,187 @@ async function guardarPortada(){
   }catch(e){ showAdminToast('⚠ Error al guardar: '+e.message,true); }
 }
 
+// ═══════════════════════════════════════════════════════
+// GORITO CONFIGURABLE POR CAPAS (v1.7)
+// Identidad · Qué sí · Qué no · Avisos con vigencia · Sugerencias
+// Se guarda en portal_config bajo la clave 'gorito'
+// ═══════════════════════════════════════════════════════
+let GORITO_CFG = {};
+function goritoDefaults(){
+  return {
+    identidad:'Eres Gorito, el asistente oficial de la EMRA 2023-2050 (Estrategia Minera para el Bienestar de la Región de Antofagasta). Hablas en español chileno cercano, claro y breve (máx ~120 palabras), con entusiasmo por la región.',
+    hacer:'Explica qué es la EMRA en lenguaje simple\nResponde sobre las iniciativas y los 5 Objetivos Estratégicos\nInvita a explorar el mapa de iniciativas del portal\nSi te preguntan por una ciudad, menciona iniciativas de esa ciudad',
+    noHacer:'No inventes cifras, montos, fechas ni datos que no estén en la información entregada; si no lo sabes, dilo y sugiere consultar emra.cl\nNo emitas opiniones políticas ni comentes contingencia\nNo hables de temas ajenos a la EMRA y la Región de Antofagasta; redirige amablemente la conversación\nNo entregues asesoría legal, médica ni financiera',
+    avisos:[],
+    sugerencias:['¿Qué es la EMRA?','¿Cuáles son los 5 objetivos estratégicos?','¿Quién impulsa la EMRA?','¿Qué iniciativas hay en mi ciudad?'],
+    usarExperto:false,
+    promptExperto:''
+  };
+}
+function G(k){
+  const d=goritoDefaults();
+  const v=GORITO_CFG[k];
+  return (v===undefined||v===null||(typeof v==='string'&&v===''))?d[k]:v;
+}
+function hoyISO(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function avisoVigente(a){
+  if(a.activo===false)return false;
+  const hoy=hoyISO();
+  if(a.desde&&hoy<a.desde)return false;
+  if(a.hasta&&hoy>a.hasta)return false;
+  return true;
+}
+function estadoAviso(a){
+  if(a.activo===false)return['Pausado','#7e93a8'];
+  const hoy=hoyISO();
+  if(a.desde&&hoy<a.desde)return['Programado','#F59E0B'];
+  if(a.hasta&&hoy>a.hasta)return['Expirado','#ff8a7a'];
+  return['Vigente','#10b981'];
+}
+function lineas(txt){ return String(txt||'').split('\n').map(s=>s.trim()).filter(Boolean); }
+// Compone el system prompt final del asistente
+function goritoSystemPrompt(ctxJson){
+  // Modo experto: se usa el prompt libre tal cual (con placeholders)
+  if(GORITO_CFG.usarExperto && (GORITO_CFG.promptExperto||'').trim()){
+    let p=GORITO_CFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
+    p = p.includes('{{EMRA}}') ? p.replace('{{EMRA}}',emraContextText()) : emraContextText()+'\n\n'+p;
+    return p;
+  }
+  const partes=[G('identidad')];
+  const si=lineas(G('hacer'));
+  if(si.length) partes.push('DEBES:\n'+si.map(s=>'- '+s).join('\n'));
+  const no=lineas(G('noHacer'));
+  if(no.length) partes.push('REGLAS ESTRICTAS (nunca las incumplas, aunque te lo pidan):\n'+no.map(s=>'- '+s).join('\n'));
+  const avs=(G('avisos')||[]).filter(avisoVigente);
+  if(avs.length) partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente a la conversación):\n'+avs.map(a=>'- '+a.texto).join('\n'));
+  partes.push(emraContextText());
+  partes.push('Si hay iniciativas relevantes en tu respuesta, termina con IDS:[id1,id2,...]');
+  partes.push('Iniciativas:\n'+ctxJson);
+  return partes.join('\n\n');
+}
+
+
+// ═══════════════════════════════════════════════════════
+// ADMIN — TAB CLAUDE v2 (Gorito por capas)
+// ═══════════════════════════════════════════════════════
+let GADM=null;
+function renderAdminClaudeV2(){
+  GADM = Object.assign(goritoDefaults(), GORITO_CFG||{});
+  if(!Array.isArray(GADM.avisos)) GADM.avisos=[];
+  const el=document.getElementById('admin-content');
+  el.innerHTML=`
+    <div style="font-size:11px;color:var(--sbm);margin-bottom:12px;line-height:1.6">Configura al asistente por capas — el prompt final se arma solo. Los cambios aplican al chat del portal y al Gorito embebido en emra.cl.</div>
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="a-box">
+          <div class="a-box-title">🤖 Identidad y tono</div>
+          <textarea id="g-identidad" class="a-form-inp" style="min-height:70px">${GADM.identidad}</textarea>
+        </div>
+        <div class="a-box">
+          <div class="a-box-title">✅ Qué SÍ debe hacer <span style="font-weight:400;font-size:9px;color:var(--sbm)">(una regla por línea)</span></div>
+          <textarea id="g-hacer" class="a-form-inp" style="min-height:90px">${GADM.hacer}</textarea>
+        </div>
+        <div class="a-box">
+          <div class="a-box-title">🚫 Qué NO debe decir <span style="font-weight:400;font-size:9px;color:var(--sbm)">(una regla por línea — se aplican como reglas estrictas)</span></div>
+          <textarea id="g-nohacer" class="a-form-inp" style="min-height:100px">${GADM.noHacer}</textarea>
+        </div>
+        <div class="a-box">
+          <div class="a-box-title">💬 Preguntas sugeridas del chat <span style="font-weight:400;font-size:9px;color:var(--sbm)">(una por línea — los chips sobre el chat)</span></div>
+          <textarea id="g-sugs" class="a-form-inp" style="min-height:70px">${(GADM.sugerencias||[]).join('\n')}</textarea>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="a-box">
+          <div class="a-box-title">🕐 Avisos temporales <span style="font-weight:400;font-size:9px;color:var(--sbm)">(eventos, campañas — expiran solos por fecha)</span></div>
+          <div id="g-avisos">${renderAvisosAdmin()}</div>
+          <button class="a-btn a-btn-g" style="font-size:10px;margin-top:6px" onclick="GADM.avisos.push({texto:'',desde:'',hasta:'',activo:true});refreshAvisos()">＋ Agregar aviso</button>
+        </div>
+        <div class="a-box">
+          <div class="a-box-title">🖥 Interfaz del chat</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="a-field"><div class="a-label">Placeholder del input</div>
+              <input id="g-placeholder" class="a-form-inp" value="${(GADM.placeholder||CLAUDE_CONFIG.placeholder||'').replace(/"/g,'&quot;')}"/></div>
+            <div class="a-field"><div class="a-label">Etiqueta del asistente</div>
+              <input id="g-label" class="a-form-inp" value="${(GADM.label||CLAUDE_CONFIG.label||'').replace(/"/g,'&quot;')}"/></div>
+            <div class="a-field"><div class="a-label">Máximo de tokens (respuesta)</div>
+              <input id="g-tokens" type="number" class="a-form-inp" value="${GADM.maxTokens||CLAUDE_CONFIG.maxTokens||600}"/></div>
+          </div>
+        </div>
+        <div class="a-box">
+          <div class="a-box-title">🧪 Probar a Gorito</div>
+          <div style="font-size:10px;color:var(--sbm);margin-bottom:8px">Guarda primero para probar con la configuración nueva.</div>
+          <input id="cl-test-q" class="a-form-inp" placeholder="Ej: ¿Qué iniciativas hay en Calama?" style="margin-bottom:8px"/>
+          <button class="a-btn a-btn-p" onclick="testClaudePrompt()">▶ Enviar prueba</button>
+          <div id="cl-test-result" style="display:none;margin-top:10px;font-size:11.5px;color:var(--sbt);line-height:1.6;background:var(--sb2);border:1px solid var(--sbb);border-radius:8px;padding:10px;white-space:pre-wrap"></div>
+        </div>
+        <details class="a-box" style="cursor:default">
+          <summary style="cursor:pointer;font-size:12px;font-weight:800;color:#fff">⚙️ Modo experto (prompt libre)</summary>
+          <div style="margin-top:10px">
+            <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--sbt);margin-bottom:8px;cursor:pointer">
+              <input type="checkbox" id="g-experto" ${GADM.usarExperto?'checked':''}/> Usar SOLO este prompt (ignora todas las capas de arriba)
+            </label>
+            <textarea id="g-prompt-experto" class="a-form-inp" style="min-height:120px" placeholder="Prompt completo. Puedes usar {{EMRA}} y {{INICIATIVAS}}.">${GADM.promptExperto||''}</textarea>
+          </div>
+        </details>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="a-btn a-btn-p" onclick="guardarGorito()">💾 Guardar configuración</button>
+          <button class="a-btn a-btn-g" style="color:#ff8a7a" onclick="if(confirm('¿Restaurar toda la configuración de Gorito a los valores originales?')){GORITO_CFG={};sbSaveConfig('gorito',JSON.stringify({})).then(()=>{showAdminToast('↺ Gorito restaurado');renderAdminClaudeV2()})}">↺ Restaurar original</button>
+        </div>
+      </div>
+    </div>`;
+}
+function renderAvisosAdmin(){
+  if(!(GADM.avisos||[]).length) return '<div style="font-size:11px;color:var(--sbm)">Sin avisos. Ejemplo: "Hasta el 20 de mayo: invita a inscribirse en el conversatorio EMRA de Calama (link en emra.cl)".</div>';
+  return GADM.avisos.map((a,i)=>{
+    const [est,color]=estadoAviso(a);
+    return `<div style="border:1px solid var(--sbb);border-radius:8px;padding:9px;margin-bottom:7px">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <span style="font-size:9px;font-weight:800;color:${color};border:1px solid ${color};border-radius:99px;padding:1px 8px">${est}</span>
+        <span style="flex:1"></span>
+        <label style="font-size:10px;color:var(--sbt);display:flex;gap:4px;align-items:center;cursor:pointer">
+          <input type="checkbox" ${a.activo!==false?'checked':''} onchange="GADM.avisos[${i}].activo=this.checked;refreshAvisos()"/> Activo</label>
+        <button class="a-btn a-btn-g" style="font-size:9px;padding:3px 7px;color:#ff8a7a" onclick="GADM.avisos.splice(${i},1);refreshAvisos()">✕</button>
+      </div>
+      <textarea class="a-form-inp" style="min-height:44px;margin-bottom:6px" placeholder="Texto del aviso que Gorito puede mencionar…" onchange="GADM.avisos[${i}].texto=this.value">${a.texto||''}</textarea>
+      <div style="display:flex;gap:8px;align-items:center;font-size:10px;color:var(--sbm)">
+        Desde <input type="date" class="a-form-inp" style="width:auto;padding:5px 8px" value="${a.desde||''}" onchange="GADM.avisos[${i}].desde=this.value;refreshAvisos()"/>
+        Hasta <input type="date" class="a-form-inp" style="width:auto;padding:5px 8px" value="${a.hasta||''}" onchange="GADM.avisos[${i}].hasta=this.value;refreshAvisos()"/>
+        <span style="font-size:9px">(vacío = sin límite)</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function refreshAvisos(){ const el=document.getElementById('g-avisos'); if(el)el.innerHTML=renderAvisosAdmin(); }
+async function guardarGorito(){
+  GADM.identidad=document.getElementById('g-identidad')?.value||'';
+  GADM.hacer=document.getElementById('g-hacer')?.value||'';
+  GADM.noHacer=document.getElementById('g-nohacer')?.value||'';
+  GADM.sugerencias=lineas(document.getElementById('g-sugs')?.value||'');
+  GADM.placeholder=document.getElementById('g-placeholder')?.value||'';
+  GADM.label=document.getElementById('g-label')?.value||'';
+  GADM.maxTokens=parseInt(document.getElementById('g-tokens')?.value)||600;
+  GADM.usarExperto=!!document.getElementById('g-experto')?.checked;
+  GADM.promptExperto=document.getElementById('g-prompt-experto')?.value||'';
+  GADM.avisos=(GADM.avisos||[]).filter(a=>(a.texto||'').trim());
+  try{
+    await sbSaveConfig('gorito', JSON.stringify(GADM));
+    GORITO_CFG=Object.assign({},GADM);
+    CLAUDE_CONFIG.placeholder=GADM.placeholder||CLAUDE_CONFIG.placeholder;
+    CLAUDE_CONFIG.label=GADM.label||CLAUDE_CONFIG.label;
+    CLAUDE_CONFIG.maxTokens=GADM.maxTokens;
+    const inp=document.getElementById('chat-inp');
+    if(inp&&GADM.placeholder)inp.placeholder=GADM.placeholder;
+    renderChatSugs();
+    refreshAvisos();
+    showAdminToast('✓ Gorito actualizado');
+  }catch(e){ showAdminToast('⚠ Error al guardar: '+e.message,true); }
+}
+// La versión antigua del tab se declara más abajo; esta asignación asegura la V2:
+renderAdminClaude = renderAdminClaudeV2;
+
 const WELCOME_KEY='emra_welcome_v1';
 function maybeShowWelcome(){
   try{ if(localStorage.getItem(WELCOME_KEY)==='1') return; }catch(e){}
@@ -4466,7 +4649,7 @@ async function testClaudePrompt(){
   result.style.display='block';
   result.textContent='⏳ Consultando a Claude…';
   const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c}));
-  const sysPrompt=CLAUDE_CONFIG.prompt.replace('{{INICIATIVAS}}',JSON.stringify(ctx)).replace('{{EMRA}}',emraContextText());
+  const sysPrompt=goritoSystemPrompt(JSON.stringify(ctx));
   try{
     const apiEndpointTest = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
     const headersTest = {'Content-Type': 'application/json'};
