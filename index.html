@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v2.3 (+ Reto de GORITO con admin) -->
+<!-- Portal EMRA 2023–2050 · v2.3.3 (+ Reto de GORITO: atardecer, fotos y logos) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -6681,10 +6681,16 @@ window.addEventListener('load',async()=>{
      avatar GORITO del portal, paleta y fuentes del portal.
      ═══════════════════════════════════════════════════════════ -->
 <style id="reto-css">
-#reto-overlay{display:none;position:fixed;inset:0;z-index:9500;background:#060e18;overflow-y:auto;
-  font-family:'Inter',sans-serif;color:#e2e8f0}
+#reto-overlay{display:none;position:fixed;inset:0;z-index:9500;overflow-y:auto;
+  font-family:'Inter',sans-serif;color:#e2e8f0;
+  background:linear-gradient(to top,
+    rgba(224,118,58,.85) 0%, rgba(245,164,107,.45) 20%,
+    #141B3D 58%, #0B1026 100%) #0B1026}
+#reto-overlay::after{content:"";position:fixed;left:0;right:0;bottom:0;height:15vh;z-index:0;pointer-events:none;
+  background:#07091A;
+  clip-path:polygon(0 62%,9% 48%,17% 58%,28% 38%,38% 55%,50% 42%,61% 60%,72% 44%,84% 56%,93% 46%,100% 58%,100% 100%,0 100%)}
 #reto-overlay.abierto{display:block}
-#reto-overlay *{box-sizing:border-box;margin:0;padding:0}
+#reto-overlay *{box-sizing:border-box}
 .rg-estrellas{position:fixed;inset:0;pointer-events:none;z-index:0}
 .rg-estrella{position:absolute;background:#fff;border-radius:50%;animation:rg-titilar 3.5s ease-in-out infinite}
 @keyframes rg-titilar{0%,100%{opacity:.2}50%{opacity:.8}}
@@ -6693,8 +6699,8 @@ window.addEventListener('load',async()=>{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#e2e8f0;
   font-size:17px;cursor:pointer;font-family:inherit}
 .rg-cerrar:hover{background:rgba(255,255,255,.15)}
-.rg-app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;
-  max-width:520px;margin:0 auto;padding:20px 20px 36px}
+.rg-app{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;
+  width:100%;max-width:520px;margin-left:auto;margin-right:auto;padding:16px 18px 32px}
 .rg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-right:44px}
 .rg-marca{font-family:'DM Sans',sans-serif;font-weight:800;font-size:12px;letter-spacing:.12em;color:#038FCF}
 .rg-marca span{color:#19BAB6}
@@ -6721,6 +6727,10 @@ window.addEventListener('load',async()=>{
 .rg-bonus-tag{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:800;letter-spacing:.14em;
   color:#F5D06B;margin-bottom:8px}
 .rg-q-img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;margin-bottom:12px}
+.rg-logos{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.rg-logos img{height:26px;max-width:120px;object-fit:contain;background:rgba(255,255,255,.94);
+  border-radius:8px;padding:4px 9px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+@media (min-width:700px){.rg-logos img{height:30px;max-width:140px}}
 .rg-stats{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
 .rg-stat{background:#0B1929;border:1px solid rgba(255,255,255,.1);border-radius:10px;
   padding:12px 18px;text-align:center;min-width:96px}
@@ -6824,6 +6834,29 @@ window.addEventListener('load',async()=>{
   .rg-gorito,.rg-estrella{animation:none}
   .rg-pantalla,.rg-dato,.rg-reaccion,.rg-combo{animation:none}
 }
+/* ── responsivo ── */
+@media (min-width:700px){
+  #reto-overlay{display:none;align-items:flex-start;justify-content:center;padding:32px 20px}
+  #reto-overlay.abierto{display:flex}
+  .rg-app{max-width:600px;min-height:0;background:rgba(11,25,41,.55);
+    border:1px solid rgba(255,255,255,.08);border-radius:18px;
+    padding:24px 34px 36px;box-shadow:0 24px 70px rgba(0,0,0,.55);
+    backdrop-filter:blur(6px)}
+  .rg-burbuja h1{font-size:30px}
+  .rg-burbuja h2{font-size:19px}
+  .rg-burbuja p{font-size:15px}
+  .rg-chip{font-size:15px;padding:15px 19px}
+  .rg-gorito{width:132px;height:132px}
+  .rg-cerrar{top:22px;right:26px;width:42px;height:42px;font-size:19px}
+}
+@media (max-width:400px){
+  .rg-app{padding:12px 14px 28px}
+  .rg-burbuja{padding:15px 16px}
+  .rg-burbuja h1{font-size:23px}
+  .rg-stats{gap:8px}
+  .rg-stat{min-width:0;flex:1;padding:10px 8px}
+  .rg-puntaje{font-size:44px}
+}
 </style>
 
 <div id="reto-overlay" role="dialog" aria-label="El Reto de GORITO">
@@ -6867,6 +6900,7 @@ window.addEventListener('load',async()=>{
           <div class="num" id="rg-t-num">15</div>
         </div>
       </div>
+      <div class="rg-logos" id="rg-logos"></div>
       <div class="rg-burbuja" id="rg-q-burbuja">
         <div class="rg-bonus-tag" id="rg-bonus-tag" style="display:none">⭐ PREGUNTA BONUS · DOBLE O NADA</div>
         <img class="rg-q-img" id="rg-q-img" alt="" style="display:none">
@@ -6975,7 +7009,7 @@ function retoDefaults(){
     reaccionTiempo: "⏰ ¡Se acabó el tiempo!",
     frases: {5:"¡Perfecto! Conoces tu región como GORITO 🦉",4:"¡Casi perfecto! El futuro te queda cerca.",3:"¡Bien! Pero GORITO sabe que puedes más.",2:"Vas aprendiendo. El lunes te espero de nuevo.",1:"El futuro tiene sorpresas, ¿ah? Vuelve a intentarlo.",0:"¡GORITO te pilló! Ahora ya sabes más que antes."},
     banco: [
-      {tema:"Reto del Agua", medalla:"💧", titulo:"¿Sabes de dónde vendrá el agua del futuro?",
+      {tema:"Reto del Agua", medalla:"💧", imagen:"", titulo:"¿Sabes de dónde vendrá el agua del futuro?",
        contexto:"En pleno desierto más árido del mundo, el agua es el desafío número uno de la región. Por eso la EMRA puso una meta ambiciosa: que al 2030 la minería reduzca en 60% su uso de agua continental y que el mar, desalinizado con la energía del sol, se convierta en la gran fuente de agua para la industria y las personas. El futuro del agua ya se está construyendo en la costa de tu región.",
        preguntas:[
         {texto:"¿Cuánto busca reducir la minería regional su uso de agua continental al 2030?",opciones:["60%","25%","90%","10%"],dato:"La meta EMRA es reducir en un 60% el uso de agua continental en la minería metálica al 2030. El mar toma el relevo.",imagen:""},
@@ -6985,7 +7019,7 @@ function retoDefaults(){
         {texto:"¿Cuántas iniciativas de mediano plazo impulsa la EMRA?",opciones:["37","12","80","5"],dato:"Son 37 iniciativas de mediano plazo las que están transformando la región. Explóralas todas en el mapa de este portal.",imagen:""}
        ],
        bonus:{texto:"⭐ La meta del 60% de reducción de agua continental se mide sobre…",opciones:["Los derechos de agua autorizados ambientalmente","El consumo del año 1990","La lluvia anual de la región","El caudal del río Loa"],dato:"¡Nivel experto! La aspiración es disminuir el uso de agua continental sobre los derechos de agua autorizados ambientalmente, en todas las operaciones de la minería metálica.",imagen:""}},
-      {tema:"Reto de la Energía", medalla:"⚡", titulo:"¿Cuánto sabes del desierto que ilumina al mundo?",
+      {tema:"Reto de la Energía", medalla:"⚡", imagen:"", titulo:"¿Cuánto sabes del desierto que ilumina al mundo?",
        contexto:"El desierto de Atacama recibe la radiación solar más alta del planeta: cada metro cuadrado de pampa es energía esperando ser aprovechada. La EMRA apunta a que al 2030 el 100% de la energía de la minería regional venga de fuentes renovables, y a que la región lidere la producción de hidrógeno verde. Antofagasta no solo exporta minerales: puede exportar la energía limpia que el mundo necesita.",
        preguntas:[
         {texto:"¿Qué porcentaje del consumo energético de la minería se busca que venga de fuentes renovables al 2030?",opciones:["100%","50%","30%","75%"],dato:"La meta es que el 100% de la energía de la minería regional venga de fuentes renovables al 2030. Todo con el sol del desierto.",imagen:""},
@@ -6995,7 +7029,7 @@ function retoDefaults(){
         {texto:"¿Cuánto de los residuos sólidos industriales no peligrosos se busca reducir al 2030?",opciones:["50%","10%","95%","20%"],dato:"La meta es reducir un 50% y destinarlos a reutilización, reciclaje o revalorización. Nada se pierde, todo se transforma.",imagen:""}
        ],
        bonus:{texto:"⭐ La reducción de al menos 30% de emisiones GEI al 2030 se mide respecto de…",opciones:["La línea base de cada empresa","El promedio nacional","Las emisiones del año 2000","Las emisiones de Santiago"],dato:"¡Nivel experto! La meta se mide respecto de la línea base de las respectivas empresas: cada una reduce sobre su propio punto de partida.",imagen:""}},
-      {tema:"Reto de los Cielos", medalla:"🌌", titulo:"¿Conoces el tesoro que brilla sobre tu cabeza?",
+      {tema:"Reto de los Cielos", medalla:"🌌", imagen:"", titulo:"¿Conoces el tesoro que brilla sobre tu cabeza?",
        contexto:"Los cielos del norte de Chile son los más limpios del planeta: por eso los observatorios más importantes del mundo eligieron esta región para mirar el universo. La EMRA busca proteger ese tesoro junto con la biodiversidad del desierto y la costa, impulsando un Centro de Biodiversidad del norte de Chile y sistemas de monitoreo ambiental transparentes y abiertos a todo público. Progreso y naturaleza, cuidándose mutuamente.",
        preguntas:[
         {texto:"Los cielos de la región de Antofagasta son famosos en el mundo por ser…",opciones:["Los más limpios del planeta para la astronomía","Los más nublados","Los más ventosos","Los más fríos"],dato:"Los cielos del norte de Chile son los más limpios del planeta: por eso los telescopios más grandes del mundo se instalan aquí.",imagen:""},
@@ -7112,7 +7146,7 @@ function rgInit(){
     const s=document.createElement("span");
     s.className="rg-estrella";
     const t=Math.random()*2+1;
-    s.style.cssText=`width:${t}px;height:${t}px;left:${Math.random()*100}%;top:${Math.random()*80}%;animation-delay:${Math.random()*3.5}s`;
+    s.style.cssText=`width:${t}px;height:${t}px;left:${Math.random()*100}%;top:${Math.random()*55}%;animation-delay:${Math.random()*3.5}s`;
     est.appendChild(s);
   }
   pintarChipsChat();
@@ -7182,15 +7216,36 @@ function nuevaPartida(){
   irA("rg-p-juego");
 }
 
+/* logos institucionales del portal (admin → Portal/Diseño), sobre la pregunta */
+function pintarLogos(){
+  const cont=$g("rg-logos");
+  if(!cont)return;
+  let urls=[];
+  try{
+    if(typeof PORTAL_CONFIG!=="undefined"){
+      if(PORTAL_CONFIG.logoUrl) urls.push(PORTAL_CONFIG.logoUrl);
+      (PORTAL_CONFIG.instituciones||[]).forEach(i=>{ if(i&&i.logoUrl) urls.push(i.logoUrl); });
+    }
+  }catch(e){}
+  urls=[...new Set(urls)].slice(0,6);
+  cont.innerHTML=urls.map(u=>`<img src="${u}" alt="" onerror="this.remove()">`).join("");
+  cont.style.display=urls.length?"flex":"none";
+}
+
 function mostrarPregunta(p){
+  pintarLogos();
   if(!rgEsBonus) document.querySelectorAll("#rg-barra i").forEach((el,i)=>{ if(i===rgIdx) el.classList.add("actual"); });
   $g("rg-q-texto").textContent=p.texto;
   $g("rg-reaccion").style.display="none";
   $g("rg-dato").style.display="none";
   $g("rg-btn-siguiente").style.display="none";
   const im=$g("rg-q-img");
-  if(p.imagen){ im.src=RCFG.carpetaImg+"/"+p.imagen; im.style.display="block"; im.onerror=()=>{im.style.display="none"}; }
-  else im.style.display="none";
+  const imgSrc = p.imagen || RETO.imagen || "";
+  if(imgSrc){
+    im.src = /^https?:\/\//.test(imgSrc) ? imgSrc : RCFG.carpetaImg+"/"+imgSrc;
+    im.style.display="block";
+    im.onerror=()=>{ im.style.display="none"; };
+  } else im.style.display="none";
 
   const correcta=p.opciones[0];
   const bar=[...p.opciones].sort(()=>Math.random()-.5);
@@ -7368,7 +7423,7 @@ function compartirTarjeta(){
   const cv=$g("rg-tarjeta"),ctx=cv.getContext("2d");
   const W=1080,H=1920;
   const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,"#060e18");g.addColorStop(.6,"#0B1929");g.addColorStop(1,"#0f2f47");
+  g.addColorStop(0,"#0B1026");g.addColorStop(.5,"#141B3D");g.addColorStop(.82,"#E0763A");g.addColorStop(1,"#F5A46B");
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="rgba(255,255,255,.85)";
   for(let i=0;i<100;i++){ctx.globalAlpha=Math.random()*.7+.2;ctx.beginPath();ctx.arc(Math.random()*W,Math.random()*H*.7,Math.random()*2.4+.6,0,7);ctx.fill()}
@@ -7507,7 +7562,7 @@ function pintarAdminReto(){
       <div class="a-field"><div class="a-label">GORITO te cuenta (dato tras responder)</div>
         <textarea class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-dato" rows="2">${esc(p.dato)}</textarea></div>
       <div class="a-field"><div class="a-label">Imagen (opcional, archivo en carpeta img/)</div>
-        <input class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-img" value="${esc(p.imagen||"")}" placeholder="ej: futuro-mar-2030.jpg"/></div>
+        <input class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-img" value="${esc(p.imagen||"")}" placeholder="URL o archivo (reemplaza la del tema)"/></div>
     </div>`;
 
   el.innerHTML=`
@@ -7571,6 +7626,8 @@ function pintarAdminReto(){
         <div class="a-field"><div class="a-label">Medalla (emoji)</div>
           <input class="a-form-inp" id="rt-medalla" value="${esc(r.medalla)}"/></div>
       </div>
+      <div class="a-field"><div class="a-label">📷 Imagen del tema — se muestra sobre cada pregunta (URL de Cloudinary o archivo en img/). Cada pregunta puede tener la suya propia, que la reemplaza.</div>
+        <input class="a-form-inp" id="rt-imagen" value="${esc(r.imagen||"")}" placeholder="https://res.cloudinary.com/…  ó  agua.jpg"/></div>
       <div class="a-field"><div class="a-label">Título (pregunta gancho de la portada)</div>
         <input class="a-form-inp" id="rt-titulo" value="${esc(r.titulo)}"/></div>
       <div class="a-field"><div class="a-label">Contexto del tema (se muestra al final del reto)</div>
@@ -7604,6 +7661,7 @@ function retoAdmHarvest(){
   const r=RADM.banco[RADM_SEL];
   r.tema=v("rt-tema")||r.tema;
   r.medalla=v("rt-medalla")||r.medalla;
+  r.imagen=v("rt-imagen")??"";
   r.titulo=v("rt-titulo")||r.titulo;
   r.contexto=v("rt-contexto")||r.contexto;
   r.preguntas.forEach((p,i)=>{
@@ -7629,7 +7687,7 @@ window.retoAdmSel=function(i){
 window.retoAdmNuevo=function(){
   retoAdmHarvest();
   RADM.banco.push({
-    tema:"Nuevo reto", medalla:"🏅", titulo:"¿Cuánto sabes de este tema?",
+    tema:"Nuevo reto", medalla:"🏅", imagen:"", titulo:"¿Cuánto sabes de este tema?",
     contexto:"Escribe aquí el contexto del tema que se mostrará al final del reto.",
     preguntas:Array.from({length:5},()=>({texto:"Escribe la pregunta…",opciones:["Respuesta correcta","Opción 2","Opción 3","Opción 4"],dato:"Dato de GORITO tras responder.",imagen:""})),
     bonus:{texto:"⭐ Pregunta bonus más difícil…",opciones:["Respuesta correcta","Opción 2","Opción 3","Opción 4"],dato:"Dato de GORITO del bonus.",imagen:""}
