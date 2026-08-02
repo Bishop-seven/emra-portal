@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v2.3.3 (+ Reto de GORITO: atardecer, fotos y logos) -->
+<!-- Portal EMRA 2023–2050 · v2.3.4 (+ Reto de GORITO: subida directa de imágenes) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -7561,8 +7561,11 @@ function pintarAdminReto(){
       </div>
       <div class="a-field"><div class="a-label">GORITO te cuenta (dato tras responder)</div>
         <textarea class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-dato" rows="2">${esc(p.dato)}</textarea></div>
-      <div class="a-field"><div class="a-label">Imagen (opcional, archivo en carpeta img/)</div>
-        <input class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-img" value="${esc(p.imagen||"")}" placeholder="URL o archivo (reemplaza la del tema)"/></div>
+      <div class="a-field"><div class="a-label">Imagen (opcional — reemplaza la del tema)</div>
+        <div style="display:flex;gap:6px">
+          <input class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-img" value="${esc(p.imagen||"")}" placeholder="URL de Cloudinary o archivo en img/" style="flex:1"/>
+          <button class="a-btn" onclick="retoAdmSubir('rt-${esBonus?'b':'q'+i}-img')" title="Subir imagen desde tu computador">📤</button>
+        </div></div>
     </div>`;
 
   el.innerHTML=`
@@ -7627,7 +7630,10 @@ function pintarAdminReto(){
           <input class="a-form-inp" id="rt-medalla" value="${esc(r.medalla)}"/></div>
       </div>
       <div class="a-field"><div class="a-label">📷 Imagen del tema — se muestra sobre cada pregunta (URL de Cloudinary o archivo en img/). Cada pregunta puede tener la suya propia, que la reemplaza.</div>
-        <input class="a-form-inp" id="rt-imagen" value="${esc(r.imagen||"")}" placeholder="https://res.cloudinary.com/…  ó  agua.jpg"/></div>
+        <div style="display:flex;gap:6px">
+          <input class="a-form-inp" id="rt-imagen" value="${esc(r.imagen||"")}" placeholder="https://res.cloudinary.com/…  ó  agua.jpg" style="flex:1"/>
+          <button class="a-btn" onclick="retoAdmSubir('rt-imagen')" title="Subir imagen desde tu computador">📤 Subir</button>
+        </div></div>
       <div class="a-field"><div class="a-label">Título (pregunta gancho de la portada)</div>
         <input class="a-form-inp" id="rt-titulo" value="${esc(r.titulo)}"/></div>
       <div class="a-field"><div class="a-label">Contexto del tema (se muestra al final del reto)</div>
@@ -7728,6 +7734,42 @@ window.retoAdmGuardar=async function(){
   }catch(e){
     showAdminToast("⚠ Error al guardar: "+e.message,true);
   }
+};
+
+window.retoAdmSubir=function(inputId){
+  try{
+    if(typeof CL_CONFIG==="undefined" || !CL_CONFIG.cloudName || !CL_CONFIG.uploadPreset){
+      showAdminToast("⚠ Configura Cloudinary primero en la pestaña Diseño",true);
+      return;
+    }
+  }catch(e){ showAdminToast("⚠ Cloudinary no disponible",true); return; }
+  const fi=document.createElement("input");
+  fi.type="file";
+  fi.accept="image/png,image/jpeg,image/webp";
+  fi.onchange=async ()=>{
+    const file=fi.files[0];
+    if(!file)return;
+    const inp=document.getElementById(inputId);
+    const prev=inp.value;
+    inp.value="⏳ Subiendo "+file.name+"…";
+    inp.disabled=true;
+    try{
+      const fd=new FormData();
+      fd.append("file",file);
+      fd.append("upload_preset",CL_CONFIG.uploadPreset);
+      fd.append("folder","emra/reto");
+      const res=await fetch(`https://api.cloudinary.com/v1_1/${CL_CONFIG.cloudName}/image/upload`,{method:"POST",body:fd});
+      const data=await res.json();
+      if(!data.secure_url)throw new Error(data.error?.message||"sin URL");
+      inp.value=data.secure_url;
+      showAdminToast("✓ Imagen subida — recuerda 💾 Guardar Reto");
+    }catch(e){
+      inp.value=prev;
+      showAdminToast("⚠ Error al subir: "+e.message,true);
+    }
+    inp.disabled=false;
+  };
+  fi.click();
 };
 
 window.retoAdmStats=async function(){
