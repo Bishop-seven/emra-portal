@@ -1223,7 +1223,7 @@ svg{display:block}
 // ═══════════════════════════════════════════════════════
 // DATOS
 // ═══════════════════════════════════════════════════════
-const APP_VERSION='v2.1';
+const APP_VERSION='v2.4';
 const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
@@ -1990,10 +1990,11 @@ async function sbUpsertIni(ini){
 }
 
 async function sbSaveConfig(key, value){
+  // FIX: no pasar 'headers' aquí — el spread de options en sbFetch
+  // reemplazaba el objeto headers completo y se perdía la apikey.
   return sbFetch('portal_config', {
     method: 'POST',
     prefer: 'resolution=merge-duplicates',
-    headers: { 'Prefer': 'resolution=merge-duplicates' },
     body: JSON.stringify({key, value})
   });
 }
