@@ -1915,7 +1915,9 @@ async function sbFetch(path, options={}){
     const err = await res.text();
     throw new Error('Supabase error: '+err);
   }
-  return res.status===204 ? null : res.json();
+  if(res.status===204) return null;
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;   // tolera respuestas vacías (Prefer: return=minimal)
 }
 
 // ── SUPABASE OPERATIONS ──
@@ -1994,7 +1996,7 @@ async function sbSaveConfig(key, value){
   // reemplazaba el objeto headers completo y se perdía la apikey.
   return sbFetch('portal_config', {
     method: 'POST',
-    prefer: 'resolution=merge-duplicates',
+    prefer: 'resolution=merge-duplicates,return=minimal',
     body: JSON.stringify({key, value})
   });
 }
