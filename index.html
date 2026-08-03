@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Portal EMRA 2023–2050 · v2.3.4 (+ Reto de GORITO: subida directa de imágenes) -->
+<!-- Portal EMRA 2023–2050 · v2.3.5 (+ Reto de GORITO: subida corregida con auto-guardado) -->
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -7564,8 +7564,9 @@ function pintarAdminReto(){
       <div class="a-field"><div class="a-label">Imagen (opcional — reemplaza la del tema)</div>
         <div style="display:flex;gap:6px">
           <input class="a-form-inp" id="rt-${esBonus?'b':'q'+i}-img" value="${esc(p.imagen||"")}" placeholder="URL de Cloudinary o archivo en img/" style="flex:1"/>
-          <button class="a-btn" onclick="retoAdmSubir('rt-${esBonus?'b':'q'+i}-img')" title="Subir imagen desde tu computador">📤</button>
-        </div></div>
+          <button type="button" class="a-btn" onclick="retoAdmSubir('rt-${esBonus?'b':'q'+i}-img')" title="Subir imagen desde tu computador">📤</button>
+        </div>
+        <img id="rt-${esBonus?'b':'q'+i}-img-prev" src="${esc(p.imagen||"")}" style="height:48px;margin-top:6px;border-radius:6px;object-fit:cover;display:${p.imagen?'inline-block':'none'}" onerror="this.style.display='none'"/></div>
     </div>`;
 
   el.innerHTML=`
@@ -7632,8 +7633,9 @@ function pintarAdminReto(){
       <div class="a-field"><div class="a-label">📷 Imagen del tema — se muestra sobre cada pregunta (URL de Cloudinary o archivo en img/). Cada pregunta puede tener la suya propia, que la reemplaza.</div>
         <div style="display:flex;gap:6px">
           <input class="a-form-inp" id="rt-imagen" value="${esc(r.imagen||"")}" placeholder="https://res.cloudinary.com/…  ó  agua.jpg" style="flex:1"/>
-          <button class="a-btn" onclick="retoAdmSubir('rt-imagen')" title="Subir imagen desde tu computador">📤 Subir</button>
-        </div></div>
+          <button type="button" class="a-btn" onclick="retoAdmSubir('rt-imagen')" title="Subir imagen desde tu computador">📤 Subir</button>
+        </div>
+        <img id="rt-imagen-prev" src="${esc(r.imagen||"")}" style="height:48px;margin-top:6px;border-radius:6px;object-fit:cover;display:${r.imagen?'inline-block':'none'}" onerror="this.style.display='none'"/></div>
       <div class="a-field"><div class="a-label">Título (pregunta gancho de la portada)</div>
         <input class="a-form-inp" id="rt-titulo" value="${esc(r.titulo)}"/></div>
       <div class="a-field"><div class="a-label">Contexto del tema (se muestra al final del reto)</div>
@@ -7653,7 +7655,7 @@ function pintarAdminReto(){
 
 /* leer el formulario hacia RADM (config general + reto seleccionado) */
 function retoAdmHarvest(){
-  const v=id=>{const e=document.getElementById(id);return e?e.value:null};
+  const v=id=>{const e=document.getElementById(id);if(!e)return null;const val=e.value;return val&&val.startsWith("⏳")?null:val};
   if(v("rt-fecha")===null) return; // el panel no está pintado
   RADM.fechaInicio=v("rt-fecha")||RADM.fechaInicio;
   RADM.segundos=Math.max(5,Math.min(60,parseInt(v("rt-seg"))||15));
@@ -7724,13 +7726,13 @@ window.retoAdmMover=function(dir){
   retoAdmStats();
 };
 
-window.retoAdmGuardar=async function(){
+window.retoAdmGuardar=async function(silencioso){
   retoAdmHarvest();
   try{
     await sbSaveConfig("reto", RADM);
     mergeCfg(JSON.parse(JSON.stringify(RADM)));   // aplicar en vivo al juego público
     if($g("rg-p-inicio")&&$g("rg-p-inicio").classList.contains("activa")) pintarPortadaReto();
-    showAdminToast("✓ Reto guardado");
+    if(silencioso!==true) showAdminToast("✓ Reto guardado");
   }catch(e){
     showAdminToast("⚠ Error al guardar: "+e.message,true);
   }
@@ -7757,12 +7759,15 @@ window.retoAdmSubir=function(inputId){
       const fd=new FormData();
       fd.append("file",file);
       fd.append("upload_preset",CL_CONFIG.uploadPreset);
-      fd.append("folder","emra/reto");
       const res=await fetch(`https://api.cloudinary.com/v1_1/${CL_CONFIG.cloudName}/image/upload`,{method:"POST",body:fd});
       const data=await res.json();
       if(!data.secure_url)throw new Error(data.error?.message||"sin URL");
       inp.value=data.secure_url;
-      showAdminToast("✓ Imagen subida — recuerda 💾 Guardar Reto");
+      inp.disabled=false;
+      const prev=document.getElementById(inputId+"-prev");
+      if(prev){prev.src=data.secure_url;prev.style.display="inline-block";}
+      await retoAdmGuardar(true);   // guarda de inmediato: la foto no se puede perder
+      showAdminToast("✓ Imagen subida y guardada");
     }catch(e){
       inp.value=prev;
       showAdminToast("⚠ Error al subir: "+e.message,true);
