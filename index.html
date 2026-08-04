@@ -7123,6 +7123,27 @@ function pintarGorito(id,mini){
     : `<div id="${id}" class="rg-gorito fallback${mini?" mini":""}">🦉</div>`;
 }
 
+let RETO_FORZADO=null;   // índice del banco si la URL apunta a un reto específico
+
+function detectarRetoForzado(){
+  try{
+    const qs=new URLSearchParams(location.search);
+    const qn=parseInt(qs.get("reto"));
+    if(!isNaN(qn) && qn>=1 && qn<=RCFG.banco.length) return qn-1;
+    const path=location.pathname.toLowerCase().replace(/\/+$/,"");
+    if(!path || path==="/") return null;
+    for(let i=0;i<RCFG.banco.length;i++){
+      const u=(RCFG.banco[i].url||"").trim();
+      if(!u || u.startsWith("#")) continue;
+      let p;
+      try{ p=new URL(u.startsWith("http")?u:"https://"+u).pathname; }catch(e){ continue; }
+      p=p.toLowerCase().replace(/\/+$/,"");
+      if(p && p!=="/" && p===path) return i;
+    }
+  }catch(e){}
+  return null;
+}
+
 let rgIdx=0, rgPuntaje=0, rgResultados=[], rgBonusRes=null, rgEsBonus=false;
 let rgRacha=0, rgRachaMax=0, rgTimer=null, rgTiempo=0, rgIniciado=false;
 let rgAudioCtx=null, rgAudioDato=null;
@@ -7135,6 +7156,9 @@ window.abrirReto = async function(){
   ov.classList.add("abierto");
   document.body.style.overflow="hidden";
   await cargarConfigRemota();
+  RETO_FORZADO = detectarRetoForzado();
+  if(RETO_FORZADO!==null){ RETO=RCFG.banco[RETO_FORZADO]; RETO_NUM=RETO_FORZADO+1; }
+  else recalc();
   if(!rgIniciado){ rgInit(); rgIniciado=true; }
   pintarPortadaReto();
   ["rg-gorito-1","rg-gorito-b","rg-gorito-2"].forEach((id,i)=>pintarGorito(id,i===2));
@@ -7380,11 +7404,13 @@ function finalizar(){
     $g("rg-r-medalla").textContent=RETO.medalla+" ¡Medalla desbloqueada: "+RETO.tema+"!";
   }else $g("rg-r-medalla").style.display="none";
 
-  const ult=parseInt(lsGet(LSK.ultSem,"-99"));
-  if(ult!==RETO_NUM){
-    const racha=(ult===RETO_NUM-1)?parseInt(lsGet(LSK.racha,"0"))+1:1;
-    lsSet(LSK.racha,String(racha));
-    lsSet(LSK.ultSem,String(RETO_NUM));
+  if(RETO_FORZADO===null){   // la racha semanal solo la mueve el reto de la semana
+    const ult=parseInt(lsGet(LSK.ultSem,"-99"));
+    if(ult!==RETO_NUM){
+      const racha=(ult===RETO_NUM-1)?parseInt(lsGet(LSK.racha,"0"))+1:1;
+      lsSet(LSK.racha,String(racha));
+      lsSet(LSK.ultSem,String(RETO_NUM));
+    }
   }
   cargarMarcas();
   $g("rg-ctx-titulo").textContent="El tema de esta semana · "+RETO.tema;
@@ -7411,6 +7437,11 @@ function registrarPartida(){
 /* cuenta regresiva */
 let rgCuentaInt=null;
 function actualizarCuenta(){
+  if(RETO_FORZADO!==null){
+    const cont=$g("rg-cuenta");
+    if(cont && cont.parentElement) cont.parentElement.innerHTML="🗂 Reto de la colección · cada lunes hay uno nuevo";
+    return;
+  }
   const tick=()=>{
     const prox=new Date(_inicio.getTime()+(_semana+1)*MS_SEM);
     const dif=prox-new Date();
@@ -7652,7 +7683,7 @@ function pintarAdminReto(){
           <button type="button" class="a-btn" onclick="retoAdmSubir('rt-imagen')" title="Subir imagen desde tu computador">📤 Subir</button>
         </div>
         <img id="rt-imagen-prev" src="${esc(r.imagen||"")}" style="height:48px;margin-top:6px;border-radius:6px;object-fit:cover;display:${r.imagen?'inline-block':'none'}" onerror="this.style.display='none'"/></div>
-      <div class="a-field"><div class="a-label">🔗 URL para compartir de este reto — aparece en la tarjeta y el texto que copia el jugador. Si queda vacío se usa la URL general. Tip: el enlace directo que abre el juego es portal.emra.cl/#reto</div>
+      <div class="a-field"><div class="a-label">🔗 URL de este reto — es su ENLACE PERMANENTE: visitarla abre este reto específico (requiere vercel.json desplegado). También aparece en la tarjeta y el texto compartido. Vacío = se usa la general y el link genérico #reto abre el reto de la semana.</div>
         <input class="a-form-inp" id="rt-url-reto" value="${esc(r.url||"")}" placeholder="ej: portal.emra.cl/#reto  ó  con UTM de la campaña"/></div>
       <div class="a-field"><div class="a-label">Título (pregunta gancho de la portada)</div>
         <input class="a-form-inp" id="rt-titulo" value="${esc(r.titulo)}"/></div>
@@ -7851,7 +7882,7 @@ window.retoAdmStats=async function(){
 /* enlace directo: portal.emra.cl/#reto (o ?reto=1) abre el juego */
 try{
   const _qs=new URLSearchParams(location.search);
-  if(location.hash.replace("#","").toLowerCase()==="reto" || _qs.get("reto")!==null){
+  if(location.hash.replace("#","").toLowerCase()==="reto" || _qs.get("reto")!==null || location.pathname.toLowerCase().startsWith("/reto")){
     setTimeout(()=>{ try{abrirReto()}catch(e){} }, 700);
   }
 }catch(e){}

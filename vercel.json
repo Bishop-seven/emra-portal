@@ -1,18 +1,5 @@
 {
-  "crons": [
-    {
-      "path": "/api/keepalive",
-      "schedule": "0 12 * * *"
-    }
-  ],
   "rewrites": [
-    {
-      "source": "/api/w/:path*",
-      "destination": "https://emra-ai-proxy.emraportal.workers.dev/:path*"
-    },
-    {
-      "source": "/api/gorito",
-      "destination": "https://emra-ai-proxy.emraportal.workers.dev/v1/messages"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
