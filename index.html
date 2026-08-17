@@ -1223,6 +1223,7 @@ svg{display:block}
       <button class="a-tab" id="at-porta" onclick="setAdminTab('porta')">🖼 Portada</button>
         <button class="a-tab" id="at-reto" onclick="setAdminTab('reto')">🦉 Reto</button>
         <button class="a-tab" id="at-banner" onclick="setAdminTab('banner')">📢 Banner</button>
+        <button class="a-tab" id="at-preg" onclick="setAdminTab('preg')">❓ Preguntas</button>
       <button class="a-tab" id="at-evt" onclick="setAdminTab('evt')">🎪 Eventos</button>
       <button class="a-tab" id="at-links" onclick="setAdminTab('links')">🔗 Links</button>
     </div>
@@ -2549,7 +2550,7 @@ function authLogout(){
 }
 
 function setAdminTab(id){
-  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta','evt','links','reto','banner'].forEach(t=>{
+  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta','evt','links','reto','banner','preg'].forEach(t=>{
     const el=document.getElementById('at-'+t);
     if(el)el.classList.toggle('on',t===id);
   });
@@ -2560,6 +2561,7 @@ function setAdminTab(id){
     pdf:renderAdminPDF,seg:renderAdminSeg,diseno:renderAdminDiseno,part:renderAdminPart,porta:renderAdminPortada,evt:renderAdminEventos,links:renderAdminLinks,
     reto:renderAdminReto,
     banner:renderAdminBanner,
+    preg:renderAdminPreg,
     importar:renderImportExcel,
   };
   if(fn[id])fn[id]();
@@ -7123,27 +7125,6 @@ function pintarGorito(id,mini){
     : `<div id="${id}" class="rg-gorito fallback${mini?" mini":""}">🦉</div>`;
 }
 
-let RETO_FORZADO=null;   // índice del banco si la URL apunta a un reto específico
-
-function detectarRetoForzado(){
-  try{
-    const qs=new URLSearchParams(location.search);
-    const qn=parseInt(qs.get("reto"));
-    if(!isNaN(qn) && qn>=1 && qn<=RCFG.banco.length) return qn-1;
-    const path=location.pathname.toLowerCase().replace(/\/+$/,"");
-    if(!path || path==="/") return null;
-    for(let i=0;i<RCFG.banco.length;i++){
-      const u=(RCFG.banco[i].url||"").trim();
-      if(!u || u.startsWith("#")) continue;
-      let p;
-      try{ p=new URL(u.startsWith("http")?u:"https://"+u).pathname; }catch(e){ continue; }
-      p=p.toLowerCase().replace(/\/+$/,"");
-      if(p && p!=="/" && p===path) return i;
-    }
-  }catch(e){}
-  return null;
-}
-
 let rgIdx=0, rgPuntaje=0, rgResultados=[], rgBonusRes=null, rgEsBonus=false;
 let rgRacha=0, rgRachaMax=0, rgTimer=null, rgTiempo=0, rgIniciado=false;
 let rgAudioCtx=null, rgAudioDato=null;
@@ -7156,9 +7137,6 @@ window.abrirReto = async function(){
   ov.classList.add("abierto");
   document.body.style.overflow="hidden";
   await cargarConfigRemota();
-  RETO_FORZADO = detectarRetoForzado();
-  if(RETO_FORZADO!==null){ RETO=RCFG.banco[RETO_FORZADO]; RETO_NUM=RETO_FORZADO+1; }
-  else recalc();
   if(!rgIniciado){ rgInit(); rgIniciado=true; }
   pintarPortadaReto();
   ["rg-gorito-1","rg-gorito-b","rg-gorito-2"].forEach((id,i)=>pintarGorito(id,i===2));
@@ -7404,13 +7382,11 @@ function finalizar(){
     $g("rg-r-medalla").textContent=RETO.medalla+" ¡Medalla desbloqueada: "+RETO.tema+"!";
   }else $g("rg-r-medalla").style.display="none";
 
-  if(RETO_FORZADO===null){   // la racha semanal solo la mueve el reto de la semana
-    const ult=parseInt(lsGet(LSK.ultSem,"-99"));
-    if(ult!==RETO_NUM){
-      const racha=(ult===RETO_NUM-1)?parseInt(lsGet(LSK.racha,"0"))+1:1;
-      lsSet(LSK.racha,String(racha));
-      lsSet(LSK.ultSem,String(RETO_NUM));
-    }
+  const ult=parseInt(lsGet(LSK.ultSem,"-99"));
+  if(ult!==RETO_NUM){
+    const racha=(ult===RETO_NUM-1)?parseInt(lsGet(LSK.racha,"0"))+1:1;
+    lsSet(LSK.racha,String(racha));
+    lsSet(LSK.ultSem,String(RETO_NUM));
   }
   cargarMarcas();
   $g("rg-ctx-titulo").textContent="El tema de esta semana · "+RETO.tema;
@@ -7437,11 +7413,6 @@ function registrarPartida(){
 /* cuenta regresiva */
 let rgCuentaInt=null;
 function actualizarCuenta(){
-  if(RETO_FORZADO!==null){
-    const cont=$g("rg-cuenta");
-    if(cont && cont.parentElement) cont.parentElement.innerHTML="🗂 Reto de la colección · cada lunes hay uno nuevo";
-    return;
-  }
   const tick=()=>{
     const prox=new Date(_inicio.getTime()+(_semana+1)*MS_SEM);
     const dif=prox-new Date();
@@ -7683,7 +7654,7 @@ function pintarAdminReto(){
           <button type="button" class="a-btn" onclick="retoAdmSubir('rt-imagen')" title="Subir imagen desde tu computador">📤 Subir</button>
         </div>
         <img id="rt-imagen-prev" src="${esc(r.imagen||"")}" style="height:48px;margin-top:6px;border-radius:6px;object-fit:cover;display:${r.imagen?'inline-block':'none'}" onerror="this.style.display='none'"/></div>
-      <div class="a-field"><div class="a-label">🔗 URL de este reto — es su ENLACE PERMANENTE: visitarla abre este reto específico (requiere vercel.json desplegado). También aparece en la tarjeta y el texto compartido. Vacío = se usa la general y el link genérico #reto abre el reto de la semana.</div>
+      <div class="a-field"><div class="a-label">🔗 URL para compartir de este reto — aparece en la tarjeta y el texto que copia el jugador. Si queda vacío se usa la URL general. Tip: el enlace directo que abre el juego es portal.emra.cl/#reto</div>
         <input class="a-form-inp" id="rt-url-reto" value="${esc(r.url||"")}" placeholder="ej: portal.emra.cl/#reto  ó  con UTM de la campaña"/></div>
       <div class="a-field"><div class="a-label">Título (pregunta gancho de la portada)</div>
         <input class="a-form-inp" id="rt-titulo" value="${esc(r.titulo)}"/></div>
@@ -7882,7 +7853,7 @@ window.retoAdmStats=async function(){
 /* enlace directo: portal.emra.cl/#reto (o ?reto=1) abre el juego */
 try{
   const _qs=new URLSearchParams(location.search);
-  if(location.hash.replace("#","").toLowerCase()==="reto" || _qs.get("reto")!==null || location.pathname.toLowerCase().startsWith("/reto")){
+  if(location.hash.replace("#","").toLowerCase()==="reto" || _qs.get("reto")!==null){
     setTimeout(()=>{ try{abrirReto()}catch(e){} }, 700);
   }
 }catch(e){}
@@ -8194,6 +8165,554 @@ window.bannerAdmSubir=function(){
 };
 })();
 </script>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PREGUNTAS DEL PÚBLICO / SEMINARIO · Portal EMRA
+     3 superficies:
+       #pregunta → público (QR): deja su pregunta (nombre oblig., institución opc.)
+       #curar    → curador (requiere sesión admin/editor): aprueba / rechaza
+       #panel    → pantalla moderadores: ve solo las aprobadas (login o PIN)
+     Datos: tabla Supabase 'preguntas_seminario' (SEPARADA de 'preguntas' de Participación).
+     Config: portal_config clave 'seminario'.  Reutiliza sbFetch/sbSaveConfig/QRCode.
+     ═══════════════════════════════════════════════════════════ -->
+<style id="preg-css">
+#preg-overlay,#preg-curar-overlay,#preg-panel-overlay{display:none;position:fixed;inset:0;background:#060e18;z-index:9200;overflow-y:auto;font-family:'Inter',sans-serif}
+/* ── curador ── */
+.pqc-wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+.pqc-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--sbb)}
+.pqc-head img{height:34px;object-fit:contain}
+.pqc-title{font-size:16px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;letter-spacing:-.01em}
+.pqc-sub{font-size:10px;color:var(--sbm);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.pqc-live{font-size:9px;font-weight:800;color:#ff6b5a;display:inline-flex;align-items:center;gap:5px}
+.pqc-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#ff6b5a;animation:pqpulse 1.3s infinite}
+@keyframes pqpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.pqc-filtros{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pqc-fbtn{padding:7px 13px;border-radius:8px;border:1px solid var(--sbb);background:rgba(255,255,255,.04);color:var(--sbm);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.pqc-fbtn.on{background:var(--e);color:#fff;border-color:var(--e)}
+.pqc-card{background:#0f1e2e;border:1px solid var(--sbb);border-radius:12px;padding:15px 16px;margin-bottom:11px;border-left:3px solid var(--sbb)}
+.pqc-card.st-aprobada{border-left-color:#10b981}
+.pqc-card.st-rechazada{border-left-color:#ff6b5a;opacity:.6}
+.pqc-card.st-leida{border-left-color:#64748b;opacity:.5}
+.pqc-card.dest{box-shadow:0 0 0 1px var(--oe1) inset}
+.pqc-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.pqc-nombre{font-size:12px;font-weight:800;color:#fff}
+.pqc-inst{font-size:11px;color:var(--e);font-weight:600}
+.pqc-time{font-size:10px;color:var(--sbm);margin-left:auto}
+.pqc-badge{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:20px}
+.pqc-txt{font-size:14px;color:var(--sbt);line-height:1.55;margin-bottom:12px}
+.pqc-acts{display:flex;gap:7px;flex-wrap:wrap}
+.pqc-a{padding:7px 13px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.pqc-a-ap{background:#10b981;color:#fff}
+.pqc-a-ap:hover{background:#059669}
+.pqc-a-re{background:rgba(255,107,90,.15);color:#ff8a7a;border:1px solid rgba(255,107,90,.3)}
+.pqc-a-re:hover{background:rgba(255,107,90,.25)}
+.pqc-a-g{background:rgba(255,255,255,.06);color:var(--sbt);border:1px solid var(--sbb)}
+.pqc-a-g:hover{background:rgba(255,255,255,.12)}
+.pqc-empty{text-align:center;color:var(--sbm);padding:50px 20px;font-size:13px}
+.pqc-empty .big{font-size:40px;margin-bottom:10px}
+.pqc-close{position:fixed;top:14px;right:16px;background:rgba(255,255,255,.08);border:1px solid var(--sbb);color:#fff;width:38px;height:38px;border-radius:10px;font-size:18px;cursor:pointer;z-index:5}
+/* ── pantalla moderadores ── */
+.pqp-wrap{max-width:1100px;margin:0 auto;padding:26px 22px 70px}
+.pqp-head{text-align:center;margin-bottom:26px}
+.pqp-head img{height:40px;object-fit:contain;margin-bottom:10px}
+.pqp-evt{font-size:11px;color:var(--sbm);text-transform:uppercase;letter-spacing:.14em;font-weight:800}
+.pqp-titulo{font-size:26px;font-weight:800;color:#fff;font-family:'DM Sans',sans-serif;letter-spacing:-.02em;margin-top:4px}
+.pqp-grid{display:flex;flex-direction:column;gap:14px}
+.pqp-card{background:linear-gradient(135deg,#0f1e2e,#112a3e);border:1px solid var(--sbb);border-radius:16px;padding:22px 26px;position:relative;transition:opacity .2s}
+.pqp-card.dest{border-color:var(--oe1);box-shadow:0 0 0 1px var(--oe1) inset,0 12px 40px rgba(239,173,27,.12)}
+.pqp-card.done{opacity:.34}
+.pqp-star{position:absolute;top:16px;right:20px;font-size:16px;color:var(--oe1)}
+.pqp-p{font-size:22px;font-weight:700;color:#fff;line-height:1.4;font-family:'DM Sans',sans-serif;margin-bottom:12px;letter-spacing:-.01em}
+.pqp-firma{font-size:14px;color:var(--e);font-weight:700}
+.pqp-firma .inst{color:var(--sbm);font-weight:600}
+.pqp-tools{display:flex;gap:8px;margin-top:14px}
+.pqp-t{padding:7px 14px;border-radius:8px;border:1px solid var(--sbb);background:rgba(255,255,255,.05);color:var(--sbt);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.pqp-t:hover{background:rgba(255,255,255,.12)}
+.pqp-bar{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:14px;padding:10px 18px;background:rgba(6,14,24,.85);backdrop-filter:blur(6px);border-bottom:1px solid var(--sbb);z-index:6}
+.pqp-bar .lbl{font-size:11px;color:var(--sbm);font-weight:700}
+.pqp-bar .cnt{font-size:11px;color:#fff;font-weight:800}
+.pqp-pin{max-width:340px;margin:16vh auto 0;text-align:center;padding:0 20px}
+.pqp-pin img{height:44px;margin-bottom:16px}
+</style>
+
+<!-- PÚBLICO (QR) -->
+<div id="preg-overlay"><div class="part-wrap" id="preg-content"></div></div>
+
+<!-- CURADOR -->
+<div id="preg-curar-overlay">
+  <button class="pqc-close" onclick="pqCerrarCurar()" aria-label="Cerrar">✕</button>
+  <div class="pqc-wrap" id="preg-curar-content"></div>
+</div>
+
+<!-- PANTALLA MODERADORES -->
+<div id="preg-panel-overlay">
+  <button class="pqc-close" onclick="pqCerrarPanel()" aria-label="Cerrar">✕</button>
+  <div id="preg-panel-content"></div>
+</div>
+
+<script>
+(function(){
+/* ═══════════ CONFIG ═══════════ */
+function pqDefaults(){
+  return {
+    titulo:"Preguntas del público",
+    evento:"Seminario EMRA",
+    abierto:true,
+    pedirInstitucion:true,
+    mensajeGracias:"¡Gracias! Tu pregunta fue recibida. El equipo la revisará y podría llegar al panel.",
+    pinPanel:""   // opcional: si se define, la pantalla de moderadores lo pide (modo solo-lectura sin login)
+  };
+}
+let PQCFG = pqDefaults();
+let PQCFG_LOADED = false;
+const pqEsc = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const PQ_LOGO = "https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png";
+const $pq = id => document.getElementById(id);
+
+async function pqLoadCfg(force){
+  if(PQCFG_LOADED && !force) return PQCFG;
+  try{
+    const rows = await sbFetch("portal_config?select=value&key=eq.seminario");
+    if(rows && rows[0] && rows[0].value){
+      let v = rows[0].value;
+      if(typeof v==="string") v = JSON.parse(v);
+      PQCFG = Object.assign(pqDefaults(), v);
+    }
+  }catch(e){ /* usa defaults */ }
+  PQCFG_LOADED = true;
+  return PQCFG;
+}
+function pqTiempo(iso){
+  try{
+    const d = new Date(iso), diff = (Date.now()-d.getTime())/1000;
+    if(diff<60) return "recién";
+    if(diff<3600) return Math.floor(diff/60)+" min";
+    if(diff<86400) return Math.floor(diff/3600)+" h";
+    return d.toLocaleDateString("es-CL",{day:"2-digit",month:"short"})+" "+d.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});
+  }catch(e){ return ""; }
+}
+
+/* ═══════════ PÚBLICO (QR) — dejar pregunta ═══════════ */
+window.abrirPregunta = async function(){
+  const ov=$pq("preg-overlay"), el=$pq("preg-content");
+  ov.style.display="block";
+  el.innerHTML = `<img class="part-logo" src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+    <div style="text-align:center;color:var(--sbm);font-size:13px;padding:34px 0">⏳ Cargando…</div>`;
+  await pqLoadCfg(true);
+  if(!PQCFG.abierto){
+    pqFinal("🔒","La recepción de preguntas está cerrada","Gracias por tu interés — te invitamos a explorar el Portal EMRA.");
+    return;
+  }
+  pqFormulario();
+};
+window.pqFormulario = function(){
+  const el=$pq("preg-content");
+  el.innerHTML = `<img class="part-logo" src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+    <div class="part-kicker">${pqEsc(PQCFG.evento||"EMRA 2023–2050")}</div>
+    <div class="part-q">${pqEsc(PQCFG.titulo||"Deja tu pregunta")}</div>
+    <input class="part-inp" id="pq-nombre" placeholder="Tu nombre *" maxlength="80" autocomplete="name"/>
+    ${PQCFG.pedirInstitucion?`<input class="part-inp" id="pq-inst" placeholder="Institución (opcional)" maxlength="100" autocomplete="organization"/>`:''}
+    <textarea class="part-ta" id="pq-texto" maxlength="500" placeholder="Escribe tu pregunta…"></textarea>
+    <div style="font-size:10.5px;color:var(--sbm);text-align:right;margin:-8px 2px 12px" id="pq-cnt">0 / 500</div>
+    <button class="part-send" id="pq-btn" onclick="pqEnviar()">Enviar pregunta →</button>
+    <div style="font-size:10.5px;color:var(--sbm);text-align:center;margin-top:12px">* El nombre es obligatorio. Tu pregunta será revisada antes de llegar al panel.</div>`;
+  const ta=$pq("pq-texto"), cnt=$pq("pq-cnt");
+  if(ta&&cnt) ta.addEventListener("input",()=>{ cnt.textContent=ta.value.length+" / 500"; });
+  const nb=$pq("pq-nombre"); if(nb) nb.focus();
+}
+window.pqEnviar = async function(){
+  const nombre=($pq("pq-nombre")?.value||"").trim();
+  const inst=($pq("pq-inst")?.value||"").trim();
+  const texto=($pq("pq-texto")?.value||"").trim();
+  if(!nombre){ $pq("pq-nombre")?.focus(); $pq("pq-nombre")?.style.setProperty("border-color","#ff6b5a"); return; }
+  if(!texto){ $pq("pq-texto")?.focus(); $pq("pq-texto")?.style.setProperty("border-color","#ff6b5a"); return; }
+  const btn=$pq("pq-btn"); if(btn){ btn.disabled=true; btn.textContent="Enviando…"; }
+  try{
+    await sbFetch("preguntas_seminario",{method:"POST",prefer:"return=minimal",body:JSON.stringify({
+      evento: PQCFG.evento||null,
+      nombre: nombre,
+      institucion: inst||null,
+      pregunta: texto,
+      estado: "pendiente"
+    })});
+    pqFinal("🙌","¡Gracias, "+nombre.split(" ")[0]+"!", PQCFG.mensajeGracias||"Tu pregunta fue recibida.", true);
+  }catch(e){
+    if(btn){ btn.disabled=false; btn.textContent="Enviar pregunta →"; }
+    pqFinal("⚠️","No pudimos enviar tu pregunta","Revisa tu conexión e inténtalo nuevamente.", true, true);
+  }
+};
+function pqFinal(ico,titulo,texto,otra,reintentar){
+  $pq("preg-content").innerHTML = `<img class="part-logo" src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+    <div class="part-kicker">${pqEsc(PQCFG.evento||"EMRA 2023–2050")}</div>
+    <div class="part-thanks">
+      <div class="part-thanks-ico">${ico}</div>
+      <div class="part-thanks-t">${pqEsc(titulo)}</div>
+      <div class="part-thanks-p">${pqEsc(texto)}</div>
+      ${otra?`<button class="part-send" onclick="pqFormulario()">${reintentar&&titulo.indexOf('No pudimos')>-1?'Volver a intentar':'Enviar otra pregunta'}</button>`:''}
+      <button class="part-skip" onclick="pqCerrarPublico()">Explorar el Portal EMRA →</button>
+    </div>`;
+}
+window.pqCerrarPublico = function(){
+  $pq("preg-overlay").style.display="none";
+  history.replaceState(null,"",location.pathname);
+  if(typeof switchTab==="function") switchTab("e");
+};
+
+/* ═══════════ CURADOR — aprobar / rechazar ═══════════ */
+let PQ_CUR_FILTRO="pendiente", PQ_CUR_TIMER=null, PQ_CUR_TARGET="preg-curar-content";
+window.abrirCurar = async function(){
+  const ov=$pq("preg-curar-overlay");
+  ov.style.display="block";
+  if(!SESSION){
+    $pq("preg-curar-content").innerHTML = `<div class="pqc-empty">
+      <div class="big">🔐</div>
+      <div style="color:#fff;font-weight:800;font-size:16px;margin-bottom:6px">Acceso restringido</div>
+      <div style="margin-bottom:18px">La curación de preguntas es solo para usuarios con acceso (rol Administrador o Editor).</div>
+      <button class="pqc-a pqc-a-ap" onclick="pqCerrarCurar();openAdmin&&openAdmin()">Iniciar sesión</button>
+    </div>`;
+    return;
+  }
+  await pqLoadCfg(true);
+  PQ_CUR_TARGET="preg-curar-content";
+  pqCurarRender(true);
+  pqCurarAuto(true);
+};
+window.pqCerrarCurar = function(){
+  $pq("preg-curar-overlay").style.display="none";
+  pqCurarAuto(false);
+  history.replaceState(null,"",location.pathname);
+};
+function pqCurarAuto(on){
+  if(PQ_CUR_TIMER){ clearInterval(PQ_CUR_TIMER); PQ_CUR_TIMER=null; }
+  if(on) PQ_CUR_TIMER=setInterval(()=>pqCurarRender(false), 5000);
+}
+async function pqCurarRender(full){
+  const cont=$pq(PQ_CUR_TARGET); if(!cont) return;
+  let rows=[];
+  try{ rows=await sbFetch("preguntas_seminario?order=created_at.desc")||[]; }
+  catch(e){ cont.innerHTML=`<div class="pqc-empty">⚠ No se pudo cargar (¿existe la tabla <b>preguntas_seminario</b>?).<br/><span style="font-size:11px">${pqEsc(e.message)}</span></div>`; return; }
+  window._PQ_ROWS=rows;
+  const cP=rows.filter(r=>r.estado==="pendiente").length;
+  const cA=rows.filter(r=>r.estado==="aprobada").length;
+  const cR=rows.filter(r=>r.estado==="rechazada").length;
+  const cL=rows.filter(r=>r.estado==="leida").length;
+  const standalone = PQ_CUR_TARGET==="preg-curar-content";
+  let vis = rows;
+  if(PQ_CUR_FILTRO!=="todas") vis = rows.filter(r=>r.estado===PQ_CUR_FILTRO);
+  const listaHTML = vis.length ? vis.map(pqCurarCard).join("") :
+    `<div class="pqc-empty"><div class="big">📭</div>No hay preguntas ${PQ_CUR_FILTRO==="todas"?"":"en «"+PQ_CUR_FILTRO+"»"} por ahora.</div>`;
+  const filtros = `<div class="pqc-filtros">
+    ${["pendiente","aprobada","rechazada","leida","todas"].map(f=>{
+      const n={pendiente:cP,aprobada:cA,rechazada:cR,leida:cL,todas:rows.length}[f];
+      const lbl={pendiente:"Pendientes",aprobada:"Aprobadas",rechazada:"Rechazadas",leida:"Leídas",todas:"Todas"}[f];
+      return `<button class="pqc-fbtn${PQ_CUR_FILTRO===f?' on':''}" onclick="pqSetFiltro('${f}')">${lbl} ${n}</button>`;
+    }).join("")}
+  </div>`;
+  if(full || standalone){
+    cont.innerHTML =
+      (standalone?`<div class="pqc-head">
+        <img src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+        <div><div class="pqc-title">${pqEsc(PQCFG.titulo||"Preguntas del público")}</div>
+        <div class="pqc-sub">${pqEsc(PQCFG.evento||"")}</div></div>
+        <div style="margin-left:auto;text-align:right"><div class="pqc-live">EN VIVO</div>
+        <div style="font-size:10px;color:var(--sbm);margin-top:3px">se actualiza cada 5 s</div></div>
+      </div>`:"")
+      + filtros
+      + `<div id="pq-cur-lista">${listaHTML}</div>`;
+  } else {
+    const fbox=cont.querySelector(".pqc-filtros"); if(fbox) fbox.outerHTML=filtros;
+    const lbox=$pq("pq-cur-lista"); if(lbox) lbox.innerHTML=listaHTML;
+  }
+}
+function pqCurarCard(r){
+  const badge={
+    pendiente:'<span class="pqc-badge" style="background:rgba(239,173,27,.18);color:#f6c343">PENDIENTE</span>',
+    aprobada:'<span class="pqc-badge" style="background:rgba(16,185,129,.18);color:#34d399">APROBADA</span>',
+    rechazada:'<span class="pqc-badge" style="background:rgba(255,107,90,.18);color:#ff8a7a">RECHAZADA</span>',
+    leida:'<span class="pqc-badge" style="background:rgba(148,163,184,.2);color:#94a3b8">LEÍDA</span>'
+  }[r.estado]||"";
+  let acts="";
+  if(r.estado==="pendiente"){
+    acts=`<button class="pqc-a pqc-a-ap" onclick="pqAccion(${r.id},'aprobada')">✓ Aprobar</button>
+          <button class="pqc-a pqc-a-re" onclick="pqAccion(${r.id},'rechazada')">✗ Rechazar</button>`;
+  } else if(r.estado==="aprobada"){
+    acts=`<button class="pqc-a pqc-a-g" onclick="pqDestacar(${r.id},${r.destacada?'false':'true'})">${r.destacada?'★ Quitar destaque':'☆ Destacar'}</button>
+          <button class="pqc-a pqc-a-re" onclick="pqAccion(${r.id},'rechazada')">✗ Quitar</button>`;
+  } else {
+    acts=`<button class="pqc-a pqc-a-g" onclick="pqAccion(${r.id},'pendiente')">↺ Volver a pendiente</button>`;
+  }
+  acts+=`<button class="pqc-a pqc-a-g" style="color:#ff8a7a" onclick="if(confirm('¿Eliminar esta pregunta?'))pqBorrar(${r.id})">🗑</button>`;
+  return `<div class="pqc-card st-${r.estado}${r.destacada?' dest':''}">
+    <div class="pqc-meta">
+      <span class="pqc-nombre">${pqEsc(r.nombre)}</span>
+      ${r.institucion?`<span class="pqc-inst">· ${pqEsc(r.institucion)}</span>`:''}
+      ${r.destacada?'<span style="color:var(--oe1);font-size:12px">★</span>':''}
+      ${badge}
+      <span class="pqc-time">${pqTiempo(r.created_at)}</span>
+    </div>
+    <div class="pqc-txt">${pqEsc(r.pregunta)}</div>
+    <div class="pqc-acts">${acts}</div>
+  </div>`;
+}
+window.pqSetFiltro = function(f){ PQ_CUR_FILTRO=f; pqCurarRender(true); };
+window.pqAccion = async function(id,estado){
+  try{
+    await sbFetch("preguntas_seminario?id=eq."+id,{method:"PATCH",prefer:"return=minimal",body:JSON.stringify({estado})});
+    pqCurarRender(false);
+    if(typeof showAdminToast==="function" && PQ_CUR_TARGET!=="preg-curar-content") showAdminToast("✓ "+estado);
+  }catch(e){ alert("Error: "+e.message); }
+};
+window.pqDestacar = async function(id,val){
+  try{
+    await sbFetch("preguntas_seminario?id=eq."+id,{method:"PATCH",prefer:"return=minimal",body:JSON.stringify({destacada:val})});
+    pqCurarRender(false);
+  }catch(e){ alert("Error: "+e.message); }
+};
+window.pqBorrar = async function(id){
+  try{
+    await sbFetch("preguntas_seminario?id=eq."+id,{method:"DELETE",prefer:"return=minimal"});
+    pqCurarRender(false);
+  }catch(e){ alert("Error: "+e.message); }
+};
+
+/* ═══════════ PANTALLA MODERADORES — solo aprobadas ═══════════ */
+let PQ_PANEL_TIMER=null, PQ_PANEL_OK=false, PQ_LOCAL_DONE=new Set();
+window.abrirPanelPreg = async function(){
+  const ov=$pq("preg-panel-overlay");
+  ov.style.display="block";
+  await pqLoadCfg(true);
+  // Con sesión: acceso directo. Sin sesión: PIN si está configurado.
+  if(SESSION || !PQCFG.pinPanel){ PQ_PANEL_OK=true; pqPanelRender(true); pqPanelAuto(true); return; }
+  if(PQ_PANEL_OK){ pqPanelRender(true); pqPanelAuto(true); return; }
+  $pq("preg-panel-content").innerHTML = `<div class="pqp-pin">
+    <img src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+    <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:6px;font-family:'DM Sans',sans-serif">Pantalla de moderadores</div>
+    <div style="color:var(--sbm);font-size:12px;margin-bottom:18px">Ingresa la clave de acceso</div>
+    <input class="part-inp" id="pq-pin-inp" type="password" placeholder="Clave" style="text-align:center;letter-spacing:.2em"/>
+    <button class="part-send" onclick="pqPanelPin()">Entrar →</button>
+    <div id="pq-pin-err" style="color:#ff8a7a;font-size:11px;margin-top:10px;min-height:14px"></div>
+  </div>`;
+  setTimeout(()=>$pq("pq-pin-inp")?.focus(),100);
+  $pq("pq-pin-inp")?.addEventListener("keydown",e=>{ if(e.key==="Enter") pqPanelPin(); });
+};
+window.pqPanelPin = function(){
+  const v=($pq("pq-pin-inp")?.value||"").trim();
+  if(v && v===String(PQCFG.pinPanel)){ PQ_PANEL_OK=true; pqPanelRender(true); pqPanelAuto(true); }
+  else { const er=$pq("pq-pin-err"); if(er) er.textContent="Clave incorrecta"; }
+};
+window.pqCerrarPanel = function(){
+  $pq("preg-panel-overlay").style.display="none";
+  pqPanelAuto(false);
+  history.replaceState(null,"",location.pathname);
+};
+function pqPanelAuto(on){
+  if(PQ_PANEL_TIMER){ clearInterval(PQ_PANEL_TIMER); PQ_PANEL_TIMER=null; }
+  if(on) PQ_PANEL_TIMER=setInterval(()=>pqPanelRender(false), 5000);
+}
+async function pqPanelRender(full){
+  const cont=$pq("preg-panel-content"); if(!cont||!PQ_PANEL_OK) return;
+  let rows=[];
+  // Con sesión ve aprobadas + leídas (para poder tachar). Sin sesión (PIN/anon) sólo aprobadas.
+  const q = SESSION ? "preguntas_seminario?estado=in.(aprobada,leida)&order=destacada.desc,created_at.asc"
+                    : "preguntas_seminario?estado=eq.aprobada&order=destacada.desc,created_at.asc";
+  try{ rows=await sbFetch(q)||[]; }catch(e){ rows=[]; }
+  const cards = rows.map(r=>{
+    const done = r.estado==="leida" || PQ_LOCAL_DONE.has(r.id);
+    const firma = pqEsc(r.nombre)+(r.institucion?` <span class="inst">· ${pqEsc(r.institucion)}</span>`:"");
+    let tools="";
+    if(SESSION){
+      tools=`<div class="pqp-tools">
+        <button class="pqp-t" onclick="pqPanelLeida(${r.id},${done?'false':'true'})">${done?'↺ Reactivar':'✓ Marcar leída'}</button>
+        <button class="pqp-t" onclick="pqDestacar(${r.id},${r.destacada?'false':'true'})">${r.destacada?'★ Quitar':'☆ Destacar'}</button>
+      </div>`;
+    } else {
+      tools=`<div class="pqp-tools"><button class="pqp-t" onclick="pqPanelLeidaLocal(${r.id})">${done?'↺ Reactivar':'✓ Ya leída'}</button></div>`;
+    }
+    return `<div class="pqp-card${r.destacada?' dest':''}${done?' done':''}" data-id="${r.id}">
+      ${r.destacada?'<div class="pqp-star">★</div>':''}
+      <div class="pqp-p">${pqEsc(r.pregunta)}</div>
+      <div class="pqp-firma">${firma}</div>
+      ${tools}
+    </div>`;
+  }).join("");
+  const visibles = rows.filter(r=>!(r.estado==="leida"||PQ_LOCAL_DONE.has(r.id))).length;
+  const html = `
+    <div class="pqp-bar">
+      <span class="lbl">EN VIVO</span>
+      <span class="cnt">${visibles} pregunta${visibles===1?"":"s"} en pantalla</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--sbm)">${pqEsc(PQCFG.evento||"")}</span>
+    </div>
+    <div class="pqp-wrap">
+      <div class="pqp-head">
+        <img src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+        <div class="pqp-evt">${pqEsc(PQCFG.evento||"EMRA 2023–2050")}</div>
+        <div class="pqp-titulo">${pqEsc(PQCFG.titulo||"Preguntas del público")}</div>
+      </div>
+      <div class="pqp-grid">${rows.length?cards:`<div class="pqc-empty"><div class="big">🎤</div>Aún no hay preguntas aprobadas.<br/>Las que el equipo apruebe aparecerán aquí.</div>`}</div>
+    </div>`;
+  if(full) cont.innerHTML=html;
+  else {
+    const grid=cont.querySelector(".pqp-grid"); if(grid) grid.innerHTML = rows.length?cards:`<div class="pqc-empty"><div class="big">🎤</div>Aún no hay preguntas aprobadas.</div>`;
+    const cnt=cont.querySelector(".pqp-bar .cnt"); if(cnt) cnt.textContent=`${visibles} pregunta${visibles===1?"":"s"} en pantalla`;
+  }
+}
+window.pqPanelLeida = async function(id,val){
+  try{ await sbFetch("preguntas_seminario?id=eq."+id,{method:"PATCH",prefer:"return=minimal",body:JSON.stringify({estado:val?"leida":"aprobada"})}); pqPanelRender(false); }
+  catch(e){ alert("Error: "+e.message); }
+};
+window.pqPanelLeidaLocal = function(id){
+  if(PQ_LOCAL_DONE.has(id)) PQ_LOCAL_DONE.delete(id); else PQ_LOCAL_DONE.add(id);
+  pqPanelRender(false);
+};
+
+/* ═══════════ ADMIN → ❓ Preguntas ═══════════ */
+window.renderAdminPreg = async function(){
+  const el=document.getElementById("admin-content");
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px;padding:20px">Cargando…</div>';
+  await pqLoadCfg(true);
+  const base=location.origin+location.pathname;
+  const urlPub=base+"#pregunta", urlCur=base+"#curar", urlPan=base+"#panel";
+  const c=PQCFG;
+  el.innerHTML=`
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:820px">
+
+    <div class="a-box">
+      <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:4px">❓ Preguntas del público · Seminario</div>
+      <div style="font-size:11px;color:var(--sbm);line-height:1.6;margin-bottom:16px">El público deja preguntas por QR → un curador aprueba/rechaza → los moderadores ven las aprobadas en pantalla. Tabla independiente <b>preguntas_seminario</b> (no afecta Participación).</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">TÍTULO (visible al público y en pantalla)</div>
+          <input class="a-form-inp" id="pq-cfg-titulo" style="width:100%" value="${pqEsc(c.titulo)}"/></div>
+        <div><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">EVENTO / SESIÓN (etiqueta)</div>
+          <input class="a-form-inp" id="pq-cfg-evento" style="width:100%" value="${pqEsc(c.evento)}"/></div>
+      </div>
+
+      <div style="margin-top:12px"><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">MENSAJE DE AGRADECIMIENTO (tras enviar)</div>
+        <textarea class="a-form-inp" id="pq-cfg-gracias" style="width:100%;min-height:56px">${pqEsc(c.mensajeGracias)}</textarea></div>
+
+      <div style="display:flex;gap:20px;align-items:center;margin-top:14px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--sbt)">
+          <input type="checkbox" id="pq-cfg-abierto" ${c.abierto?"checked":""} style="width:16px;height:16px"/> Recepción <b>abierta</b></label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--sbt)">
+          <input type="checkbox" id="pq-cfg-inst" ${c.pedirInstitucion?"checked":""} style="width:16px;height:16px"/> Pedir institución (opcional)</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--sbt)">Clave pantalla moderadores:</span>
+          <input class="a-form-inp" id="pq-cfg-pin" style="width:120px" placeholder="(sin clave)" value="${pqEsc(c.pinPanel)}"/>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="a-btn a-btn-p" onclick="pqGuardarCfg()">💾 Guardar configuración</button>
+        <button class="a-btn a-btn-g" onclick="pqDescargarQR()">⬇ Descargar QR público</button>
+        <button class="a-btn a-btn-g" onclick="pqExportCSV()">📄 Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="a-box">
+      <div style="font-size:12px;font-weight:800;color:#fff;margin-bottom:12px">🔗 Enlaces y QR</div>
+      <div style="display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center">
+        <div id="pq-qr" style="background:#fff;padding:8px;border-radius:10px;width:150px;height:150px;display:flex;align-items:center;justify-content:center"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${pqLinkRow("Público (QR para asistentes)",urlPub,"abrirPregunta")}
+          ${pqLinkRow("Curador (aprobar / rechazar)",urlCur,"abrirCurar")}
+          ${pqLinkRow("Pantalla moderadores",urlPan,"abrirPanelPreg")}
+        </div>
+      </div>
+      <div style="font-size:10.5px;color:var(--sbm);line-height:1.6;margin-top:12px">El <b>QR público</b> es el que imprimes/proyectas para el público. La <b>curación</b> requiere cuenta de portal (Admin → Seguridad); crea una cuenta <b>Editor</b> para quien filtre. La <b>pantalla de moderadores</b> abre con sesión o con la clave de arriba (solo lectura).</div>
+    </div>
+
+    <div class="a-box">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:800;color:#fff">🛠 Curación en vivo</div>
+        <span class="pqc-live" style="font-size:8.5px">EN VIVO</span>
+        <button class="a-btn a-btn-g" style="margin-left:auto" onclick="closeAdmin();location.hash='#panel';abrirPanelPreg()">🖥 Abrir pantalla moderadores</button>
+      </div>
+      <div id="pq-admin-cur"></div>
+    </div>
+
+  </div>`;
+  // QR
+  try{ const box=$pq("pq-qr"); if(box){ box.innerHTML=""; new QRCode(box,{text:urlPub,width:134,height:134,correctLevel:QRCode.CorrectLevel.M}); } }catch(e){}
+  // Curación embebida (reutiliza el mismo motor que #curar)
+  PQ_CUR_TARGET="pq-admin-cur";
+  pqCurarRender(true);
+  pqCurarAuto(true);
+};
+function pqLinkRow(lbl,url,fn){
+  return `<div>
+    <div style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:3px">${lbl}</div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <input class="a-form-inp" style="flex:1;font-size:10.5px" readonly value="${pqEsc(url)}" onclick="this.select()"/>
+      <button class="a-btn a-btn-g" style="font-size:10px" onclick="navigator.clipboard&&navigator.clipboard.writeText('${url}');showAdminToast&&showAdminToast('✓ Copiado')">Copiar</button>
+      <button class="a-btn a-btn-g" style="font-size:10px" onclick="closeAdmin();location.hash='${url.split('#')[1]?('#'+url.split('#')[1]):''}';${fn}()">Abrir</button>
+    </div>
+  </div>`;
+}
+window.pqGuardarCfg = async function(){
+  const cfg={
+    titulo:($pq("pq-cfg-titulo")?.value||"").trim()||"Preguntas del público",
+    evento:($pq("pq-cfg-evento")?.value||"").trim(),
+    abierto:!!$pq("pq-cfg-abierto")?.checked,
+    pedirInstitucion:!!$pq("pq-cfg-inst")?.checked,
+    mensajeGracias:($pq("pq-cfg-gracias")?.value||"").trim(),
+    pinPanel:($pq("pq-cfg-pin")?.value||"").trim()
+  };
+  try{
+    await sbSaveConfig("seminario",cfg);
+    PQCFG=Object.assign(pqDefaults(),cfg); PQCFG_LOADED=true;
+    showAdminToast&&showAdminToast("✓ Configuración guardada");
+  }catch(e){ showAdminToast&&showAdminToast("⚠ Error: "+e.message,true); }
+};
+window.pqDescargarQR = function(){
+  const tmp=document.createElement("div"); tmp.style.position="fixed"; tmp.style.left="-9999px";
+  document.body.appendChild(tmp);
+  try{
+    new QRCode(tmp,{text:location.origin+location.pathname+"#pregunta",width:800,height:800,correctLevel:QRCode.CorrectLevel.M});
+    setTimeout(()=>{
+      const cv=tmp.querySelector("canvas"), img=tmp.querySelector("img");
+      const url=cv?cv.toDataURL("image/png"):(img?img.src:null);
+      if(url){ const a=document.createElement("a"); a.href=url; a.download="QR-preguntas-seminario.png"; a.click(); showAdminToast&&showAdminToast("✓ QR descargado"); }
+      tmp.remove();
+    },300);
+  }catch(e){ tmp.remove(); showAdminToast&&showAdminToast("⚠ No se pudo generar el QR",true); }
+};
+window.pqExportCSV = async function(){
+  try{
+    const rows=await sbFetch("preguntas_seminario?order=created_at.asc")||[];
+    const head=["fecha","evento","nombre","institucion","pregunta","estado","destacada"];
+    const esc=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+    const csv=[head.join(",")].concat(rows.map(r=>[
+      new Date(r.created_at).toLocaleString("es-CL"),r.evento,r.nombre,r.institucion,r.pregunta,r.estado,r.destacada?"sí":"no"
+    ].map(esc).join(","))).join("\n");
+    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="preguntas-seminario.csv"; a.click();
+    showAdminToast&&showAdminToast("✓ CSV exportado ("+rows.length+")");
+  }catch(e){ showAdminToast&&showAdminToast("⚠ Error: "+e.message,true); }
+};
+
+/* ═══════════ RUTAS (QR) ═══════════ */
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape") return;
+  if($pq("preg-overlay")?.style.display==="block") pqCerrarPublico();
+  else if($pq("preg-curar-overlay")?.style.display==="block") pqCerrarCurar();
+  else if($pq("preg-panel-overlay")?.style.display==="block") pqCerrarPanel();
+});
+function pqRuta(){
+  try{
+    const h=location.hash.replace("#","").toLowerCase();
+    const qs=new URLSearchParams(location.search);
+    if(h==="pregunta"||qs.get("pregunta")!==null){ abrirPregunta(); return; }
+    if(h==="curar"||qs.get("curar")!==null){ abrirCurar(); return; }
+    if(h==="panel"||qs.get("panel")!==null){ abrirPanelPreg(); return; }
+  }catch(e){}
+}
+if(document.readyState==="complete") setTimeout(pqRuta,750);
+else window.addEventListener("load",()=>setTimeout(pqRuta,750));
+})();
+</script>
+
 
 </body>
 </html>
