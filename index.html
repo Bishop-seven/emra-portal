@@ -8264,6 +8264,7 @@ function pqDefaults(){
     mensajeGracias:"¡Gracias! Tu pregunta fue recibida. El equipo la revisará y podría llegar al panel.",
     instrucciones:"Escribe tu pregunta sobre lo expuesto en el seminario y la haremos llegar a los expositores. Sé breve y directo/a.",
     pinPanel:""   // opcional: si se define, la pantalla de moderadores lo pide (modo solo-lectura sin login)
+    ,claveCurador:""  // opcional: si se define, el curador entra con esta clave (sin cuenta de portal)
   };
 }
 let PQCFG = pqDefaults();
@@ -8364,23 +8365,45 @@ window.pqCerrarPublico = function(){
 
 /* ═══════════ CURADOR — aprobar / rechazar ═══════════ */
 let PQ_CUR_FILTRO="pendiente", PQ_CUR_TIMER=null, PQ_CUR_TARGET="preg-curar-content";
+let PQ_CUR_OK=false;
 window.abrirCurar = async function(){
   const ov=$pq("preg-curar-overlay");
   ov.style.display="block";
-  if(!SESSION){
-    $pq("preg-curar-content").innerHTML = `<div class="pqc-empty">
-      <div class="big">🔐</div>
-      <div style="color:#fff;font-weight:800;font-size:16px;margin-bottom:6px">Acceso restringido</div>
-      <div style="margin-bottom:18px">La curación de preguntas es solo para usuarios con acceso (rol Administrador o Editor).</div>
-      <button class="pqc-a pqc-a-ap" onclick="pqCerrarCurar();openAdmin&&openAdmin()">Iniciar sesión</button>
+  await pqLoadCfg(true);
+  // Acceso: con sesión de portal (control total) O con clave de curador.
+  if(SESSION || PQ_CUR_OK){ pqCurarEntrar(); return; }
+  if(PQCFG.claveCurador){
+    // Pedir clave
+    $pq("preg-curar-content").innerHTML = `<div class="pqp-pin">
+      <img src="${PQ_LOGO}" onerror="this.style.display='none'"/>
+      <div style="color:#fff;font-weight:800;font-size:18px;margin-bottom:6px;font-family:'DM Sans',sans-serif">Curación de preguntas</div>
+      <div style="color:var(--sbm);font-size:12px;margin-bottom:18px">Ingresa la clave de curador</div>
+      <input class="part-inp" id="pq-cur-pin" type="password" placeholder="Clave" style="text-align:center;letter-spacing:.2em"/>
+      <button class="part-send" onclick="pqCurarPin()">Entrar →</button>
+      <div id="pq-cur-err" style="color:#ff8a7a;font-size:11px;margin-top:10px;min-height:14px"></div>
     </div>`;
+    setTimeout(()=>$pq("pq-cur-pin")?.focus(),100);
+    $pq("pq-cur-pin")?.addEventListener("keydown",e=>{ if(e.key==="Enter") pqCurarPin(); });
     return;
   }
-  await pqLoadCfg(true);
+  // Sin clave configurada → login de portal
+  $pq("preg-curar-content").innerHTML = `<div class="pqc-empty">
+    <div class="big">🔐</div>
+    <div style="color:#fff;font-weight:800;font-size:16px;margin-bottom:6px">Acceso restringido</div>
+    <div style="margin-bottom:18px">Define una <b>clave de curador</b> en Admin → ❓ Preguntas, o inicia sesión con una cuenta de portal (Administrador o Editor).</div>
+    <button class="pqc-a pqc-a-ap" onclick="pqCerrarCurar();openAdmin&&openAdmin()">Iniciar sesión</button>
+  </div>`;
+};
+window.pqCurarPin = function(){
+  const v=($pq("pq-cur-pin")?.value||"").trim();
+  if(v && v===String(PQCFG.claveCurador)){ PQ_CUR_OK=true; pqCurarEntrar(); }
+  else { const er=$pq("pq-cur-err"); if(er) er.textContent="Clave incorrecta"; }
+};
+function pqCurarEntrar(){
   PQ_CUR_TARGET="preg-curar-content";
   pqCurarRender(true);
   pqCurarAuto(true);
-};
+}
 window.pqCerrarCurar = function(){
   $pq("preg-curar-overlay").style.display="none";
   pqCurarAuto(false);
@@ -8602,11 +8625,19 @@ window.renderAdminPreg = async function(){
           <input type="checkbox" id="pq-cfg-abierto" ${c.abierto?"checked":""} style="width:16px;height:16px"/> Recepción <b>abierta</b></label>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--sbt)">
           <input type="checkbox" id="pq-cfg-inst" ${c.pedirInstitucion?"checked":""} style="width:16px;height:16px"/> Pedir institución (opcional)</label>
+      </div>
+
+      <div style="display:flex;gap:24px;align-items:center;margin-top:14px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--sbb)">
         <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:12px;color:var(--sbt)">Clave pantalla moderadores:</span>
-          <input class="a-form-inp" id="pq-cfg-pin" style="width:120px" placeholder="(sin clave)" value="${pqEsc(c.pinPanel)}"/>
+          <span style="font-size:12px;color:var(--sbt)">🔑 Clave de <b>curador</b>:</span>
+          <input class="a-form-inp" id="pq-cfg-curpin" style="width:130px" placeholder="(usa cuenta)" value="${pqEsc(c.claveCurador)}"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--sbt)">🖥 Clave <b>pantalla moderadores</b>:</span>
+          <input class="a-form-inp" id="pq-cfg-pin" style="width:130px" placeholder="(sin clave)" value="${pqEsc(c.pinPanel)}"/>
         </div>
       </div>
+      <div style="font-size:10.5px;color:var(--sbm);line-height:1.6;margin-top:8px">Si defines <b>clave de curador</b>, quien filtre entra en <code>#curar</code> solo con esa clave (sin crear cuenta). Requiere el SQL de curación con clave (te lo paso). Si la dejas vacía, el curador entra con cuenta de portal.</div>
 
       <div style="margin-top:16px;display:flex;gap:8px">
         <button class="a-btn a-btn-p" onclick="pqGuardarCfg()">💾 Guardar configuración</button>
@@ -8663,7 +8694,8 @@ window.pqGuardarCfg = async function(){
     pedirInstitucion:!!$pq("pq-cfg-inst")?.checked,
     mensajeGracias:($pq("pq-cfg-gracias")?.value||"").trim(),
     instrucciones:($pq("pq-cfg-instr")?.value||"").trim(),
-    pinPanel:($pq("pq-cfg-pin")?.value||"").trim()
+    pinPanel:($pq("pq-cfg-pin")?.value||"").trim(),
+    claveCurador:($pq("pq-cfg-curpin")?.value||"").trim()
   };
   try{
     await sbSaveConfig("seminario",cfg);
