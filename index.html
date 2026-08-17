@@ -8214,7 +8214,7 @@ window.bannerAdmSubir=function(){
 .pqc-empty .big{font-size:40px;margin-bottom:10px}
 .pqc-close{position:fixed;top:14px;right:16px;background:rgba(255,255,255,.08);border:1px solid var(--sbb);color:#fff;width:38px;height:38px;border-radius:10px;font-size:18px;cursor:pointer;z-index:5}
 /* ── pantalla moderadores ── */
-.pqp-wrap{max-width:1100px;margin:0 auto;padding:26px 22px 70px}
+.pqp-wrap{max-width:1100px;margin:0 auto;padding:88px 22px 70px}
 .pqp-head{text-align:center;margin-bottom:26px}
 .pqp-head img{height:40px;object-fit:contain;margin-bottom:10px}
 .pqp-evt{font-size:11px;color:var(--sbm);text-transform:uppercase;letter-spacing:.14em;font-weight:800}
@@ -8262,6 +8262,7 @@ function pqDefaults(){
     abierto:true,
     pedirInstitucion:true,
     mensajeGracias:"¡Gracias! Tu pregunta fue recibida. El equipo la revisará y podría llegar al panel.",
+    instrucciones:"Escribe tu pregunta sobre lo expuesto en el seminario y la haremos llegar a los expositores. Sé breve y directo/a.",
     pinPanel:""   // opcional: si se define, la pantalla de moderadores lo pide (modo solo-lectura sin login)
   };
 }
@@ -8312,6 +8313,7 @@ window.pqFormulario = function(){
   el.innerHTML = `<img class="part-logo" src="${PQ_LOGO}" onerror="this.style.display='none'"/>
     <div class="part-kicker">${pqEsc(PQCFG.evento||"EMRA 2023–2050")}</div>
     <div class="part-q">${pqEsc(PQCFG.titulo||"Deja tu pregunta")}</div>
+    ${PQCFG.instrucciones?`<div style="font-size:13px;color:var(--sbm);text-align:center;line-height:1.55;margin:-12px 0 20px">${pqEsc(PQCFG.instrucciones)}</div>`:''}
     <input class="part-inp" id="pq-nombre" placeholder="Tu nombre *" maxlength="80" autocomplete="name"/>
     ${PQCFG.pedirInstitucion?`<input class="part-inp" id="pq-inst" placeholder="Institución (opcional)" maxlength="100" autocomplete="organization"/>`:''}
     <textarea class="part-ta" id="pq-texto" maxlength="500" placeholder="Escribe tu pregunta…"></textarea>
@@ -8572,7 +8574,7 @@ window.renderAdminPreg = async function(){
   const el=document.getElementById("admin-content");
   el.innerHTML='<div style="color:var(--sbm);font-size:12px;padding:20px">Cargando…</div>';
   await pqLoadCfg(true);
-  const base=location.origin+location.pathname;
+  const base=location.origin+location.pathname.replace(/[^/]*$/,"");
   const urlPub=base+"#pregunta", urlCur=base+"#curar", urlPan=base+"#panel";
   const c=PQCFG;
   el.innerHTML=`
@@ -8588,6 +8590,9 @@ window.renderAdminPreg = async function(){
         <div><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">EVENTO / SESIÓN (etiqueta)</div>
           <input class="a-form-inp" id="pq-cfg-evento" style="width:100%" value="${pqEsc(c.evento)}"/></div>
       </div>
+
+      <div style="margin-top:12px"><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">INSTRUCCIONES PARA EL PÚBLICO (se muestran bajo el título en el formulario)</div>
+        <textarea class="a-form-inp" id="pq-cfg-instr" style="width:100%;min-height:56px" placeholder="Ej: Escribe tu pregunta sobre lo expuesto y la haremos llegar a los expositores. Sé breve y directo/a.">${pqEsc(c.instrucciones)}</textarea></div>
 
       <div style="margin-top:12px"><div class="a-form-lbl" style="font-size:10px;color:var(--sbm);font-weight:700;margin-bottom:4px">MENSAJE DE AGRADECIMIENTO (tras enviar)</div>
         <textarea class="a-form-inp" id="pq-cfg-gracias" style="width:100%;min-height:56px">${pqEsc(c.mensajeGracias)}</textarea></div>
@@ -8657,6 +8662,7 @@ window.pqGuardarCfg = async function(){
     abierto:!!$pq("pq-cfg-abierto")?.checked,
     pedirInstitucion:!!$pq("pq-cfg-inst")?.checked,
     mensajeGracias:($pq("pq-cfg-gracias")?.value||"").trim(),
+    instrucciones:($pq("pq-cfg-instr")?.value||"").trim(),
     pinPanel:($pq("pq-cfg-pin")?.value||"").trim()
   };
   try{
@@ -8669,7 +8675,7 @@ window.pqDescargarQR = function(){
   const tmp=document.createElement("div"); tmp.style.position="fixed"; tmp.style.left="-9999px";
   document.body.appendChild(tmp);
   try{
-    new QRCode(tmp,{text:location.origin+location.pathname+"#pregunta",width:800,height:800,correctLevel:QRCode.CorrectLevel.M});
+    new QRCode(tmp,{text:location.origin+location.pathname.replace(/[^/]*$/,"")+"#pregunta",width:800,height:800,correctLevel:QRCode.CorrectLevel.M});
     setTimeout(()=>{
       const cv=tmp.querySelector("canvas"), img=tmp.querySelector("img");
       const url=cv?cv.toDataURL("image/png"):(img?img.src:null);
