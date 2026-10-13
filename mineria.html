@@ -190,6 +190,28 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(-
 .rb b{color:var(--wh);text-align:right;font-variant-numeric:tabular-nums}
 .big52{font-family:var(--disp);font-size:88px;font-weight:800;color:var(--cu);line-height:1}
 
+/* mapa interactivo */
+.mapa{padding:18px}
+.mapwrap{position:relative;max-width:420px;margin:0 auto}
+.mapwrap img{width:100%;height:auto;display:block;filter:brightness(.85) saturate(.9)}
+.pin{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:rgba(224,138,60,.28);border:2px solid var(--cu);padding:0;transition:.2s}
+.pin:hover{background:rgba(224,138,60,.5)}
+.pin.on{background:var(--cu);box-shadow:0 0 0 6px rgba(224,138,60,.25);z-index:2}
+.pin.seen:not(.on){border-color:var(--gr);background:rgba(16,185,129,.25)}
+.r-side{display:flex;flex-direction:column;gap:16px}
+#r-info{padding:20px;min-height:150px}
+#r-info .rk{font-size:12px;color:var(--mut);font-weight:600}
+#r-info h3{font-size:26px;font-weight:800;margin:4px 0 2px}
+#r-info .big{font-family:var(--disp);font-size:44px;font-weight:800;color:var(--cu);line-height:1}
+#r-info .big small{font-size:15px;color:var(--mut);margin-left:6px;font-weight:600}
+#r-info p{font-size:14px;margin-top:8px}
+#r-info .fig{margin:-20px -20px 12px}
+.rb{cursor:pointer;border-radius:6px;padding:2px 4px;margin-left:-4px;margin-right:-4px}
+.rb:hover,.rb.on{background:rgba(224,138,60,.12)}
+.r-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.r-stats .card{padding:20px}
+@media (max-width:820px){.r-stats{grid-template-columns:1fr}}
+
 /* quiz */
 .quiz{margin-top:28px;padding:28px;max-width:760px}
 .q-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin-bottom:10px}
@@ -484,25 +506,34 @@ footer p+p{margin-top:6px}
   <div class="wrap">
     <div class="kick">Nuestra región</div>
     <h2>Región de Antofagasta</h2>
-    <p class="lead">Aquí está Escondida, la mina que más cobre produce en el mundo. Producción 2024 por faena, en miles de toneladas de cobre fino.</p>
+    <p class="lead">Aquí está Escondida, la mina que más cobre produce en el mundo. Explora el mapa: producción 2024 por faena, en miles de toneladas de cobre fino.</p>
     <div class="region">
-      <div class="card" id="r-bars"></div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="card" style="padding:22px">
-          <div class="big52"><span data-count="52">0</span>%</div>
-          <p style="margin-top:8px">del PIB de la Región de Antofagasta lo aporta la minería.</p>
-          <p class="src" style="margin-top:6px">Banco Central · p.17</p>
+      <div class="card mapa">
+        <div class="mapwrap" id="r-map">
+          <img src="mineria-img/mapa-antofagasta.png" alt="Mapa de la Región de Antofagasta con sus principales faenas mineras" loading="lazy"/>
         </div>
-        <div class="card" style="padding:22px">
-          <div class="big52" style="font-size:56px;color:var(--tl)">338</div>
-          <p style="margin-top:8px">empresas tecnológicas proveedoras de la minería hay en la región, más que en cualquier otra.</p>
-          <p class="src" style="margin-top:6px">Fundación Chile · p.67</p>
-        </div>
-        <div class="card" style="padding:22px">
-          <div class="big52" style="font-size:56px;color:var(--yl)">7 de 10</div>
-          <p style="margin-top:8px">personas que trabajan en minería viven en la región donde trabajan.</p>
-          <p class="src" style="margin-top:6px">CCM-Eleva · p.54</p>
-        </div>
+        <p class="src" style="text-align:center;margin-top:10px">Toca un punto: su tamaño indica cuánto cobre produjo en 2024. Mapa: EMRA.</p>
+      </div>
+      <div class="r-side">
+        <div class="card" id="r-info" aria-live="polite"></div>
+        <div class="card" id="r-bars" style="padding:22px"></div>
+      </div>
+    </div>
+    <div class="r-stats">
+      <div class="card">
+        <div class="big52"><span data-count="52">0</span>%</div>
+        <p style="margin-top:8px">del PIB de la Región de Antofagasta lo aporta la minería.</p>
+        <p class="src" style="margin-top:6px">Banco Central · p.17</p>
+      </div>
+      <div class="card">
+        <div class="big52" style="font-size:56px;color:var(--tl)">338</div>
+        <p style="margin-top:8px">empresas tecnológicas proveedoras de la minería hay en la región, más que en cualquier otra.</p>
+        <p class="src" style="margin-top:6px">Fundación Chile · p.67</p>
+      </div>
+      <div class="card">
+        <div class="big52" style="font-size:56px;color:var(--yl)">7 de 10</div>
+        <p style="margin-top:8px">personas que trabajan en minería viven en la región donde trabajan.</p>
+        <p class="src" style="margin-top:6px">CCM-Eleva · p.54</p>
       </div>
     </div>
   </div>
@@ -868,14 +899,52 @@ document.querySelectorAll('#w-pick button').forEach(b=>b.onclick=()=>{
 });
 whenSeen($('#w-p1'),()=>{$('#w-p1').style.width='36%';$('#w-p2').style.width='70%';});
 
-// ══ 6. REGIÓN ══
+// ══ 6. REGIÓN: mapa interactivo ══
+// x,y = posición del punto en el mapa de emra.cl (650×1026 px); nota = dato extra del libro.
+const MAPA={
+  'Escondida (BHP)':[359,714,'Es la mina que más cobre produce en el mundo: más de 1 millón de toneladas al año (BHP, p.64).','escondida_sat'],
+  'Chuquicamata':[257,163,'Llegó a ser el rajo abierto más grande del mundo: 4,3 × 3 km y 800 m de profundidad (Codelco, p.60).','chuqui'],
+  'Altonorte (fundición)':[82,606,'No es una mina: es una fundición, donde se funde el concentrado para obtener cobre. En Chile hay 6 fundiciones (Cochilco, p.42).'],
+  'Radomiro Tomic':[323,139,'Está al norte de Chuquicamata, cerca de Calama.'],
+  'Spence (BHP)':[232,280,'Es una de las 6 minas chilenas entre las 20 minas de cobre más grandes del mundo (Statista, p.41).'],
+  'Centinela':[256,360,''],
+  'Sierra Gorda':[185,316,''],
+  'Ministro Hales':[291,191,'Para ponerse en marcha tuvo que tramitar 645 permisos (Codelco, p.39).'],
+  'Gabriela Mistral':[412,427,''],
+  'El Abra':[363,81,'Es la faena más al norte del mapa.'],
+  'Antucoya':[148,268,''],
+  'Lomas Bayas':[172,483,''],
+  'Zaldívar':[338,666,'Está muy cerca de Escondida.']
+};
+let rSel=null,rSeen=new Set();
 (function(){
-  const el=$('#r-bars'),max=FAENAS_ANTOF[0][1];
-  el.innerHTML=FAENAS_ANTOF.map((f,i)=>`<div class="rb${i===0?' top1':''}"><span>${esc(f[0])}</span><span class="tr"><i data-w="${f[1]/max*100}"></i></span><b>${fmt(f[1])}</b></div>`).join('')+
-    `<p class="src" style="margin-top:12px">Miles de toneladas de cobre fino (KTMF), producción 2024. Altonorte es una fundición, no una mina. Además, la Planta Química de Litio Carmen y la faena del Salar de Atacama produjeron 200 (litio, en conjunto). Fuente: empresas, vía Consejo Minero (mapa, p.102; información a marzo 2025).</p>`;
+  const map=$('#r-map'),max=FAENAS_ANTOF[0][1];
+  FAENAS_ANTOF.forEach(([n,v])=>{
+    const [x,y]=MAPA[n],d=Math.round(16+Math.sqrt(v)*1.05);
+    const b=document.createElement('button');
+    b.className='pin';b.dataset.n=n;b.setAttribute('aria-label',`${n}: ${fmt(v)} mil toneladas de cobre`);
+    b.style.cssText=`left:${x/650*100}%;top:${y/1026*100}%;width:${d}px;height:${d}px`;
+    b.onclick=()=>rPick(n);map.appendChild(b);
+  });
+  const el=$('#r-bars');
+  el.innerHTML=FAENAS_ANTOF.map((f,i)=>`<div class="rb${i===0?' top1':''}" data-n="${esc(f[0])}" role="button" tabindex="0"><span>${esc(f[0])}</span><span class="tr"><i data-w="${f[1]/max*100}"></i></span><b>${fmt(f[1])}</b></div>`).join('')+
+    `<p class="src" style="margin-top:12px">Miles de toneladas de cobre fino (KTMF), producción 2024. Además, la Planta Química de Litio Carmen y la faena del Salar de Atacama produjeron 200 (litio, en conjunto). Fuente: empresas, vía Consejo Minero (mapa, p.102; información a marzo 2025).</p>`;
+  el.querySelectorAll('.rb').forEach(r=>{r.onclick=()=>rPick(r.dataset.n);r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();rPick(r.dataset.n);}};});
   whenSeen(el,()=>el.querySelectorAll('i').forEach(i=>i.style.width=i.dataset.w+'%'));
+  rPick(FAENAS_ANTOF[0][0],true);
 })();
-
+function rPick(n,silent){
+  rSel=n;const k=FAENAS_ANTOF.findIndex(f=>f[0]===n),v=FAENAS_ANTOF[k][1],[,,nota,img]=MAPA[n];
+  const tot=FAENAS_ANTOF.reduce((a,f)=>a+f[1],0);
+  $('#r-info').innerHTML=`${img?figHTML(img,'fig'):''}<div class="rk">#${k+1} de ${FAENAS_ANTOF.length} en la región</div><h3>${esc(n)}</h3>
+    <div class="big">${fmt(v)}<small>mil t de cobre en 2024</small></div>
+    <p>${k===0?'Produce más que las otras 12 faenas del mapa juntas.':`Es el ${fmt(v/tot*100,1)}% de lo que producen las 13 faenas del mapa.`}${nota?' '+esc(nota):''}</p>`;
+  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('on',p.dataset.n===n));
+  document.querySelectorAll('#r-bars .rb').forEach(r=>r.classList.toggle('on',r.dataset.n===n));
+  if(silent)return;
+  if(!rSeen.has(n)){rSeen.add(n);document.querySelector(`.pin[data-n="${CSS.escape(n)}"]`).classList.add('seen');
+    if(rSeen.size===FAENAS_ANTOF.length)addXP(15,'🗺️ ¡Exploraste toda la región! +15 pts');else addXP(1);}
+}
 // ══ 7. QUIZ: [pregunta, opciones (primera = correcta; se barajan), explicación, página, imagen?, imagen tras responder (1 = spoiler)] ══
 const QUIZ=[
   ['¿Qué lugar ocupa Chile en la producción mundial de cobre?',['1º','2º','3º','5º'],'Chile produce el 24% del cobre del mundo.','9','chuqui2',0],
