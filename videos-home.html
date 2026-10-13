@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!-- EMRA en videos · slider para el home de emra.cl (iframe).
+     Cada video a la izquierda y su texto de contexto a la derecha.
+     Para editar textos, títulos o videos: modificar el arreglo VIDEOS más abajo.
+     Avisa su alto al sitio padre (postMessage) para el auto-alto de mineria-embed.js. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EMRA en videos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;
+  --oe1:#EFAD1B;--oe2:#287566;--oe3:#FF6633;--oe4:#038FCF;--oe5:#19BAB6}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:transparent}
+body{font-family:'Figtree',-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:16px;line-height:1.55}
+button{font-family:inherit;cursor:pointer}
+.w{max-width:1200px;margin:0 auto;padding:4px 16px 12px}
+
+/* pestañas */
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:10px 14px;text-align:left;color:var(--tx);transition:.15s}
+.tab:hover{border-color:var(--cu)}
+.tab .n{flex-shrink:0;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:var(--c)}
+.tab .t{font-weight:700;font-size:15px;line-height:1.2}
+.tab .d{display:block;font-size:12px;color:var(--mut);font-weight:500}
+.tab[aria-selected="true"]{border-color:var(--c);background:var(--card);box-shadow:inset 0 -3px 0 var(--c)}
+
+/* slide */
+.slide{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:center;background:var(--card);border-radius:4px;overflow:hidden;position:relative}
+.slide:before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;z-index:2;
+  background:linear-gradient(var(--oe1) 0 20%,var(--oe2) 20% 40%,var(--oe3) 40% 60%,var(--oe4) 60% 80%,var(--oe5) 80% 100%)}
+.video{position:relative;width:100%;aspect-ratio:16/9;background:#1c1c1c}
+.video img,.video iframe{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border:0;display:block}
+.play{position:absolute;inset:0;display:grid;place-items:center;background:transparent;border:0;width:100%}
+.play span{width:84px;height:84px;border-radius:50%;border:3px solid #fff;background:rgba(0,0,0,.28);display:grid;place-items:center;transition:.2s;backdrop-filter:blur(2px)}
+.play:hover span{background:var(--cu);border-color:var(--cu);transform:scale(1.06)}
+.play svg{width:30px;height:30px;margin-left:5px;fill:#fff}
+.txt{padding:28px 30px;display:flex;flex-direction:column;justify-content:center}
+.kick{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+h3{font-size:clamp(24px,2.6vw,32px);font-weight:800;line-height:1.15;margin:6px 0 12px}
+.txt p{font-size:16px}
+ul{list-style:none;margin-top:14px;display:grid;gap:7px}
+li{display:flex;gap:10px;font-size:15px;line-height:1.4}
+li:before{content:"";flex-shrink:0;width:10px;height:10px;border-radius:50%;margin-top:6px;background:var(--dot,var(--c))}
+.link{display:inline-flex;align-items:center;gap:8px;margin-top:18px;align-self:flex-start;background:var(--cu);color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;padding:12px 20px;border-radius:3px;transition:.15s}
+.link:hover{background:var(--cu2)}
+.fade{animation:fade .4s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* navegación inferior */
+.nav{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:14px}
+.arr{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;color:var(--cu);font-size:22px;font-weight:700;line-height:1;display:grid;place-items:center;transition:.15s}
+.arr:hover{border-color:var(--cu)}
+.dots{display:flex;gap:8px}
+.dots button{width:11px;height:11px;border-radius:50%;border:0;background:var(--bd);padding:0}
+.dots button.on{background:var(--cu)}
+:focus-visible{outline:2px solid var(--oe4);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:860px){
+  .slide{grid-template-columns:minmax(0,1fr)}
+  .txt{padding:22px 20px 24px 26px}
+  .tab .d{display:none}
+}
+@media (max-width:520px){
+  .tab{padding:8px 10px;gap:8px}
+  .tab .t{font-size:13px}
+  .play span{width:64px;height:64px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="tabs" role="tablist" aria-label="Videos de la EMRA" id="tabs"></div>
+  <div id="slide" role="tabpanel"></div>
+  <div class="nav">
+    <button class="arr" id="prev" aria-label="Video anterior">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="arr" id="next" aria-label="Video siguiente">›</button>
+  </div>
+</div>
+
+<script>
+// ══ CONTENIDO (editable) ══
+const VIDEOS=[
+  // Textos escritos a partir de la transcripción de cada video (YouTube, 13-oct-2026).
+  {yt:'Xog42H0imjU',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/que-es-la-emra-.jpg',color:'var(--oe4)',
+   tab:'¿Qué es la EMRA?',dur:'4 min',
+   titulo:'¿Qué es la EMRA 2023–2050?',
+   texto:'Es el instrumento de planificación del Gobierno Regional de Antofagasta para transformar la minería en un motor de progreso integral. Fue aprobada por el Consejo Regional en marzo de 2024, se basa en recomendaciones de la OCDE y reunió por primera vez a la sociedad civil, la gran minería, la academia y el sector público.',
+   lista:[['5 objetivos estratégicos: calidad de vida, minería sustentable, empresas regionales, institucionalidad y gobernanza, y conocimiento e innovación'],['19 acuerdos transversales en lo ambiental, social, económico e institucional, que se evalúan cada año'],['Una gobernanza de diálogo permanente, constituida el 22 de marzo de 2024']],
+   cta:['Conoce los 5 objetivos','https://www.emra.cl/objetivos-estrategicos/']},
+  {yt:'cVl2reybEOQ',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/cortoplazo.jpg',color:'var(--oe2)',
+   tab:'Corto plazo',dur:'6 min',
+   titulo:'Corto plazo: respuestas a necesidades urgentes',
+   texto:'Vecinos, autoridades y empresas cuentan cómo la EMRA busca responder a desafíos históricos de la región como la salud, la educación y el agua, con una alianza público-privada que acorta los tiempos: proyectos que antes tardaban más de una década en diseñarse ahora pueden diseñarse en 11 meses.',
+   lista:[['Proyecto piloto: cuatro postas rurales impulsadas junto a SQM Litio'],['Necesidades levantadas por las propias comunidades, como en Toconao: salud, jardín infantil y agua potable'],['Empresas mineras que aportan más que recursos: ayudan a diseñar e implementar los proyectos']],
+   cta:['Ver los logros de la EMRA','https://www.emra.cl/logros/']},
+  {yt:'gZgGWvyC0Ls',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/meniplazo.jpg',color:'var(--oe3)',
+   tab:'Mediano plazo',dur:'11 min',
+   titulo:'Mediano plazo: 37 iniciativas, una sola visión',
+   texto:'Un recorrido por las iniciativas que la región acordó construir en Antofagasta y Mejillones, Tocopilla y Calama, además de proyectos que cruzan toda la región, para que la riqueza del territorio se convierta en bienestar real para su gente.',
+   lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
+   cta:['Explora las 37 iniciativas en el Portal EMRA','https://portal.emra.cl/']}
+];
+
+// ══ LÓGICA ══
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cur=0;
+$('#tabs').innerHTML=VIDEOS.map((v,i)=>`<button class="tab" role="tab" id="tab${i}" aria-controls="slide" style="--c:${v.color}"><span class="n">${i+1}</span><span class="t">${esc(v.tab)}<span class="d">Video · ${esc(v.dur)}</span></span></button>`).join('');
+$('#dots').innerHTML=VIDEOS.map((v,i)=>`<button aria-label="Video ${i+1}: ${esc(v.tab)}"></button>`).join('');
+document.querySelectorAll('.tab').forEach((b,i)=>{b.onclick=()=>ir(i);b.onkeydown=e=>{if(e.key==='ArrowRight'){ir(cur+1,true);}if(e.key==='ArrowLeft'){ir(cur-1,true);}};});
+document.querySelectorAll('.dots button').forEach((b,i)=>b.onclick=()=>ir(i));
+$('#prev').onclick=()=>ir(cur-1);$('#next').onclick=()=>ir(cur+1);
+
+function ir(i,foco){
+  cur=(i+VIDEOS.length)%VIDEOS.length;const v=VIDEOS[cur];
+  document.querySelectorAll('.tab').forEach((b,j)=>{b.setAttribute('aria-selected',j===cur);b.tabIndex=j===cur?0:-1;});
+  document.querySelectorAll('.dots button').forEach((b,j)=>b.classList.toggle('on',j===cur));
+  if(foco)$('#tab'+cur).focus();
+  $('#slide').setAttribute('aria-labelledby','tab'+cur);
+  $('#slide').innerHTML=`<div class="slide fade" style="--c:${v.color}">
+    <div class="video" id="vid">
+      <img src="${v.img}" alt="Portada del video: ${esc(v.titulo)}" loading="lazy"/>
+      <button class="play" id="play" aria-label="Reproducir video: ${esc(v.titulo)}"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l15 8-15 8z"/></svg></span></button>
+    </div>
+    <div class="txt">
+      <div class="kick">Video ${cur+1} de ${VIDEOS.length} · ${esc(v.dur)}</div>
+      <h3>${esc(v.titulo)}</h3>
+      <p>${esc(v.texto)}</p>
+      <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
+      <a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>
+    </div>
+  </div>`;
+  $('#play').onclick=()=>{
+    // youtube-nocookie: no deja cookies de seguimiento hasta que se reproduce
+    $('#vid').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.yt}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.titulo)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  };
+}
+ir(0);
+
+// ── iframe: avisar alto al sitio padre ──
+if(parent!==window){
+  let lastH=0;
+  const send=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;parent.postMessage({type:'emra-mineria-height',h},'*');}};
+  new ResizeObserver(send).observe(document.body);send();
+}
+</script>
+</body>
+</html>

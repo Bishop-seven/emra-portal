@@ -5,6 +5,9 @@
    Widget "Conoce sobre minería" (home):
      <div id="emra-mineria-home"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
+   Slider "EMRA en videos" (home):
+     <div id="emra-videos-home"></div>
+     <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
    Cada iframe crece al alto de su contenido (sin doble scroll).
    Opcional: window.MINERIA_BASE para apuntar a otro servidor. */
 (function(){
@@ -13,7 +16,8 @@
   var ORIGEN=new URL(BASE,location.href).origin;
   var TIPOS={
     'emra-mineria':{src:'mineria.html?embed=1',title:'Minería en Números: aprende minería jugando',h:1600,bg:'#0B1929',radius:'16px'},
-    'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'}
+    'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'},
+    'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'}
   };
   var frames=[];
   Object.keys(TIPOS).forEach(function(id){
