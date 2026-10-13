@@ -1,21 +1,33 @@
 /* Minería en Números · embebido para emra.cl
-   Uso (bloque HTML de Elementor):
+   Sección completa (página de datos):
      <div id="emra-mineria"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
-   El iframe crece al alto de su contenido (sin doble scroll).
-   Opcional: window.MINERIA_URL para apuntar a otra URL. */
+   Widget "Conoce sobre minería" (home):
+     <div id="emra-mineria-home"></div>
+     <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
+   Cada iframe crece al alto de su contenido (sin doble scroll).
+   Opcional: window.MINERIA_BASE para apuntar a otro servidor. */
 (function(){
-  var cont=document.getElementById('emra-mineria');
-  if(!cont){cont=document.createElement('div');cont.id='emra-mineria';(document.currentScript&&document.currentScript.parentNode||document.body).appendChild(cont);}
-  var src=(window.MINERIA_URL||'https://portal.emra.cl/mineria.html')+'?embed=1';
-  var ORIGEN=new URL(src,location.href).origin;
-  var f=document.createElement('iframe');
-  f.src=src;f.title='Minería en Números: aprende minería jugando';f.loading='lazy';
-  f.setAttribute('allow','clipboard-write; web-share');
-  f.style.cssText='width:100%;border:0;display:block;min-height:900px;height:1600px;background:#0B1929;border-radius:16px';
-  cont.appendChild(f);
+  if(window.__emraMineria)return;window.__emraMineria=true;
+  var BASE=(window.MINERIA_BASE||'https://portal.emra.cl/').replace(/\/?$/,'/');
+  var ORIGEN=new URL(BASE,location.href).origin;
+  var TIPOS={
+    'emra-mineria':{src:'mineria.html?embed=1',title:'Minería en Números: aprende minería jugando',h:1600,bg:'#0B1929',radius:'16px'},
+    'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'}
+  };
+  var frames=[];
+  Object.keys(TIPOS).forEach(function(id){
+    var cont=document.getElementById(id);if(!cont)return;
+    var t=TIPOS[id],f=document.createElement('iframe');
+    f.src=BASE+t.src;f.title=t.title;f.loading='lazy';
+    f.setAttribute('allow','clipboard-write; web-share');
+    f.style.cssText='width:100%;border:0;display:block;height:'+t.h+'px;background:'+t.bg+';border-radius:'+t.radius;
+    cont.appendChild(f);frames.push(f);
+  });
   window.addEventListener('message',function(e){
-    if(e.origin!==ORIGEN||e.source!==f.contentWindow||!e.data)return;
+    if(e.origin!==ORIGEN||!e.data)return;
+    var f=null;for(var i=0;i<frames.length;i++)if(frames[i].contentWindow===e.source)f=frames[i];
+    if(!f)return;
     if(e.data.type==='emra-mineria-height'&&e.data.h>0){f.style.height=e.data.h+'px';}
     if(e.data.type==='emra-mineria-scroll'){
       var y=f.getBoundingClientRect().top+window.pageYOffset+(+e.data.y||0)-90;
