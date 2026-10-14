@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Demo hero emra.cl</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+body{margin:0;font-family:'Figtree',sans-serif;color:#383838;background:#fff}
+.top{display:flex;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:14px 32px}
+.top img{height:46px}
+.logos{display:flex;gap:28px;align-items:center}.logos img{height:58px}
+nav{background:#383838}nav div{max-width:1180px;margin:0 auto;padding:12px 32px;display:flex;gap:22px;color:#fff;font-size:15px;text-transform:uppercase}
+nav span:first-child{color:#FF6633}
+.siguiente{max-width:1100px;margin:0 auto;padding:60px 32px}
+.siguiente h2{font-size:36px;margin:0 0 14px}
+@media(max-width:767px){.logos,nav{display:none}.top{padding:12px 20px}.top img{height:auto;max-width:100%}}
+</style></head>
+<body>
+<!-- Simulación del encabezado de emra.cl (solo para la demo) -->
+<div class="top"><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo_emra_web.webp" alt="EMRA"/>
+<div class="logos"><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/Logo-GORE-Antofagasta-Color.webp" alt=""/><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-top.webp" alt=""/><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-Cluster-.webp" alt=""/></div></div>
+<nav><div><span>Inicio</span><span>EMRA 2023-2050</span><span>Gobernanza</span><span>Objetivos</span><span>Acuerdos</span><span>Actualidad</span><span>Documentos</span></div></nav>
+
+<!-- ▼▼ Esto es lo único que va en Elementor ▼▼ -->
+<div id="emra-hero"></div>
+<script src="emra-hero.js" defer></script>
+<!-- ▲▲ ▲▲ -->
+
+<div class="siguiente"><h2>EMRA en videos</h2><p>(El resto del home sigue igual que hoy.)</p><div style="height:900px"></div></div>
+</body></html>
