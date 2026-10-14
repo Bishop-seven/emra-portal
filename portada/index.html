@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EMRA · demo hero animado</title>
+<title>EMRA 2023–2050 · Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;800;900&display=swap" rel="stylesheet"/>
@@ -86,6 +86,8 @@ h1 .ini{color:var(--c)}
 .btn{display:inline-block;background:var(--cu);color:#fff;text-decoration:none;font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;padding:16px 26px;border-radius:3px}
 .btn.sec{background:transparent;color:var(--tx);border:2px solid var(--tx)}
 .nota{font-size:12px;color:#888;margin-top:40px}
+.entrar-fijo{position:fixed;top:18px;right:18px;z-index:50;display:inline-flex;align-items:center;gap:8px;background:var(--cu);color:#fff;text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:11px 18px;border-radius:99px;box-shadow:0 4px 18px rgba(0,0,0,.25);transition:.2s}
+.entrar-fijo:hover{background:#b36c3a}
 
 @media (max-width:767px){
   .hitos{grid-template-columns:1fr 1fr}
@@ -98,6 +100,8 @@ h1 .ini{color:var(--c)}
 </style>
 </head>
 <body>
+
+<a class="entrar-fijo" href="/#mapa" data-entrar>Entrar al portal →</a>
 
 <section class="escena" id="e1">
   <div class="fondo"><img src="portada.jpg" alt="" width="2000" height="1117"/></div>
@@ -164,11 +168,16 @@ h1 .ini{color:var(--c)}
 <section id="e6">
   <div class="cont">
     <h2>Desde Antofagasta al mundo. Esto recién comienza.</h2>
-    <div class="btns"><a class="btn" href="https://www.emra.cl/sobre-la-emra/">Conoce la EMRA</a><a class="btn sec" href="https://portal.emra.cl/">Explora las iniciativas</a></div>
-    <p class="nota">Demo de animación · imagen de portada ilustrativa</p>
+    <div class="btns"><a class="btn" href="/#mapa" data-entrar>Entrar al portal</a><a class="btn sec" href="/#mapa" data-entrar="chat">Pregúntale a Gorito</a><a class="btn sec" href="https://www.emra.cl/sobre-la-emra/" target="_top">Conoce la EMRA</a></div>
   </div>
 </section>
 
+<script>
+// Dentro del portal (iframe de la portada): "Entrar" cierra la portada sin recargar.
+document.querySelectorAll('[data-entrar]').forEach(a=>a.addEventListener('click',e=>{
+  if(window.parent!==window){e.preventDefault();window.parent.postMessage({type:'emra-entrar',chat:a.dataset.entrar==='chat'},location.origin);}
+}));
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>

@@ -4216,10 +4216,22 @@ function animarConteo(el){
   requestAnimationFrame(paso);
 }
 function showPortada(){
-  renderPortada();
   const el=document.getElementById('portada');
-  if(el){el.style.display='block';el.scrollTop=0;}
+  // Portada animada (portada/index.html). La portada clásica editable queda en ?portada=clasica
+  if(el && !/[?&]portada=clasica/.test(location.search)){
+    if(!el.querySelector('iframe.po-anim')){
+      el.innerHTML='<iframe class="po-anim" src="/portada/index.html" title="Portada EMRA 2023–2050" style="position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#0B1929"></iframe>';
+    }
+    el.style.overflow='hidden';el.style.display='block';
+    return;
+  }
+  renderPortada();
+  if(el){el.style.overflow='';el.style.display='block';el.scrollTop=0;}
 }
+// La portada animada avisa cuando la persona quiere entrar al portal
+window.addEventListener('message',e=>{
+  if(e.origin===location.origin&&e.data&&e.data.type==='emra-entrar')entrarPortal(!!e.data.chat);
+});
 function entrarPortal(abrirChat){
   const el=document.getElementById('portada');
   if(el)el.style.display='none';
