@@ -11,6 +11,8 @@
   var CLAVE='emraPopupMineria',DIAS_CERRADO=7,DIAS_VISITADO=30;
   var forzar=/[?&]popup=1/.test(location.search);
   if(!forzar&&/datos-sobre-mineria/.test(location.pathname))return;
+  // No mostrar dentro del editor ni la vista previa de Elementor
+  if(/[?&]elementor-preview=/.test(location.search)||document.body.classList.contains('elementor-editor-active')||(window.elementorFrontend&&elementorFrontend.isEditMode&&elementorFrontend.isEditMode()))return;
   function leer(){try{return JSON.parse(localStorage.getItem(CLAVE)||'null');}catch(e){return null;}}
   function guardar(dias){try{localStorage.setItem(CLAVE,JSON.stringify({hasta:Date.now()+dias*864e5}));}catch(e){}}
   var st=leer();if(!forzar&&st&&st.hasta>Date.now())return;
