@@ -128,13 +128,13 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(-
 .q-exp .q-fig figcaption{visibility:visible}
 
 /* gigantes */
-.giants{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;margin-top:28px}
+.giants{display:grid;grid-template-columns:1fr;gap:16px;margin-top:28px}
 .gsvg{padding:16px 10px 6px}
 .gsvg svg{width:100%;height:auto;display:block}
 .gsvg .g{cursor:pointer;transition:opacity .2s}
 .gsvg.focus .g{opacity:.25}
 .gsvg.focus .g.on{opacity:1}
-.glist{display:flex;flex-direction:column;gap:8px}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
 .gitem{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;text-align:left;color:inherit;font:inherit;width:100%}
 .gitem.on{border-color:var(--cu);background:rgba(224,138,60,.08)}
 .gitem .em{font-size:22px;line-height:1}
@@ -379,55 +379,100 @@ footer p+p{margin-top:6px}
   <div class="wrap">
     <div class="kick">Escala real</div>
     <h2>Gigantes de la minería</h2>
-    <p class="lead">Todo dibujado a la misma escala. Toca cada gigante para compararlo con una persona.</p>
+    <p class="lead">Todo dibujado a la misma escala, junto a lugares conocidos de la región. Toca cada gigante para compararlo con una persona.</p>
     <div class="giants">
       <div class="card gsvg" id="gsvg">
-        <svg viewBox="0 0 620 330" role="img" aria-label="Comparación de tamaños a escala: persona, camión minero, pala y Estatua de la Libertad">
-          <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,.08)" stroke-width="2"/></pattern></defs>
-          <!-- escala: 1 m = 6 px; suelo en y=300 -->
+        <svg viewBox="0 0 760 330" role="img" aria-label="Comparación de tamaños a escala: persona, camión minero Caterpillar 798 AC, pala, Mano del Desierto, La Portada, Estatua de la Libertad y Torre Pérez Zujovic">
+          <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,.08)" stroke-width="2"/></pattern>
+            <pattern id="vent" width="10" height="11.5" patternUnits="userSpaceOnUse"><rect x="2" y="3" width="6" height="5" fill="#8fb3cf" opacity=".55"/></pattern></defs>
+          <!-- escala: 1 m = 3 px; suelo en y=300 -->
           <g fill="none" stroke="rgba(255,255,255,.07)">
-            <line x1="0" y1="240" x2="620" y2="240"/><line x1="0" y1="180" x2="620" y2="180"/><line x1="0" y1="120" x2="620" y2="120"/><line x1="0" y1="60" x2="620" y2="60"/>
+            <line x1="0" y1="240" x2="760" y2="240"/><line x1="0" y1="180" x2="760" y2="180"/><line x1="0" y1="120" x2="760" y2="120"/><line x1="0" y1="60" x2="760" y2="60"/>
           </g>
           <g font-size="10" fill="#8aa0b5" font-family="Inter,sans-serif">
-            <text x="604" y="237" text-anchor="end">10 m</text><text x="604" y="177" text-anchor="end">20 m</text><text x="604" y="117" text-anchor="end">30 m</text><text x="604" y="57" text-anchor="end">40 m</text>
+            <text x="754" y="237" text-anchor="end">20 m</text><text x="754" y="177" text-anchor="end">40 m</text><text x="754" y="117" text-anchor="end">60 m</text><text x="754" y="57" text-anchor="end">80 m</text>
           </g>
-          <rect x="0" y="300" width="620" height="30" fill="url(#hatch)"/>
-          <line x1="0" y1="300" x2="620" y2="300" stroke="rgba(255,255,255,.25)"/>
+          <rect x="0" y="300" width="760" height="30" fill="url(#hatch)"/>
+          <line x1="0" y1="300" x2="760" y2="300" stroke="rgba(255,255,255,.25)"/>
+          <g font-family="Inter,sans-serif" font-size="11" font-weight="700" text-anchor="middle">
           <!-- persona 1,7 m -->
           <g class="g" data-g="persona">
-            <circle cx="40" cy="291" r="2.2" fill="#dce8f2"/><rect x="38.4" y="293.5" width="3.2" height="6.5" rx="1.2" fill="#dce8f2"/>
-            <text x="40" y="283" text-anchor="middle" font-size="11" fill="#dce8f2" font-family="Inter,sans-serif">tú</text>
-            <line x1="40" y1="286" x2="40" y2="289" stroke="#dce8f2"/>
+            <circle cx="24" cy="296" r="1.2" fill="#dce8f2"/><rect x="23.2" y="297.2" width="1.6" height="2.8" fill="#dce8f2"/>
+            <text x="24" y="287" fill="#dce8f2" font-weight="400">tú</text><line x1="24" y1="289" x2="24" y2="293" stroke="#dce8f2"/>
           </g>
-          <!-- camión Liebherr T 284: largo 15,7 m, alto 7 m -->
+          <!-- camión Caterpillar 798 AC (Escondida): 15,7 m largo, 7,8 m altura de carga, neumáticos ~4 m; escala 1 m = 3 px -->
           <g class="g" data-g="camion">
-            <rect x="72" y="258" width="94" height="30" rx="3" fill="#EFAD1B"/>
-            <rect x="140" y="262" width="22" height="16" rx="2" fill="#0B1929" opacity=".5"/>
-            <polygon points="72,258 160,258 166,252 66,252" fill="#d4950f"/>
-            <circle cx="92" cy="291" r="9" fill="#1d2b3a" stroke="#4a5868" stroke-width="2"/><circle cx="148" cy="291" r="9" fill="#1d2b3a" stroke="#4a5868" stroke-width="2"/>
-            <text x="119" y="243" text-anchor="middle" font-size="11" fill="#EFAD1B" font-weight="700" font-family="Inter,sans-serif">Camión · 7 m</text>
+            <rect x="44" y="286" width="42" height="4" fill="#3b4652"/>
+            <path d="M89 287 L89 276.6 L41 276.6 L41 279.5 L57 280.5 L60 287 Z" fill="#FFCD11"/>
+            <path d="M89 276.6 L89 287 L85 287 L85 277.6 Z" fill="#d9ad0a"/>
+            <line x1="62" y1="279" x2="86" y2="279" stroke="#d9ad0a" stroke-width=".8"/>
+            <rect x="43.5" y="280.3" width="8" height="5.2" rx=".6" fill="#FFCD11"/><rect x="45" y="281.2" width="4.6" height="2.6" fill="#16314d"/>
+            <rect x="40.5" y="284" width="6" height="6" rx=".8" fill="#e8b80e"/>
+            <line x1="40" y1="291" x2="44" y2="281" stroke="#c9d3dc" stroke-width=".7"/>
+            <g fill="#141a21" stroke="#2c3642" stroke-width="1"><circle cx="51" cy="294" r="6"/><circle cx="78" cy="294" r="6"/></g>
+            <g fill="#FFCD11"><circle cx="51" cy="294" r="2.4"/><circle cx="78" cy="294" r="2.4"/></g>
+            <g stroke="#2c3642" stroke-width=".6" stroke-dasharray="1.2 1.2" fill="none"><circle cx="51" cy="294" r="4.6"/><circle cx="78" cy="294" r="4.6"/></g>
+            <text x="64" y="268" fill="#FFCD11">Camión 7,8 m</text>
           </g>
           <!-- pala: 21 m alto, 15 m largo -->
           <g class="g" data-g="pala">
-            <rect x="200" y="252" width="66" height="40" rx="4" fill="#E08A3C"/>
-            <rect x="206" y="292" width="56" height="8" rx="3" fill="#4a5868"/>
-            <line x1="240" y1="256" x2="290" y2="174" stroke="#E08A3C" stroke-width="7" stroke-linecap="round"/>
-            <line x1="290" y1="174" x2="290" y2="230" stroke="#c9752e" stroke-width="4"/>
-            <path d="M276 230 h28 v18 q-14 8 -28 0z" fill="#c9752e"/>
-            <text x="245" y="164" text-anchor="middle" font-size="11" fill="#f3b27a" font-weight="700" font-family="Inter,sans-serif">Pala · 21 m</text>
+            <rect x="120" y="270" width="36" height="22" rx="3" fill="#E08A3C"/><rect x="122" y="292" width="32" height="8" rx="3" fill="#4a5868"/>
+            <line x1="146" y1="272" x2="172" y2="237" stroke="#E08A3C" stroke-width="4" stroke-linecap="round"/>
+            <line x1="172" y1="237" x2="172" y2="262" stroke="#c9752e" stroke-width="2.5"/><path d="M164 262 h16 v9 q-8 5 -16 0z" fill="#c9752e"/>
+            <text x="150" y="229" fill="#f3b27a">Pala 21 m</text>
           </g>
-          <!-- Estatua de la Libertad 46 m -->
+          <!-- Mano del Desierto: 11 m (1 m = 3 px) -->
+          <g class="g" data-g="mano">
+            <path d="M205 300 Q207 294 213 293 H234 Q240 294 243 300 Z" fill="#c9a26b"/>
+            <g fill="#a9b3bd">
+              <path d="M214 296 L215 283 Q215 280 218 280 H234 Q236 280 236 283 L237 296 Z"/>
+              <rect x="215.5" y="271" width="4.2" height="13" rx="2.1"/>
+              <rect x="220.4" y="267" width="4.4" height="17" rx="2.2"/>
+              <rect x="225.5" y="269" width="4.3" height="15" rx="2.15"/>
+              <rect x="230.5" y="273.5" width="3.8" height="11" rx="1.9"/>
+              <path d="M235.5 288 Q239 283 241.5 278.5 Q242.6 276.8 243.6 278 Q244.2 279 243.3 281 L238.5 291 Z"/>
+            </g>
+            <g stroke="#7f8b97" stroke-width=".5" fill="none"><line x1="219.9" y1="276" x2="219.9" y2="283"/><line x1="225" y1="273" x2="225" y2="283"/><line x1="230.1" y1="275" x2="230.1" y2="283"/><path d="M216 289 Q225 291 235 288"/></g>
+            <text x="228" y="257" fill="#c3ccd6">📍 Mano del Desierto 11 m</text>
+          </g>
+          <!-- La Portada: arco natural de 43 m -->
+          <g class="g" data-g="portada">
+            <path d="M298 300 L299 252 Q297 236 301 222 L300 205 Q303 188 312 181 Q318 176 326 175 L331 171.5 Q338 170.5 343 172 L350 171 Q360 172 368 175 Q377 178 383 186 Q389 195 389 208 L391 226 Q388 240 390 256 L392 300 H373 L372 266 Q371 246 366 236 Q359 225 346 223 Q332 224 325 233 Q319 243 318 262 L317 300 Z" fill="#c29a62"/>
+            <path d="M312 181 Q318 176 326 175 L331 171.5 Q338 170.5 343 172 L350 171 Q360 172 368 175 Q377 178 383 186 L380 188 Q370 180 356 178 Q342 176 328 179 Q318 182 313 186 Z" fill="#ece5d6"/>
+            <g stroke="#9c7a48" stroke-width=".8" fill="none" opacity=".9">
+              <path d="M300 214 Q345 205 389 214"/><path d="M300 232 Q322 230 326 232 M366 233 Q378 231 390 233"/><path d="M299 252 Q309 250 319 252 M371 252 Q381 250 391 253"/><path d="M299 272 Q308 270 318 272 M372 272 Q382 270 392 273"/>
+              <path d="M304 196 Q345 186 386 197"/>
+            </g>
+            <path d="M298 300 L299 287 Q306 284 317 287 L317 300 Z M373 300 L373 286 Q383 283 392 287 L392 300 Z" fill="#8f6d40"/>
+            <path d="M286 300 Q292 296 298 300 T310 300 T322 300 T334 300 T346 300 T358 300 T370 300 T382 300 T394 300 T406 300" fill="none" stroke="#7cc8ef" stroke-width="1.6"/>
+            <path d="M321 300 Q334 294 346 296 Q358 294 369 300 Z" fill="#038FCF" opacity=".55"/>
+            <text x="345" y="163" fill="#e2c595">📍 La Portada 43 m</text>
+          </g>
+          <!-- Estatua de la Libertad, sin pedestal: 46 m -->
           <g class="g" data-g="estatua">
-            <rect x="404" y="210" width="40" height="90" fill="#19BAB6" opacity=".85"/>
-            <path d="M410 210 L438 210 L432 90 L416 90 Z" fill="#19BAB6"/>
-            <circle cx="424" cy="80" r="11" fill="#19BAB6"/>
-            <path d="M414 72 l4 -10 l4 8 l4 -10 l4 10 l4 -8 l2 10z" fill="#19BAB6"/>
-            <line x1="434" y1="110" x2="448" y2="40" stroke="#19BAB6" stroke-width="6" stroke-linecap="round"/>
-            <path d="M444 40 q4 -12 8 0z" fill="#EFAD1B"/>
-            <text x="424" y="24" text-anchor="middle" font-size="11" fill="#19BAB6" font-weight="700" font-family="Inter,sans-serif">Estatua de la Libertad · 46 m</text>
+            <g fill="#3fb3a2">
+              <path d="M452 300 Q451 288 453 274 L455 248 Q456 230 457 218 Q458 208 460 205 H468 Q471 208 471 216 L472 236 Q474 256 475 274 Q477 289 476 300 Z"/>
+              <path d="M468 207 Q471 203 472 196 L474 180 Q474.6 177 476.6 177.4 Q478.3 178 478 181 L476 197 Q475 205 471 211 Z"/>
+              <rect x="474.6" y="171" width="3.4" height="8" rx=".8"/>
+              <path d="M473.4 171 H479.2 L478 168.4 H474.6 Z"/>
+              <path d="M455 214 Q451 218 451 225 L453 232 Q456 228 457 222 Z"/>
+              <rect x="448.5" y="215" width="6" height="10" rx=".8" transform="rotate(-14 451.5 220)"/>
+              <circle cx="464" cy="199" r="4.6"/>
+            </g>
+            <g fill="#3fb3a2"><path d="M459 196 l-4.5 -3.2 l5 1.2z"/><path d="M460.2 194.4 l-2.8 -4.8 l4 3.2z"/><path d="M462.4 193.4 l-.9 -5.4 l2.2 4.8z"/><path d="M465 193.2 l1 -5.4 l.8 5.2z"/><path d="M467.3 194 l3 -4.6 l-1.5 5.3z"/><path d="M468.8 195.8 l4.6 -2.8 l-4.3 4.1z"/></g>
+            <path d="M476.6 168.4 q-2.6 -3 0 -6.4 q2.8 3.2 0 6.4z" fill="#FAA900"/>
+            <g stroke="#2d8f81" stroke-width=".8" fill="none"><path d="M458 230 Q457 262 455 296"/><path d="M463 214 Q463 255 462 298"/><path d="M468 228 Q470 262 471 297"/><path d="M455 272 Q464 268 474 273"/></g>
+            <text x="463" y="150" fill="#19BAB6">Estatua de la Libertad 46 m</text>
+          </g>
+          <!-- Torre Pérez Zujovic: 92 m -->
+          <g class="g" data-g="torre">
+            <rect x="590" y="24" width="60" height="276" fill="#dce8f2"/><rect x="590" y="24" width="60" height="276" fill="url(#vent)"/>
+            <rect x="586" y="22" width="68" height="5" fill="#b8c7d6"/>
+            <text x="620" y="14" fill="#dce8f2">📍 Torre Pérez Zujovic 92 m</text>
+          </g>
           </g>
         </svg>
-        <p class="src" style="padding:6px 8px 4px">Escala: cada línea horizontal = 10 m. La Estatua de la Libertad se mide desde la base de la figura (sin pedestal).</p>
+        <p class="src" style="padding:6px 8px 4px">Escala: cada línea horizontal = 20 m. La Estatua de la Libertad se dibuja sin pedestal (46 m); con pedestal mide 93 m. 📍 = referencias de la Región de Antofagasta (no vienen del libro; la fuente está en cada ficha).</p>
       </div>
       <div class="glist" id="glist"></div>
     </div>
@@ -704,9 +749,13 @@ renderTabs();renderFacts();
 // ══ 3. GIGANTES ══
 const GIG=[
   {k:'persona',e:'🧍',t:'Una persona',d:'1,7 m de alto. Es la referencia para todo lo demás.'},
-  {k:'camion',e:'🚛',t:'Camión Liebherr T 284',d:'7 m de alto (4 personas una sobre otra), 15,7 m de largo, y carga hasta 400 t.',s:'Liebherr · p.58'},
+  {k:'camion',e:'📍',t:'Camión Caterpillar 798 AC · Escondida',d:'15,7 m de largo, 7,8 m hasta el borde de la tolva y carga 372 t. Sus neumáticos (59/80R63) miden cerca de 4 m: más del doble de una persona. BHP está renovando toda la flota de Escondida con este modelo. El libro usa de ejemplo el Liebherr T 284: 7 m de alto y hasta 400 t (p.58).',s:'Caterpillar · BHP, Caterpillar y Finning (2022)'},
   {k:'pala',e:'🏗️',t:'Pala andina',d:'21 m de alto, como un edificio de 7 pisos. Carga 115 t en cada palada.',s:'Codelco · p.59'},
-  {k:'estatua',e:'🗽',t:'Estatua de la Libertad',d:'46 m de alto y 31 toneladas de cobre en su piel.',s:'National Park Service · p.44'}
+  {k:'pala4800',e:'📍',t:'Pala Komatsu P&H 4800XPC · Escondida',d:'Según BHP, la pala con mayor capacidad del mundo; la primera de Latinoamérica llegó a Escondida en 2024. Pesa unas 1.750 t, carga 123 t por palada, llena un camión de 400 t en solo 3 pasadas y su balde alcanza 18,9 m de altura.',s:'BHP (2024) · Komatsu'},
+  {k:'mano',e:'📍',t:'Mano del Desierto',d:'11 m de alto, al sur de Antofagasta junto a la Ruta 5. Mide más de 6 personas una sobre otra.',s:'Billiken · obra de Mario Irarrázabal'},
+  {k:'estatua',e:'🗽',t:'Estatua de la Libertad',d:'46 m de alto la figura y 31 toneladas de cobre en su piel. Con su pedestal llega a 93 m: casi lo mismo que la Torre Pérez Zujovic.',s:'National Park Service · p.44'},
+  {k:'portada',e:'📍',t:'La Portada de Antofagasta',d:'Arco natural de 43 m de alto, casi tan alto como la Estatua de la Libertad. Monumento Natural desde 1990.',s:'Wikipedia'},
+  {k:'torre',e:'📍',t:'Torre Pérez Zujovic',d:'La "Torre Coca-Cola" de Antofagasta: 92 m y 24 pisos. Mide casi lo mismo que la Estatua de la Libertad con su pedestal (93 m) y más de 4 veces la pala.',s:'Urbipedia'}
 ];
 let gSel=null,gSeen=new Set();
 function renderGig(){
