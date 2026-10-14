@@ -75,7 +75,7 @@ h1 .ini{color:var(--c)}
 .frases.apilar .esp{position:absolute;left:0;right:0;top:0}
 .cifras{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;padding-top:28px;border-top:1px solid rgba(255,255,255,.25)}
 .cifra .n{font-size:clamp(48px,5.6vw,80px);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
-.cifra p{font-size:17px;font-weight:500;margin-top:6px;color:rgba(255,255,255,.9)}
+.cifra p{font-size:clamp(19px,1.7vw,24px);font-weight:600;line-height:1.3;margin-top:10px;color:#fff;max-width:340px}
 .cifra:nth-child(1) .n{color:var(--oe1)}.cifra:nth-child(2) .n{color:var(--oe3)}.cifra:nth-child(3) .n{color:var(--oe5)}
 
 /* 6 · cierre */
@@ -91,7 +91,12 @@ h1 .ini{color:var(--c)}
 
 @media (max-width:767px){
   .hitos{grid-template-columns:1fr 1fr}
-  .cifras{grid-template-columns:1fr;gap:18px}
+  .cifras{grid-template-columns:1fr;gap:14px;margin-top:28px;padding-top:20px}
+  .cifra{display:flex;align-items:center;gap:16px}
+  .cifra .n{font-size:44px;min-width:2.6em}
+  .cifra p{font-size:17px;margin-top:0}
+  .frases.apilar{min-height:38vh}
+  .esp blockquote{font-size:28px}
   #e4 .pista{flex-direction:column;width:auto}
   .oe{width:auto;min-height:0}
   .oe .num{font-size:64px}
@@ -158,9 +163,9 @@ h1 .ini{color:var(--c)}
       <figure class="esp"><blockquote>Una plataforma de comunicación público-privada que trasciende los gobiernos de turno.</blockquote><figcaption>emra.cl · Logros</figcaption></figure>
     </div>
     <div class="cifras" id="cifras">
-      <div class="cifra"><div class="n">5</div><p>objetivos estratégicos</p></div>
-      <div class="cifra"><div class="n">4</div><p>dimensiones: ambiental, social, económica e institucional</p></div>
-      <div class="cifra"><div class="n">2050</div><p>horizonte de la estrategia</p></div>
+      <div class="cifra"><div class="n">5</div><p>Objetivos estratégicos</p></div>
+      <div class="cifra"><div class="n">4</div><p>Dimensiones: ambiental, social, económica e institucional</p></div>
+      <div class="cifra"><div class="n">2050</div><p>Horizonte de la estrategia</p></div>
     </div>
   </div>
 </section>
