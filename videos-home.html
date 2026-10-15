@@ -48,6 +48,7 @@ li{display:flex;gap:10px;font-size:15px;line-height:1.4}
 li:before{content:"";flex-shrink:0;width:10px;height:10px;border-radius:50%;margin-top:6px;background:var(--dot,var(--c))}
 .link{display:inline-flex;align-items:center;gap:8px;margin-top:18px;align-self:flex-start;background:var(--cu);color:#fff;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;padding:12px 20px;border-radius:3px;transition:.15s}
 .link:hover{background:var(--cu2)}
+.link.fijo{cursor:default}.link.fijo:hover{background:var(--cu)}
 .fade{animation:fade .4s ease both}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 
@@ -95,16 +96,16 @@ const VIDEOS=[
    texto:'Es el instrumento de planificación del Gobierno Regional de Antofagasta para transformar la minería en un motor de progreso integral. Fue aprobada por el Consejo Regional en marzo de 2024, se basa en recomendaciones de la OCDE y reunió por primera vez a la sociedad civil, la gran minería, la academia y el sector público.',
    lista:[['5 objetivos estratégicos: Mejorar la calidad de vida, Minería sustentable, Fortalecer las empresas regionales, Mejorar la institucionalidad pública y Reforzar el ecosistema del conocimiento'],['19 acuerdos transversales en lo ambiental, social, económico e institucional, que se evalúan cada año'],['Una gobernanza de diálogo permanente, constituida el 22 de marzo de 2024']],
    cta:['Conoce los 5 objetivos','https://www.emra.cl/objetivos-estrategicos/']},
-  {yt:'cVl2reybEOQ',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/cortoplazo.jpg',color:'var(--oe2)',
+  {yt:'cVl2reybEOQ',img:'video-cortoplazo-oe1.jpg',color:'var(--oe2)',
    tab:'Corto plazo',dur:'6 min',
-   titulo:'Corto plazo: respuestas a necesidades urgentes',
-   texto:'Vecinos, autoridades y empresas cuentan cómo la EMRA busca responder a desafíos históricos de la región como la salud, la educación y el agua, con una alianza público-privada que acorta los tiempos: proyectos que antes tardaban más de una década en diseñarse ahora pueden diseñarse en 11 meses.',
+   titulo:'Corto plazo: respuestas a necesidades urgentes OE1',
+   texto:'Vecinos, autoridades y empresas cuentan cómo la EMRA busca responder a desafíos históricos de la región como la salud, la educación y el agua, con una alianza público-privada que acorta los tiempos: proyectos que antes tardaban más de una década en diseñarse ahora pueden diseñarse entre 7 a 18 meses según tipología.',
    lista:[['Proyecto piloto: cuatro postas rurales impulsadas junto a SQM Litio'],['Necesidades levantadas por las propias comunidades, como en Toconao: salud, jardín infantil y agua potable'],['Empresas mineras que aportan más que recursos: ayudan a diseñar e implementar los proyectos']],
-   cta:['Ver los logros de la EMRA','https://www.emra.cl/logros/']},
+   cta:['Ver avance de las iniciativas de corto plazo OE1','']},  // sin vínculo por ahora (pedido 14-oct)
   {yt:'gZgGWvyC0Ls',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/meniplazo.jpg',color:'var(--oe3)',
    tab:'Mediano plazo',dur:'11 min',
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
-   texto:'Un recorrido por las iniciativas que la región acordó construir en Antofagasta y Mejillones, Tocopilla y Calama, además de proyectos que cruzan toda la región, para que la riqueza del territorio se convierta en bienestar real para su gente.',
+   texto:'Diseño de mediano plazo al 2035: la EMRA busca dar un salto en el desarrollo urbano de nuestras capitales provinciales. En este ámbito, 30 son las iniciativas en que nos hemos puesto de acuerdo como región y queremos construir juntos, y 7 son las iniciativas estratégicas de responsabilidad del Gobierno, donde la región asume el compromiso de apoyar iniciativas regionales estratégicas que dependen del nivel central.',
    lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
    cta:['Explora las 37 iniciativas en el Portal EMRA','https://portal.emra.cl/']}
 ];
@@ -135,7 +136,7 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      <a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>
+      ${v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{

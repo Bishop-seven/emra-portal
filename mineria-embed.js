@@ -24,7 +24,8 @@
     var cont=document.getElementById(id);if(!cont)return;
     var t=TIPOS[id],f=document.createElement('iframe');
     f.src=BASE+t.src;f.title=t.title;f.loading='lazy';
-    f.setAttribute('allow','clipboard-write; web-share');
+    // autoplay + fullscreen: sin esto YouTube pide un segundo clic y el botón de pantalla completa no funciona
+    f.setAttribute('allow','autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; web-share');f.allowFullscreen=true;
     f.style.cssText='width:100%;border:0;display:block;height:'+t.h+'px;background:'+t.bg+';border-radius:'+t.radius;
     cont.appendChild(f);frames.push(f);
   });
