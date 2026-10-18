@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gorito te invita · EMRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --oe1:#FAA900; --oe2:#70AD57; --oe3:#FF5812; --oe4:#0090D4; --oe5:#00BCB6;
+    --tinta:#0F2340; --cielo1:#1E4FA3; --cielo2:#3D86D6; --cielo3:#F2B266;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Nunito",system-ui,sans-serif;color:var(--tinta);
+    background:transparent;overflow:hidden;
+  }
+
+  /* ---------- Escenario ---------- */
+  .escena{
+    position:relative;height:100%;min-height:340px;container-type:size;
+    border-radius:22px;overflow:hidden;isolation:isolate;
+    background:linear-gradient(180deg,var(--cielo1) 0%,var(--cielo2) 55%,var(--cielo3) 100%);
+  }
+  /* trama de puntos tipo cómic */
+  .escena::before{
+    content:"";position:absolute;inset:0;z-index:-1;opacity:.18;
+    background-image:radial-gradient(#fff 1.4px,transparent 1.6px);
+    background-size:14px 14px;
+    mask-image:linear-gradient(180deg,#000 0%,transparent 70%);
+  }
+  /* cerros del desierto */
+  .cerros{position:absolute;left:0;bottom:0;width:100%;height:34%;z-index:-1}
+  /* franja de colores OE */
+  .franja{position:absolute;left:0;right:0;bottom:0;height:7px;display:flex;z-index:3}
+  .franja i{flex:1}
+
+  .marca{
+    position:absolute;top:14px;left:18px;z-index:4;
+    font-family:"Baloo 2",sans-serif;font-weight:800;color:#fff;font-size:15px;letter-spacing:.3px;
+    display:flex;align-items:center;gap:8px;opacity:.95
+  }
+  .marca b{
+    background:#fff;color:var(--tinta);border-radius:999px;padding:1px 10px;font-size:13px;
+    box-shadow:2px 2px 0 var(--tinta)
+  }
+
+  /* ---------- Layout ---------- */
+  .contenido{
+    position:absolute;inset:0;display:grid;
+    grid-template-columns:minmax(150px,34%) 1fr;align-items:end;
+    padding:46px 22px 18px 10px;gap:6px;
+  }
+  .gorito{
+    align-self:end;justify-self:center;width:100%;max-width:260px;
+    filter:drop-shadow(0 10px 12px rgba(15,35,64,.35));
+    transform-origin:50% 100%;animation:respira 3.2s ease-in-out infinite;
+    cursor:pointer;user-select:none;-webkit-user-drag:none;
+  }
+  .gorito.hablando{animation:habla .32s ease-in-out infinite alternate}
+  @keyframes respira{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-6px) rotate(-1.5deg)}}
+  @keyframes habla{from{transform:translateY(0) rotate(-1.5deg) scaleY(1)}to{transform:translateY(-4px) rotate(1.5deg) scaleY(1.02)}}
+
+  .lado{align-self:center;display:flex;flex-direction:column;gap:16px;padding-bottom:20px}
+
+  /* ---------- Globo de cómic ---------- */
+  .globo{
+    position:relative;background:#fff;border:3px solid var(--tinta);border-radius:26px;
+    padding:18px 22px 20px;box-shadow:6px 6px 0 var(--tinta);
+    min-height:118px;transform-origin:0% 80%;
+    animation:pop .5s cubic-bezier(.2,1.6,.4,1) both;
+  }
+  .globo.salta{animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes pop{0%{transform:scale(.6) rotate(-4deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  /* colita apuntando a Gorito */
+  .globo::before,.globo::after{content:"";position:absolute;left:-26px;bottom:26px;width:0;height:0;border-style:solid}
+  .globo::before{border-width:16px 30px 6px 0;border-color:transparent var(--tinta) transparent transparent;left:-32px;bottom:24px}
+  .globo::after{border-width:12px 24px 4px 0;border-color:transparent #fff transparent transparent;left:-23px;bottom:27px}
+
+  .quien{
+    font-family:"Baloo 2",sans-serif;font-weight:800;font-size:13px;letter-spacing:.6px;
+    text-transform:uppercase;color:var(--oe3);margin-bottom:4px
+  }
+  .texto{
+    font-family:"Baloo 2",sans-serif;font-weight:600;font-size:clamp(18px,4.2cqw,27px);line-height:1.18;
+  }
+  .texto strong{font-weight:800;color:var(--oe4)}
+  .cursor{display:inline-block;width:3px;height:1em;background:var(--tinta);margin-left:2px;vertical-align:-3px;animation:parpadeo .8s steps(1) infinite}
+  @keyframes parpadeo{50%{opacity:0}}
+
+  .puntos{position:absolute;right:16px;bottom:10px;display:flex;gap:5px}
+  .puntos i{width:7px;height:7px;border-radius:50%;background:#d5dbe5;cursor:pointer;transition:.2s}
+  .puntos i.on{background:var(--oe3);width:18px;border-radius:4px}
+
+  /* ondas de voz */
+  .ondas{position:absolute;left:-58px;top:-14px;width:40px;height:40px;opacity:0;transition:.2s}
+  .hablando-on .ondas{opacity:1}
+  .ondas span{position:absolute;left:0;top:0;width:100%;height:100%;border:3px solid #fff;border-color:#fff transparent transparent transparent;border-radius:50%;transform:rotate(30deg);animation:onda 1s ease-out infinite}
+  .ondas span:nth-child(2){animation-delay:.3s}
+  @keyframes onda{from{transform:rotate(30deg) scale(.4);opacity:1}to{transform:rotate(30deg) scale(1.1);opacity:0}}
+
+  /* ---------- Botones ---------- */
+  .acciones{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .btn{
+    font-family:"Baloo 2",sans-serif;font-weight:800;font-size:16px;text-decoration:none;
+    display:inline-flex;align-items:center;gap:8px;padding:10px 18px 8px;border-radius:999px;
+    border:3px solid var(--tinta);box-shadow:4px 4px 0 var(--tinta);cursor:pointer;
+    transition:transform .12s,box-shadow .12s;color:var(--tinta);background:#fff;
+  }
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--tinta)}
+  .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--tinta)}
+  .btn.prim{background:var(--oe1)}
+  .btn.voz{padding:8px 10px;line-height:0}
+  .btn.voz[aria-pressed="true"]{background:var(--oe5);color:#fff}
+
+  /* ---------- Formato angosto (sidebar / móvil) ---------- */
+  @container (max-width:560px){
+    .contenido{display:block;padding:48px 16px 16px}
+    .lado{padding-bottom:0}
+    .texto{font-size:19px}
+    .gorito{position:absolute;left:12px;bottom:12px;height:42cqh;width:auto;max-width:none}
+    .globo::before{left:46px;bottom:-30px;border-width:30px 6px 0 16px;border-color:var(--tinta) transparent transparent transparent}
+    .globo::after{left:49px;bottom:-22px;border-width:24px 4px 0 12px;border-color:#fff transparent transparent transparent}
+    .ondas{display:none}
+    .acciones{position:absolute;right:16px;bottom:26px;flex-direction:column;align-items:flex-end;width:50%}
+    .btn{font-size:14px;padding:8px 14px 6px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .gorito,.gorito.hablando,.globo{animation:none}
+  }
+</style>
+</head>
+<body>
+<div class="escena" id="escena">
+  <svg class="cerros" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 120 L120 70 L220 105 L330 55 L470 110 L590 65 L700 100 L800 80 L800 200 L0 200Z" fill="#C98A5A" opacity=".55"/>
+    <path d="M0 150 L150 115 L300 140 L420 105 L560 145 L690 120 L800 135 L800 200 L0 200Z" fill="#E0A064"/>
+    <path d="M0 175 Q200 150 400 172 T800 165 L800 200 L0 200Z" fill="#EDB57A"/>
+  </svg>
+
+  <div class="marca">Gorito <b>EMRA</b></div>
+
+  <div class="contenido">
+    <img class="gorito" id="gorito" src="gorito.webp" alt="Gorito, la mascota de la EMRA" title="¡Tócame!">
+
+    <div class="lado">
+      <div class="globo" id="globo" aria-live="polite">
+        <div class="ondas" aria-hidden="true"><span></span><span></span></div>
+        <div class="quien">Gorito dice:</div>
+        <p class="texto"><span id="texto"></span><span class="cursor" aria-hidden="true"></span></p>
+        <div class="puntos" id="puntos"></div>
+      </div>
+
+      <div class="acciones">
+        <a class="btn prim" href="https://emra.cl/" target="_top">Conoce la EMRA →</a>
+        <a class="btn" href="https://portal.emra.cl/gorito.html" target="_blank" rel="noopener">💬 Pregúntale a Gorito</a>
+        <button class="btn voz" id="voz" type="button" aria-pressed="false" title="Escuchar a Gorito" aria-label="Escuchar a Gorito"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="franja" aria-hidden="true"><i style="background:var(--oe1)"></i><i style="background:var(--oe2)"></i><i style="background:var(--oe3)"></i><i style="background:var(--oe4)"></i><i style="background:var(--oe5)"></i></div>
+</div>
+
+<script>
+  // Frases de Gorito (propuesta, editable). *texto* = destacado.
+  const FRASES = [
+    "¡Hola! Soy *Gorito*, tu guía de la EMRA 👷",
+    "La EMRA es la *Estrategia Minera para el Bienestar de la Región de Antofagasta*.",
+    "Tiene *5 objetivos estratégicos* y mira lejos: ¡hasta el *2050*!",
+    "¿Quieres saber cómo la minería puede traer más bienestar a tu región?",
+    "¡Pregúntame lo que quieras! Te respondo *claro y al instante* 😄"
+  ];
+
+  const $txt = document.getElementById('texto');
+  const $globo = document.getElementById('globo');
+  const $gorito = document.getElementById('gorito');
+  const $puntos = document.getElementById('puntos');
+  const $voz = document.getElementById('voz');
+  let i = 0, timer = null, vozOn = false;
+
+  FRASES.forEach((_, n) => {
+    const d = document.createElement('i');
+    d.onclick = () => decir(n);
+    $puntos.appendChild(d);
+  });
+
+  const plano = s => s.replace(/\*/g, '');
+  const html = s => s.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+
+  function hablar(on){
+    $gorito.classList.toggle('hablando', on);
+    document.body.classList.toggle('hablando-on', on);
+  }
+
+  // Audios de la voz de Gorito (Gemini TTS, voz Mako), uno por frase, en el mismo orden que FRASES
+  const AUDIOS = FRASES.map((_, n) => {
+    const a = new Audio(`gorito-invita-audio/gorito-${n + 1}.m4a`);
+    a.preload = 'auto';
+    return a;
+  });
+  let sonando = null;
+
+  function callar(){
+    if (sonando) { sonando.pause(); sonando.currentTime = 0; sonando.onended = null; sonando = null; }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  }
+
+  function decir(n){
+    clearTimeout(timer);
+    callar();
+    i = (n + FRASES.length) % FRASES.length;
+    [...$puntos.children].forEach((d, k) => d.classList.toggle('on', k === i));
+    $globo.classList.remove('salta'); void $globo.offsetWidth; $globo.classList.add('salta');
+
+    const frase = FRASES[i], limpio = plano(frase);
+    let paso = 34, conVoz = false;
+    if (vozOn) {
+      const a = AUDIOS[i];
+      // el tipeo dura lo mismo que el audio
+      if (a.duration) paso = Math.max(20, (a.duration * 1000 * 0.9) / limpio.length);
+      sonando = a;
+      conVoz = true;
+      a.onended = () => { hablar(false); timer = setTimeout(() => decir(i + 1), 1800); };
+      a.play().catch(() => { sonando = null; leer(limpio); });
+    }
+    hablar(true);
+    let c = 0;
+    (function tipea(){
+      c++;
+      // reconstruye respetando los destacados
+      let visto = 0, out = '';
+      frase.split(/(\*[^*]+\*)/).forEach(parte => {
+        const dest = parte.startsWith('*');
+        const t = dest ? parte.slice(1, -1) : parte;
+        const tomar = Math.max(0, Math.min(t.length, c - visto));
+        visto += t.length;
+        if (tomar) out += dest ? `<strong>${t.slice(0, tomar)}</strong>` : t.slice(0, tomar);
+      });
+      $txt.innerHTML = out;
+      if (c < limpio.length) timer = setTimeout(tipea, paso);
+      // con voz, el avance lo marca el fin del audio (onended)
+      else if (!conVoz || !sonando) { hablar(false); timer = setTimeout(() => decir(i + 1), 3600); }
+    })();
+  }
+
+  // Respaldo si un audio no carga: voz del navegador en español
+  function leer(t){
+    if (!('speechSynthesis' in window)) return;
+    const es = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
+    const u = new SpeechSynthesisUtterance(t.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, ''));
+    const v = es.find(v => /es[-_](CL|419|US|MX)/i.test(v.lang)) || es[0];
+    u.lang = v ? v.lang.replace('_', '-') : 'es-CL';
+    if (v) u.voice = v;
+    speechSynthesis.speak(u);
+  }
+
+  $voz.onclick = () => {
+    vozOn = !vozOn;
+    $voz.setAttribute('aria-pressed', vozOn);
+    $voz.innerHTML = icono(vozOn);
+    decir(i);
+  };
+  function icono(on){
+    return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>${on
+      ? '<path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/>'
+      : '<path d="M17 9l5 6M22 9l-5 6"/>'}</svg>`;
+  }
+  $voz.innerHTML = icono(false);
+  $gorito.onclick = () => decir(i + 1);
+
+  decir(0);
+</script>
+</body>
+</html>
