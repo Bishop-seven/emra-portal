@@ -5,6 +5,10 @@
       "destination": "https://emra-ai-proxy.emraportal.workers.dev/:path*"
     },
     {
+      "source": "/recopilador",
+      "destination": "/recopilador.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
