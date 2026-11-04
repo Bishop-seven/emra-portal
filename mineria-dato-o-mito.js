@@ -1,5 +1,5 @@
-/* Minería en Números · tarjetas del juego "¿Dato o mito?". Las usan la página independiente
-   dato-o-mito.html (portal.emra.cl/dato-o-mito, para la campaña) y la sección #dato-o-mito de mineria.html.
+/* Minería en Números · tarjetas del juego "¿Dato o mito?", de la página independiente
+   dato-o-mito.html (portal.emra.cl/dato-o-mito, para la campaña de Instagram).
    Se editan aquí, sin tocar la página. Cada tarjeta lleva su fuente y, si sale del libro,
    la página del PDF ("Minería en Números", 8ª ed., Consejo Minero, mayo 2025). */
 // ══════════════════════════════════════════════════════════════════════

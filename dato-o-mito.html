@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- ¿Dato o mito? · página independiente para campañas (link directo desde Instagram).
      URL: portal.emra.cl/dato-o-mito (rewrite en vercel.json). Las tarjetas están en
-     mineria-dato-o-mito.js (las mismas de la sección #dato-o-mito de mineria.html).
+     mineria-dato-o-mito.js (se editan ahí).
      Los puntos van al mismo marcador de Minería en Números (localStorage emraMin.xp).
      Embebido: agregar ?embed=1 (avisa su alto al sitio padre, como mineria.html). -->
 <html lang="es">
@@ -194,7 +194,7 @@ function renderXP(){$('#xp-n').textContent=XP;$('#xp-l').textContent=nivel(XP);}
 function addXP(n,msg){const antes=nivel(XP);XP+=n;store.set('xp',XP);renderXP();const despues=nivel(XP);toast(despues!==antes?`🎉 ¡Subiste a ${despues}!`:(msg||`+${n} pts`));}
 renderXP();
 
-// ── juego (mismas reglas que la sección #dato-o-mito: 5 pts por acierto, +2 desde 3 seguidos) ──
+// ── juego: 5 pts por acierto, +2 desde 3 aciertos seguidos ──
 const DM_PTS=5,DM_RACHA=3,DM_BONUS=2;
 let dm={set:[],i:0,ok:0,racha:0,pts:0,resp:false};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0);}

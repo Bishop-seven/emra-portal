@@ -12,8 +12,6 @@
      <div id="emra-dato-o-mito"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
    Cada iframe crece al alto de su contenido (sin doble scroll).
-   Link directo a una sección de la página de datos: emra.cl/datos-sobre-mineria/#dato-o-mito
-   (el ancla se le pasa al iframe, que le pide al sitio que haga scroll hasta ahí).
    Opcional: window.MINERIA_BASE para apuntar a otro servidor. */
 (function(){
   if(window.__emraMineria)return;window.__emraMineria=true;
@@ -26,23 +24,14 @@
     'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#0B1929',radius:'16px'}
   };
   var frames=[];
-  // Solo anclas simples (#dato-o-mito); el iframe revisa que la sección exista.
-  var ancla=function(){var h=location.hash.slice(1);return /^[a-z0-9-]+$/.test(h)?h:'';};
   Object.keys(TIPOS).forEach(function(id){
     var cont=document.getElementById(id);if(!cont)return;
     var t=TIPOS[id],f=document.createElement('iframe');
-    var a=id==='emra-mineria'?ancla():'';
-    // Con ancla, la sección tiene que cargar de inmediato para poder llevar al visitante hasta ella.
-    f.src=BASE+t.src+(a?'#'+a:'');f.title=t.title;f.loading=a?'eager':'lazy';
-    if(id==='emra-mineria')f.setAttribute('data-emra-ancla','');
+    f.src=BASE+t.src;f.title=t.title;f.loading='lazy';
     // autoplay + fullscreen: sin esto YouTube pide un segundo clic y el botón de pantalla completa no funciona
     f.setAttribute('allow','autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; web-share');f.allowFullscreen=true;
     f.style.cssText='width:100%;border:0;display:block;height:'+t.h+'px;background:'+t.bg+';border-radius:'+t.radius;
     cont.appendChild(f);frames.push(f);
-  });
-  window.addEventListener('hashchange',function(){
-    var a=ancla();if(!a)return;
-    for(var i=0;i<frames.length;i++)if(frames[i].hasAttribute('data-emra-ancla'))frames[i].contentWindow.postMessage({type:'emra-mineria-ir',id:a},ORIGEN);
   });
   window.addEventListener('message',function(e){
     if(e.origin!==ORIGEN||!e.data)return;
