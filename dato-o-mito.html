@@ -136,6 +136,15 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .level{display:inline-block;margin:12px 0 10px;padding:6px 14px;border-radius:99px;background:rgba(0,144,212,.12);color:var(--cu-tx);font-weight:700}
 .final p{color:var(--mut);margin-bottom:20px}
 .stack{display:grid;gap:10px}
+/* "Jugar de nuevo": botón lleno en azul EMRA oscuro (texto blanco 6,4:1), con el ícono que gira al
+   pasar el cursor y un brillo al aparecer, para que invite a otra partida. El ícono es SVG porque el
+   carácter ↻ no existe en la tipografía y se veía como "υ". */
+.btn.otra{background:var(--cu-tx);color:#fff;font-size:17px;box-shadow:0 6px 16px rgba(0,101,148,.25)}
+.btn.otra:hover{background:#00547B}
+.btn.otra svg{flex:none;transition:transform .45s ease}
+.btn.otra:hover svg{transform:rotate(-200deg)}
+.final>.stack .otra{animation:brillaAzul 1.6s 1.2s 2}
+@keyframes brillaAzul{0%,100%{box-shadow:0 6px 16px rgba(0,101,148,.25),0 0 0 0 rgba(0,144,212,.5)}60%{box-shadow:0 6px 16px rgba(0,101,148,.25),0 0 0 12px rgba(0,144,212,0)}}
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);opacity:0;background:var(--wh);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:99px;transition:.3s;z-index:50;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translate(-50%,0);opacity:1}
@@ -447,8 +456,8 @@ function fin(){
     <p>${msg}${dm.pts?` Sumaste ${dm.pts} pts.`:''} Tu mejor marca: ${best} de ${tot}.</p>
     <div class="stack">
       <button class="btn" id="share">Comparte tu resultado</button>
+      <button class="btn otra" id="again"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Jugar de nuevo</button>
       <a class="btn ghost" href="${URL_MINERIA}" target="_top" onclick="medir('sigue_mineria')">Sigue jugando en Minería en Números →</a>
-      <button class="btn ghost" id="again">Jugar de nuevo ↻</button>
     </div>
     <section class="emra" aria-labelledby="emra-t">
       <h2 id="emra-t">¿Qué es la <span class="lg e">E</span><span class="lg mm">M</span><span class="lg r">R</span><span class="lg a">A</span>?</h2>
