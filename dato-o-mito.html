@@ -179,7 +179,17 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .emra::before{content:'';position:absolute;left:0;right:0;top:0;height:5px;
   background:linear-gradient(to right,var(--yl) 0 20%,var(--gr) 20% 40%,var(--rd) 40% 60%,var(--e) 60% 80%,var(--tl) 80%)}
 .emra h2{font-size:26px;font-weight:800}
-.emra h2 .e{color:var(--yl-tx)}.emra h2 .mm{color:var(--gr-tx)}.emra h2 .r{color:var(--rd-tx)}.emra h2 .a{color:var(--cu-tx)}
+/* Como en el logo de emra.cl: cada letra en gris #383838 con un trazo de color (E, M y R a la
+   izquierda; la A a la derecha). Se pinta con un degradado recortado al texto; si el navegador no lo
+   soporta, las letras quedan en gris. */
+.emra h2 .lg{color:#383838}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .emra h2 .lg{color:transparent;-webkit-background-clip:text;background-clip:text}
+  .emra h2 .e{background-image:linear-gradient(90deg,var(--yl) 0 var(--t),#383838 var(--t));--t:27%}
+  .emra h2 .mm{background-image:linear-gradient(90deg,var(--gr) 0 var(--t),#383838 var(--t));--t:19%}
+  .emra h2 .r{background-image:linear-gradient(90deg,var(--rd) 0 var(--t),#383838 var(--t));--t:27%}
+  .emra h2 .a{background-image:linear-gradient(90deg,#383838 0 var(--t),var(--e) var(--t));--t:78%}
+}
 .emra>p{color:var(--tx);margin:10px 0 14px;font-size:15px}
 .emra ol{list-style:none;display:grid;gap:8px;margin-bottom:18px}
 .emra li{border-left:4px solid var(--c);background:var(--bg);border-radius:0 10px 10px 0;padding:8px 12px;font-weight:600;color:var(--tx);font-size:14px;line-height:1.35}
@@ -409,7 +419,7 @@ function fin(){
       <button class="btn ghost" id="again">Jugar de nuevo ↻</button>
     </div>
     <section class="emra" aria-labelledby="emra-t">
-      <h2 id="emra-t">¿Qué es la <span class="e">E</span><span class="mm">M</span><span class="r">R</span><span class="a">A</span>?</h2>
+      <h2 id="emra-t">¿Qué es la <span class="lg e">E</span><span class="lg mm">M</span><span class="lg r">R</span><span class="lg a">A</span>?</h2>
       <p>La EMRA 2023-2050 es la Estrategia Minera para el Bienestar de la Región de Antofagasta. Promovemos una minería responsable que contribuya al desarrollo sostenible y equitativo de la región.</p>
       <ol>
         <li style="--c:var(--yl);--j:0"><small>OE1</small>Mejorar la calidad de vida</li>
