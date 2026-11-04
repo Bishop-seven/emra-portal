@@ -14,19 +14,22 @@
 <meta property="og:description" content="¿Cuánto sabes de minería en Chile y en la Región de Antofagasta? Acepta el reto de la EMRA."/>
 <meta property="og:image" content="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png"/>
 <meta property="og:type" content="website"/>
-<meta name="theme-color" content="#15302B"/>
+<meta name="theme-color" content="#F7F1EC"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* Colores institucionales EMRA (mineria.html sigue con su paleta azul) y sus mismas tipografías.
-   --mut pasó de gris azulado (#8aa0b5) a gris verdoso: sobre las tarjetas verdes el anterior no llegaba
-   al contraste mínimo de 4,5:1 para texto chico. */
+/* Paleta clara institucional EMRA (mineria.html sigue con su paleta azul) y las mismas tipografías.
+   --wh es "el texto más fuerte" (en la paleta oscura era blanco).
+   Los colores de marca (--gr, --rd, --cu, --yl, --tl) se usan tal cual en fondos, bordes, la barra de
+   avance y la franja. Como texto sobre el fondo claro no llegan a 4,5:1 (el amarillo da 1,75), así que
+   los textos usan su versión oscura del mismo tono (--*-tx). */
 :root{
-  --bg:#15302B;--bg2:#1C3D37;--bg3:#234A42;--bd:rgba(255,255,255,.09);--bd2:rgba(255,255,255,.16);
-  --tx:#dce8f2;--mut:#A7C0B9;--wh:#fff;
-  --e:#038FCF;--cu:#EFAD1B;--cu2:#F5C65A;--tl:#19BAB6;--yl:#EFAD1B;--gr:#19BAB6;--rd:#F26B5B;
-  --btn:#287566;--btn2:#226A5C;
+  --bg:#F7F1EC;--bg2:#FFFFFF;--bg3:#EFE6DD;--bd:rgba(42,42,46,.10);--bd2:rgba(42,42,46,.16);
+  --tx:#2A2A2E;--mut:#6B6560;--wh:#2A2A2E;
+  --e:#0090D4;--cu:#0090D4;--cu2:#006594;--tl:#00BCB6;--yl:#FAA900;--gr:#70AD57;--rd:#FF5812;
+  --gr-tx:#436933;--rd-tx:#BF3800;--cu-tx:#006594;--yl-tx:#8A5D00;
+  --btn:#CC824D;--btn2:#B87240;
   --r:16px;--disp:'Bricolage Grotesque',system-ui,sans-serif;--body:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -46,7 +49,7 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .brand b{font-family:var(--disp);font-size:16px;font-weight:800;display:block;white-space:nowrap}
 .brand small{display:block;font-size:11px;color:var(--mut);font-weight:500}
 .xp{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--bd);border-radius:99px;padding:5px 12px 5px 6px;font-size:12px;white-space:nowrap}
-.xp .ico{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--cu),#b45f1f);display:grid;place-items:center;font-size:13px}
+.xp .ico{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--yl),var(--btn));display:grid;place-items:center;font-size:13px}
 .xp b{color:var(--wh);font-variant-numeric:tabular-nums}
 .xp .lvl{color:var(--cu2);font-weight:600}
 
@@ -57,7 +60,10 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .src{font-size:12px;color:var(--mut)}
 /* Logo del Clúster en el encabezado, que queda fijo arriba al hacer scroll para que siempre se vea.
    Sus letras son verde oscuro sobre transparente: sobre el azul no se leen, por eso va en una placa blanca. */
-.cluster{flex:none;display:block;background:#fff;border-radius:8px;padding:2px 6px;line-height:0}
+/* Franja de los 5 colores EMRA (los de linea1.png de emra.cl, en el mismo orden), vertical en el borde izquierdo. */
+.franja{position:fixed;left:0;top:0;bottom:0;width:6px;z-index:10;pointer-events:none;
+  background:linear-gradient(to bottom,var(--yl) 0 20%,var(--gr) 20% 40%,var(--rd) 40% 60%,var(--e) 60% 80%,var(--tl) 80%)}
+.cluster{flex:none;border:1px solid var(--bd);display:block;background:#fff;border-radius:8px;padding:2px 6px;line-height:0}
 .cluster img{height:44px;width:auto}
 @media (max-width:420px){.xp .lvl{display:none}.brand small{display:none}.top{gap:8px}.brand{gap:6px}.brand img{width:34px;height:34px}.brand b{font-size:15px}.cluster img{height:40px}}
 .src b{color:var(--tx);font-weight:600}
@@ -67,16 +73,16 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .screen.on{display:flex}
 
 /* inicio */
-.kick{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cu);margin:14px 0 8px}
+.kick{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cu-tx);margin:14px 0 8px}
 .intro h1{font-size:clamp(44px,13vw,64px);font-weight:800}
-.intro h1 .d{color:var(--gr)}
-.intro h1 .m{color:var(--rd)}
+.intro h1 .d{color:var(--gr-tx)}
+.intro h1 .m{color:var(--rd-tx)}
 .intro .lead{color:var(--mut);font-size:16px;margin:14px 0 20px}
 .howto{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
 .howto div{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:14px;font-size:14px;line-height:1.4}
 .howto b{display:block;font-family:var(--disp);font-size:20px;margin-bottom:4px}
-.howto .l b{color:var(--rd)}
-.howto .r b{color:var(--gr)}
+.howto .l b{color:var(--rd-tx)}
+.howto .r b{color:var(--gr-tx)}
 .intro .src{text-align:center;margin-top:14px;line-height:1.5}
 .gorito-intro{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:18px;font-size:14px}
 .gorito-intro img{width:52px;height:52px;object-fit:contain;flex-shrink:0}
@@ -86,37 +92,36 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .prog i{display:block;height:100%;width:0;background:var(--cu);transition:width .35s ease}
 .cnt{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:12px}
 .deck{position:relative;flex:1;min-height:clamp(380px,calc(100dvh - 240px),440px);max-height:560px;margin-bottom:14px;touch-action:pan-y}
-.card{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--bd2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px;user-select:none;-webkit-user-select:none;cursor:grab;box-shadow:0 18px 40px rgba(0,0,0,.35);transition:transform .35s ease,opacity .35s ease}
+.card{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--bd2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px;user-select:none;-webkit-user-select:none;cursor:grab;box-shadow:0 14px 30px rgba(42,42,46,.12);transition:transform .35s ease,opacity .35s ease}
 /* Ilustración arriba, de borde a borde (como las tarjetas de Datos por tema). */
 .card{overflow:hidden}
 .card .ilu{position:relative;margin:-22px -22px 4px;flex:none;aspect-ratio:16/9;background:var(--bg2)}
 .card .ilu img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .card .ilu small{position:absolute;left:10px;bottom:6px;font-size:10px;color:rgba(255,255,255,.75);text-shadow:0 1px 3px rgba(0,0,0,.8)}
 .card.back{transform:scale(.95) translateY(14px);opacity:.45;pointer-events:none}
-.tag{align-self:flex-start;font-size:12px;font-weight:700;color:var(--cu2);background:rgba(224,138,60,.14);border-radius:99px;padding:5px 10px}
+.tag{align-self:flex-start;font-size:12px;font-weight:700;color:var(--cu-tx);background:rgba(0,144,212,.12);border-radius:99px;padding:5px 10px}
 .stmt{font-family:var(--disp);font-size:clamp(21px,5.8vw,26px);font-weight:600;color:var(--wh);line-height:1.18;margin:auto 0}
 .hint{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
-.rev{font-size:11px;color:var(--yl)}
-.stamp{position:absolute;z-index:2;background:rgba(11,25,41,.85);top:20px;font-family:var(--disp);font-weight:800;font-size:26px;padding:2px 12px;border:3px solid;border-radius:10px;opacity:0;pointer-events:none}
-.stamp.mito{left:20px;color:var(--rd);transform:rotate(-10deg)}
-.stamp.dato{right:20px;color:var(--gr);transform:rotate(10deg)}
+.rev{font-size:11px;color:var(--yl-tx)}
+.stamp{position:absolute;z-index:2;background:rgba(255,255,255,.92);top:20px;font-family:var(--disp);font-weight:800;font-size:26px;padding:2px 12px;border:3px solid;border-radius:10px;opacity:0;pointer-events:none}
+.stamp.mito{left:20px;color:var(--rd-tx);transform:rotate(-10deg)}
+.stamp.dato{right:20px;color:var(--gr-tx);transform:rotate(10deg)}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .choice{background:var(--bg2);border:2px solid var(--bd);color:var(--wh);border-radius:16px;padding:15px 10px;font-size:18px;font-weight:800;transition:.15s}
 .choice small{display:block;font-size:12px;font-weight:500;color:var(--mut);margin-top:2px}
-.choice.mito{border-color:rgba(242,107,91,.55)}
-.choice.mito:hover{background:rgba(242,107,91,.12)}
-.choice.dato{border-color:rgba(16,185,129,.55)}
-.choice.dato:hover{background:rgba(16,185,129,.12)}
+.choice.mito{border-color:var(--rd)}
+.choice.mito:hover{background:rgba(255,88,18,.10)}
+.choice.dato{border-color:var(--gr)}
+.choice.dato:hover{background:rgba(112,173,87,.14)}
 
 /* respuesta (en la página, no en una capa: así también funciona embebida) */
 .res{background:var(--bg2);border:1px solid var(--bd);border-radius:22px;padding:22px;animation:up .28s ease}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 .ver{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--wh)}
-/* Texto blanco: el turquesa sobre su propio tinte no llegaba a 4,5:1. */
-.pts-pop{display:inline-block;background:rgba(25,186,182,.28);color:var(--wh);font-weight:700;font-size:13px;border-radius:99px;padding:3px 10px}
+.pts-pop{display:inline-block;background:rgba(112,173,87,.18);color:var(--gr-tx);font-weight:700;font-size:13px;border-radius:99px;padding:3px 10px}
 .res h2{font-size:30px;font-weight:800;margin-top:10px}
-.res h2.dato{color:var(--gr)}
-.res h2.mito{color:var(--rd)}
+.res h2.dato{color:var(--gr-tx)}
+.res h2.mito{color:var(--rd-tx)}
 .cita{font-size:13px;color:var(--mut);margin-top:4px}
 .big{font-family:var(--disp);font-size:46px;font-weight:800;color:var(--cu);line-height:1;margin:14px 0 8px}
 .exp{font-size:16px;margin-bottom:10px}
@@ -127,16 +132,17 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .final img{width:120px;height:120px;object-fit:contain}
 .score{font-family:var(--disp);font-size:68px;font-weight:800;color:var(--wh);line-height:1}
 .score small{font-size:22px;color:var(--mut)}
-.level{display:inline-block;margin:12px 0 10px;padding:6px 14px;border-radius:99px;background:rgba(224,138,60,.14);color:var(--cu2);font-weight:700}
+.level{display:inline-block;margin:12px 0 10px;padding:6px 14px;border-radius:99px;background:rgba(0,144,212,.12);color:var(--cu-tx);font-weight:700}
 .final p{color:var(--mut);margin-bottom:20px}
 .stack{display:grid;gap:10px}
 
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);opacity:0;background:var(--wh);color:var(--bg);font-weight:700;font-size:14px;padding:10px 18px;border-radius:99px;transition:.3s;z-index:50;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);opacity:0;background:var(--wh);color:#fff;font-weight:700;font-size:14px;padding:10px 18px;border-radius:99px;transition:.3s;z-index:50;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translate(-50%,0);opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+<div class="franja" aria-hidden="true"></div>
 <div class="app">
 
   <header class="top">

@@ -21,7 +21,7 @@
     'emra-mineria':{src:'mineria.html?embed=1',title:'Minería en Números: aprende minería jugando',h:1600,bg:'#0B1929',radius:'16px'},
     'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'},
     'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'},
-    'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#0B1929',radius:'16px'}
+    'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#F7F1EC',radius:'16px'}
   };
   var frames=[];
   Object.keys(TIPOS).forEach(function(id){
