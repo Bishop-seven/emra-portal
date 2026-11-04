@@ -37,7 +37,7 @@ a{color:var(--e)}
 h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-height:1.08}
 
 /* barra superior */
-.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.top{display:flex;align-items:center;gap:10px;margin:-12px -16px 14px;padding:10px 16px;position:sticky;top:0;z-index:5;background:var(--bg)}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1;color:var(--wh);text-decoration:none}
 .brand img{height:40px;width:40px;object-fit:contain}
 .brand b{font-family:var(--disp);font-size:16px;font-weight:800;display:block;white-space:nowrap}
@@ -52,9 +52,11 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd2)}
 .btn.ghost:hover{border-color:var(--cu);color:var(--wh)}
 .src{font-size:12px;color:var(--mut)}
-/* El logo tiene letras verdes oscuras sobre transparente: sobre el fondo azul no se leen, por eso va en una placa blanca. */
-.pie{display:flex;justify-content:center;margin-top:24px}
-.pie img{height:64px;width:auto;background:#fff;border-radius:12px;padding:8px 12px;box-sizing:content-box}
+/* Logo del Clúster en el encabezado, que queda fijo arriba al hacer scroll para que siempre se vea.
+   Sus letras son verde oscuro sobre transparente: sobre el azul no se leen, por eso va en una placa blanca. */
+.cluster{flex:none;display:block;background:#fff;border-radius:8px;padding:2px 6px;line-height:0}
+.cluster img{height:44px;width:auto}
+@media (max-width:420px){.xp .lvl{display:none}.brand small{display:none}.top{gap:8px}.brand{gap:6px}.brand img{width:34px;height:34px}.brand b{font-size:15px}.cluster img{height:40px}}
 .src b{color:var(--tx);font-weight:600}
 :focus-visible{outline:2px solid var(--e);outline-offset:2px}
 
@@ -142,6 +144,7 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
       <span class="ico" aria-hidden="true">⛏️</span>
       <span><b id="xp-n">0</b> pts<span class="lvl"> · <span id="xp-l">Aprendiz</span></span></span>
     </div>
+    <span class="cluster"><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-Cluster-.webp" alt="Corporación Clúster Minero Región de Antofagasta" width="219" height="150"/></span>
   </header>
 
   <!-- INICIO -->
@@ -170,11 +173,6 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 
   <!-- FINAL -->
   <section class="screen final" id="s-end" aria-live="polite"></section>
-
-  <!-- PIE: logo del Clúster Minero (el mismo archivo que usa emra.cl) -->
-  <footer class="pie">
-    <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-Cluster-.webp" alt="Corporación Clúster Minero Región de Antofagasta" width="219" height="150" loading="lazy"/>
-  </footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
