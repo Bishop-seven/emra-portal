@@ -233,6 +233,48 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(-
 .medal{font-size:72px;line-height:1}
 .q-final h3{font-size:32px;font-weight:800;margin:10px 0 6px}
 
+/* ¿dato o mito? */
+.dm{margin-top:28px;padding:24px;max-width:560px}
+/* 13 tarjetas: los puntos de avance se achican para caber en el celular */
+.dm .q-top{gap:12px}
+.dm .q-top>span:first-child{white-space:nowrap}
+.dm .q-dots{flex:1;max-width:340px;justify-content:flex-end}
+.dm .q-dots i{flex:1 1 0;width:auto;max-width:22px;min-width:4px}
+.dm-deck{position:relative;height:300px;margin:6px 0 16px;touch-action:pan-y}
+.dm-card{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--bd2);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:10px;user-select:none;-webkit-user-select:none;cursor:grab;box-shadow:0 14px 34px rgba(0,0,0,.3);transition:transform .35s ease,opacity .35s ease}
+.dm-card.back{transform:scale(.95) translateY(12px);opacity:.45;pointer-events:none}
+.dm-tag{align-self:flex-start;font-size:12px;font-weight:700;color:var(--cu2);background:rgba(224,138,60,.14);border-radius:99px;padding:4px 10px}
+.dm-f{font-family:var(--disp);font-size:clamp(22px,3.2vw,28px);font-weight:600;color:var(--wh);line-height:1.2;margin:auto 0}
+.dm-hint{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.dm-rev{font-size:11px;color:var(--yl)}
+.dm-stamp{position:absolute;top:18px;font-family:var(--disp);font-weight:800;font-size:24px;padding:2px 10px;border:3px solid;border-radius:10px;opacity:0;pointer-events:none}
+.dm-stamp.mito{left:18px;color:var(--rd);transform:rotate(-10deg)}
+.dm-stamp.dato{right:18px;color:var(--gr);transform:rotate(10deg)}
+.dm-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dm-opt{background:var(--bg3);border:1.5px solid var(--bd);color:var(--wh);border-radius:12px;padding:13px 10px;font-size:16px;font-weight:800;transition:.15s}
+.dm-opt small{display:block;font-size:12px;font-weight:500;color:var(--mut)}
+.dm-opt.mito{border-color:rgba(242,107,91,.5)}
+.dm-opt.mito:hover{background:rgba(242,107,91,.12)}
+.dm-opt.dato{border-color:rgba(16,185,129,.5)}
+.dm-opt.dato:hover{background:rgba(16,185,129,.12)}
+.dm-ver{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dm-ok{font-size:13px;font-weight:700;color:var(--wh)}
+.dm-res h3{font-size:28px;font-weight:800;margin-top:10px}
+.dm-res h3.dato{color:var(--gr)}
+.dm-res h3.mito{color:var(--rd)}
+.dm-cita{font-size:13px;color:var(--mut);margin-top:4px}
+.dm-n{font-family:var(--disp);font-size:44px;font-weight:800;color:var(--cu);line-height:1;margin:14px 0 8px}
+.dm-d{font-size:15px;margin-bottom:8px}
+.dm-res .q-fig{margin:14px 0 0;border-radius:10px;aspect-ratio:16/9}
+.dm-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.dm-final{text-align:center}
+.dm-final img{width:110px;height:110px;object-fit:contain}
+.dm-score{font-family:var(--disp);font-size:56px;font-weight:800;color:var(--wh);line-height:1;margin-top:6px}
+.dm-score small{font-size:20px;color:var(--mut)}
+.dm-lvl{display:inline-block;margin:12px 0 10px;padding:6px 14px;border-radius:99px;background:rgba(224,138,60,.14);color:var(--cu2);font-weight:700;font-size:14px}
+.dm-final p{color:var(--mut);max-width:420px;margin:0 auto}
+.dm-final .dm-nav{justify-content:center}
+
 /* gorito */
 .chat{display:grid;grid-template-columns:260px 1fr;gap:0;margin-top:28px;overflow:hidden;min-height:440px}
 .chat-side{padding:24px;background:linear-gradient(160deg,rgba(3,143,207,.18),rgba(224,138,60,.10));border-right:1px solid var(--bd);display:flex;flex-direction:column;gap:12px}
@@ -275,6 +317,8 @@ footer p+p{margin-top:6px}
   section{padding:40px 0}
   .q-fig{margin:-20px -20px 16px}
   .quiz{padding:20px}
+  .dm{padding:18px}
+  .dm-deck{height:280px}
   .q-opts{grid-template-columns:1fr}
   .xp .lvl{display:none}
   .brand small{display:none}
@@ -305,6 +349,7 @@ footer p+p{margin-top:6px}
   <div class="wrap">
     <a class="chip" href="#inicio">Inicio</a>
     <a class="chip" href="#adivina">¿Cuánto crees?</a>
+    <a class="chip" href="#dato-o-mito">¿Dato o mito?</a>
     <a class="chip" href="#datos">Datos por tema</a>
     <a class="chip" href="#gigantes">Gigantes</a>
     <a class="chip" href="#vida">El cobre en tu vida</a>
@@ -356,6 +401,16 @@ footer p+p{margin-top:6px}
       </div>
       <div class="g-res" id="g-res" aria-live="polite"><p class="ph">Tu resultado aparecerá aquí.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ¿DATO O MITO? · link directo: #dato-o-mito -->
+<section id="dato-o-mito">
+  <div class="wrap">
+    <div class="kick">Desafío 2</div>
+    <h2>¿Dato o mito?</h2>
+    <p class="lead">Frases sobre la minería en Chile y en la Región de Antofagasta. Desliza la tarjeta a la derecha si crees que es dato y a la izquierda si es mito. Cada acierto suma puntos a tu marcador.</p>
+    <div class="card dm" id="dm"></div>
   </div>
 </section>
 
@@ -629,6 +684,7 @@ footer p+p{margin-top:6px}
 <div class="toast" id="toast" role="status"></div>
 
 <script src="mineria-datos.js"></script>
+<script src="mineria-dato-o-mito.js"></script>
 <script>
 function figHTML(k,cls){
   if(!k)return '';
@@ -887,6 +943,109 @@ function qRender(){
 }
 qStart();
 
+// ══ ¿DATO O MITO? (tarjetas en mineria-dato-o-mito.js) ══
+// Los puntos van al mismo marcador (addXP): 5 por acierto y +2 desde 3 aciertos seguidos.
+const DM_PTS=5,DM_RACHA=3,DM_BONUS=2;
+// Con ?revisar en la URL, las tarjetas pendientes muestran por qué (solo para el equipo).
+const DM_VER_REV=new URLSearchParams(location.search).has('revisar');
+let dm={set:[],i:0,ok:0,racha:0,pts:0,res:[],resp:false};
+function dmStart(){
+  dm={set:shuffle(DATO_O_MITO.filter(c=>DM_MOSTRAR_EN_REVISION||!c.rev)),i:0,ok:0,racha:0,pts:0,res:[],resp:false};
+  dmRender();
+}
+function dmTop(){
+  return `<div class="q-top"><span>Tarjeta ${Math.min(dm.i+1,dm.set.length)} de ${dm.set.length}</span><span class="q-dots">${dm.set.map((_,j)=>`<i class="${j<dm.res.length?(dm.res[j]?'ok':'no'):j===dm.i?'cur':''}"></i>`).join('')}</span></div>`;
+}
+function dmCarta(c,atras){
+  return `<div class="dm-card${atras?' back':''}"${atras?' aria-hidden="true"':' tabindex="0" aria-label="'+esc(c.f)+' ¿Dato o mito? Usa las flechas o los botones."'}>
+    ${atras?'':'<span class="dm-stamp mito" aria-hidden="true">MITO</span><span class="dm-stamp dato" aria-hidden="true">DATO</span>'}
+    <span class="dm-tag">${esc(c.tag)}</span><p class="dm-f">${esc(c.f)}</p>
+    ${DM_VER_REV&&c.rev?`<p class="dm-rev">⚠ En revisión: ${esc(c.rev)}</p>`:''}
+    <div class="dm-hint" aria-hidden="true"><span>← Mito</span><span>Dato →</span></div></div>`;
+}
+function dmRender(foco){
+  const el=$('#dm');
+  if(dm.i>=dm.set.length){dmFinal();return;}
+  const c=dm.set[dm.i],sig=dm.set[dm.i+1];
+  dm.resp=false;
+  el.innerHTML=`${dmTop()}<div class="dm-deck">${sig?dmCarta(sig,true):''}${dmCarta(c)}</div>
+    <div class="dm-opts"><button class="dm-opt mito" data-r="mito">← Mito<small>Es falso</small></button><button class="dm-opt dato" data-r="dato">Dato →<small>Es verdad</small></button></div>`;
+  el.querySelectorAll('.dm-opt').forEach(b=>b.onclick=()=>dmResponder(b.dataset.r));
+  const card=el.querySelector('.dm-card:not(.back)');
+  dmArrastre(card);
+  if(foco)card.focus({preventScroll:true});
+}
+// Deslizar la tarjeta con el dedo o el mouse; si no pasa el umbral, vuelve a su lugar.
+function dmArrastre(card){
+  let x0=null,dx=0;
+  const sD=card.querySelector('.dm-stamp.dato'),sM=card.querySelector('.dm-stamp.mito');
+  card.addEventListener('pointerdown',e=>{if(dm.resp||e.button>0)return;x0=e.clientX;dx=0;card.setPointerCapture(e.pointerId);card.style.transition='none';card.style.cursor='grabbing';});
+  card.addEventListener('pointermove',e=>{
+    if(x0===null)return;dx=e.clientX-x0;
+    card.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;
+    sD.style.opacity=Math.max(0,dx/120);sM.style.opacity=Math.max(0,-dx/120);
+  });
+  const fin=()=>{
+    if(x0===null)return;x0=null;card.style.transition='';card.style.cursor='';
+    if(Math.abs(dx)>90)dmResponder(dx>0?'dato':'mito');
+    else{card.style.transform='';sD.style.opacity=0;sM.style.opacity=0;}
+  };
+  card.addEventListener('pointerup',fin);card.addEventListener('pointercancel',fin);
+}
+function dmResponder(r){
+  if(dm.resp)return;dm.resp=true;
+  const c=dm.set[dm.i],ok=r===c.r,el=$('#dm'),card=el.querySelector('.dm-card:not(.back)');
+  const teclado=el.contains(document.activeElement);
+  let g=0;
+  if(ok){dm.ok++;dm.racha++;g=DM_PTS+(dm.racha>=DM_RACHA?DM_BONUS:0);dm.pts+=g;}else dm.racha=0;
+  dm.res.push(ok);
+  if(card){const s=r==='dato'?1:-1;card.style.transform=`translateX(${s*520}px) rotate(${s*22}deg)`;card.style.opacity='0';}
+  if(ok)addXP(g,dm.racha>=DM_RACHA?`+${g} pts · ¡racha de ${dm.racha}! 🔥`:`+${g} pts`);
+  setTimeout(()=>{
+    const ult=dm.i===dm.set.length-1;
+    el.innerHTML=`${dmTop()}<div class="dm-res" aria-live="polite">
+      <div class="dm-ver"><span class="dm-ok">${ok?'✅ ¡Acertaste!':'❌ No era así.'}</span>${ok?`<span class="pts-pop">+${g} pts${dm.racha>=DM_RACHA?` · racha de ${dm.racha} 🔥`:''}</span>`:''}</div>
+      <h3 class="${c.r}">Es ${c.r==='dato'?'dato':'mito'}</h3>
+      <p class="dm-cita">«${esc(c.f)}»</p>
+      <div class="dm-n">${esc(c.n)}</div><p class="dm-d">${esc(c.d)}</p>
+      <p class="src">Fuente: <b>${esc(c.s)}</b>${c.p?` · Minería en Números, p.${esc(c.p)}`:''}</p>
+      ${DM_VER_REV&&c.rev?`<p class="dm-rev">⚠ En revisión: ${esc(c.rev)}</p>`:''}
+      ${figHTML(c.img,'q-fig reveal')}
+      <div class="dm-nav"><button class="btn" id="dm-next">${ult?'Ver mi resultado →':'Siguiente →'}</button>${c.p?'<button class="btn ghost" id="dm-ask">Pregúntale a Gorito ↗</button>':''}</div></div>`;
+    $('#dm-next').onclick=()=>{dm.i++;dmRender(true);};
+    if(c.p)$('#dm-ask').onclick=()=>irAGorito(`Cuéntame más sobre esto: ${c.d}`);
+    if(teclado)$('#dm-next').focus({preventScroll:true});
+  },260);
+}
+function dmFinal(){
+  const el=$('#dm'),ok=dm.ok,tot=dm.set.length;
+  const best=Math.max(store.get('dmBest',0),ok);store.set('dmBest',best);
+  const msg=ok>=tot-1?'¡Impresionante! Sabes más de minería que la mayoría. Desafía a alguien a superarte.'
+    :ok>=Math.ceil(tot/2)?'¡Bien! Ya separas los datos de los mitos. Sigue explorando para subir de nivel.'
+    :'Ahora sabes mucho más que hace un rato. Juega de nuevo o explora los datos con Gorito.';
+  el.innerHTML=`<div class="dm-final">
+    <img src="gorito.webp" alt="Gorito" onerror="this.onerror=null;this.src='https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png'"/>
+    <div class="dm-score">${ok}<small> / ${tot}</small></div>
+    <div class="dm-lvl">Tu nivel: ${esc(nivel(XP))} · ${XP} pts</div>
+    <p>${msg}${dm.pts?` Sumaste ${dm.pts} pts a tu marcador.`:''} Tu mejor marca: ${best} de ${tot}.</p>
+    <div class="dm-nav"><button class="btn" id="dm-share">Comparte tu resultado</button><button class="btn ghost" id="dm-again">Jugar de nuevo ↻</button><button class="btn ghost" id="dm-more">Explorar los datos</button></div></div>`;
+  $('#dm-again').onclick=()=>{dmStart();$('#dm').querySelector('.dm-card:not(.back)').focus({preventScroll:true});};
+  $('#dm-more').onclick=()=>irA('datos');
+  $('#dm-share').onclick=async()=>{
+    const txt=`Saqué ${ok} de ${tot} en "¿Dato o mito?" de Minería en Números (EMRA) y soy ${nivel(XP)} 🔥 ¿Te atreves?`;
+    const url=EMBED?DM_URL:location.href.split('#')[0]+'#dato-o-mito';
+    try{if(navigator.share){await navigator.share({title:'¿Dato o mito?',text:txt,url});return;}}catch(e){return;}
+    try{await navigator.clipboard.writeText(txt+' '+url);toast('Copiado para compartir');}catch(e){toast('No se pudo copiar');}
+  };
+}
+// Flechas del teclado solo con el foco dentro del juego (no secuestran el scroll de la página).
+$('#dm').addEventListener('keydown',e=>{
+  if(dm.resp||!dm.set[dm.i]||e.target.closest('button'))return;
+  if(e.key==='ArrowLeft'){e.preventDefault();dmResponder('mito');}
+  if(e.key==='ArrowRight'){e.preventDefault();dmResponder('dato');}
+});
+dmStart();
+
 // ══ 8. GORITO ══
 const BASE_DATOS=DATA.map(f=>`- [${TEMAS[f.t].n}] ${f.d} (Fuente: ${f.s}; Minería en Números, p.${f.p})`).join('\n')+
   `\n- [Región de Antofagasta] Producción 2024 por faena, miles de toneladas de cobre fino: ${FAENAS_ANTOF.map(f=>f[0]+' '+f[1]).join(', ')}. Planta Química de Litio Carmen + Salar de Atacama: 200 (litio, en conjunto). Resto del país: ${FAENAS_RESTO}. (Fuente: empresas, vía Consejo Minero; mapa con información a marzo 2025)`;
@@ -943,6 +1102,13 @@ const chips=[...document.querySelectorAll('.chip')];
 const secIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){chips.forEach(c=>c.classList.toggle('on',c.getAttribute('href')==='#'+e.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});
 document.querySelectorAll('main section').forEach(s=>secIO.observe(s));
 
+// ── ir a una sección: en el iframe el scroll lo hace el sitio padre ──
+function irA(id){
+  const t=document.getElementById(id);if(!t)return;
+  if(EMBED&&parent!==window)parent.postMessage({type:'emra-mineria-scroll',y:t.offsetTop},'*');
+  else t.scrollIntoView({behavior:'smooth'});
+}
+
 // ── modo embebido: avisar alto al sitio padre ──
 if(EMBED&&parent!==window){
   let lastH=0;
@@ -950,6 +1116,12 @@ if(EMBED&&parent!==window){
   new ResizeObserver(send).observe(document.body);send();
   // los chips hacen scroll en el padre (el iframe no tiene scroll propio)
   chips.forEach(c=>c.addEventListener('click',e=>{const t=document.querySelector(c.getAttribute('href'));if(t){e.preventDefault();parent.postMessage({type:'emra-mineria-scroll',y:t.offsetTop},'*');}}));
+  // Link directo (emra.cl/datos-sobre-mineria/#dato-o-mito): mineria-embed.js pasa el ancla en el
+  // src del iframe al cargar, y por mensaje si cambia después. Solo secciones de esta página.
+  const ancla=h=>{const id=String(h||'').replace(/^#/,'');if(/^[a-z0-9-]+$/.test(id)&&document.querySelector('main section#'+id))irA(id);};
+  // Se repite al terminar de cargar: las fuentes y las imágenes cambian el alto de lo que está arriba.
+  if(location.hash){setTimeout(()=>ancla(location.hash),400);addEventListener('load',()=>setTimeout(()=>ancla(location.hash),200),{once:true});}
+  window.addEventListener('message',e=>{if(e.source===parent&&e.data&&e.data.type==='emra-mineria-ir')ancla(e.data.id);});
 }
 </script>
 </body>
