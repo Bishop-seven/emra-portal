@@ -14,16 +14,19 @@
 <meta property="og:description" content="¿Cuánto sabes de minería en Chile y en la Región de Antofagasta? Acepta el reto de la EMRA."/>
 <meta property="og:image" content="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png"/>
 <meta property="og:type" content="website"/>
-<meta name="theme-color" content="#0B1929"/>
+<meta name="theme-color" content="#15302B"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-/* Mismos colores y tipografías que mineria.html */
+/* Colores institucionales EMRA (mineria.html sigue con su paleta azul) y sus mismas tipografías.
+   --mut pasó de gris azulado (#8aa0b5) a gris verdoso: sobre las tarjetas verdes el anterior no llegaba
+   al contraste mínimo de 4,5:1 para texto chico. */
 :root{
-  --bg:#0B1929;--bg2:#0f2033;--bg3:#152a42;--bd:rgba(255,255,255,.09);--bd2:rgba(255,255,255,.16);
-  --tx:#dce8f2;--mut:#8aa0b5;--wh:#fff;
-  --e:#038FCF;--cu:#E08A3C;--cu2:#f3b27a;--tl:#19BAB6;--yl:#EFAD1B;--gr:#10b981;--rd:#f26b5b;
+  --bg:#15302B;--bg2:#1C3D37;--bg3:#234A42;--bd:rgba(255,255,255,.09);--bd2:rgba(255,255,255,.16);
+  --tx:#dce8f2;--mut:#A7C0B9;--wh:#fff;
+  --e:#038FCF;--cu:#EFAD1B;--cu2:#F5C65A;--tl:#19BAB6;--yl:#EFAD1B;--gr:#19BAB6;--rd:#F26B5B;
+  --btn:#287566;--btn2:#226A5C;
   --r:16px;--disp:'Bricolage Grotesque',system-ui,sans-serif;--body:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -47,8 +50,8 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .xp b{color:var(--wh);font-variant-numeric:tabular-nums}
 .xp .lvl{color:var(--cu2);font-weight:600}
 
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;padding:15px 20px;font-weight:700;font-size:16px;background:var(--cu);color:#1a0f05;text-decoration:none;width:100%;transition:.15s}
-.btn:hover{background:var(--cu2)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;padding:15px 20px;font-weight:700;font-size:16px;background:var(--btn);color:#fff;text-decoration:none;width:100%;transition:.15s}
+.btn:hover{background:var(--btn2)}
 .btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd2)}
 .btn.ghost:hover{border-color:var(--cu);color:var(--wh)}
 .src{font-size:12px;color:var(--mut)}
@@ -109,7 +112,8 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .res{background:var(--bg2);border:1px solid var(--bd);border-radius:22px;padding:22px;animation:up .28s ease}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 .ver{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--wh)}
-.pts-pop{display:inline-block;background:rgba(16,185,129,.15);color:var(--gr);font-weight:700;font-size:13px;border-radius:99px;padding:3px 10px}
+/* Texto blanco: el turquesa sobre su propio tinte no llegaba a 4,5:1. */
+.pts-pop{display:inline-block;background:rgba(25,186,182,.28);color:var(--wh);font-weight:700;font-size:13px;border-radius:99px;padding:3px 10px}
 .res h2{font-size:30px;font-weight:800;margin-top:10px}
 .res h2.dato{color:var(--gr)}
 .res h2.mito{color:var(--rd)}
