@@ -201,6 +201,11 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 /* Movimiento reducido: sin animaciones; todo queda en su lugar y visible. */
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.emra.anim>*,.emra.anim li{opacity:1!important}}
 </style>
+<!-- Vercel Web Analytics: visitas, de dónde llegan (Instagram, WhatsApp…), país y dispositivo.
+     Sin cookies. Hay que activarlo en el panel de Vercel (proyecto → Analytics); si no está activo,
+     el script simplemente no carga. -->
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div class="franja" aria-hidden="true"></div>
@@ -310,11 +315,36 @@ function addXP(n,msg){const antes=nivel(XP);XP+=n;store.set('xp',XP);renderXP();
   const xp=$('.xp');xp.classList.remove('sube');void xp.offsetWidth;xp.classList.add('sube');const despues=nivel(XP);toast(despues!==antes?`🎉 ¡Subiste a ${despues}!`:(msg||`+${n} pts`));}
 renderXP();
 
+// ── medición del juego (tabla dm_eventos en el Supabase del portal; ver sql/dato-o-mito.sql) ──
+// Anónima: un código al azar por navegador (visitante) y otro por visita (sesión); sin nombres ni correos.
+// La tabla solo acepta agregar filas desde afuera; leerlas requiere sesión en el admin del portal.
+// Solo se mide en el sitio publicado (o con ?medir), para no ensuciar los datos con pruebas locales.
+const DM_SB_URL='https://tjoveoqolrfxntvvdjwh.supabase.co',DM_SB_KEY='sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE';
+const PARAMS=new URLSearchParams(location.search);
+const MEDIR=/(^|\.)emra\.cl$|\.vercel\.app$/.test(location.hostname)||PARAMS.has('medir');
+const azar=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const VISITANTE=store.get('vid',null)||(()=>{const v=azar();store.set('vid',v);return v;})();
+const SESION=azar();
+// De dónde viene: utm_source del link de la campaña; si no, el sitio que lo trajo; si no, "directo".
+const FUENTE=(PARAMS.get('utm_source')||(()=>{try{const h=new URL(document.referrer).hostname.replace(/^www\./,'');
+  return h&&h!==location.hostname?h:'';}catch(e){return '';}})()||(EMBED?'emra.cl (embebido)':'directo')).toLowerCase().slice(0,60);
+const CAMPANA=(PARAMS.get('utm_campaign')||'').slice(0,60)||null;
+function medir(tipo,extra={}){
+  if(!MEDIR)return;
+  try{
+    fetch(DM_SB_URL+'/rest/v1/dm_eventos',{method:'POST',keepalive:true,
+      headers:{'apikey':DM_SB_KEY,'Authorization':'Bearer '+DM_SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({tipo,visitante:VISITANTE,sesion:SESION,fuente:FUENTE,campana:CAMPANA,embebido:EMBED,...extra})}).catch(()=>{});
+  }catch(e){}
+}
+medir('entra');
+
 // ── juego: 5 pts por acierto, +2 desde 3 aciertos seguidos ──
 const DM_PTS=5,DM_RACHA=3,DM_BONUS=2;
 let dm={set:[],i:0,ok:0,racha:0,pts:0,resp:false};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0);}
 function start(){
+  medir(dm.set.length?'otra_vez':'empieza');
   dm={set:mazo(),i:0,ok:0,racha:0,pts:0,resp:false};
   show('s-game');render(true);
 }
@@ -365,6 +395,7 @@ function responder(r){
   if(dm.resp)return;dm.resp=true;
   const c=dm.set[dm.i],ok=r===c.r,card=$('.card:not(.back)');
   let g=0;
+  medir('responde',{tarjeta:c.f.slice(0,200),acierto:ok});
   if(ok){dm.ok++;dm.racha++;g=DM_PTS+(dm.racha>=DM_RACHA?DM_BONUS:0);dm.pts+=g;}else dm.racha=0;
   if(card){card.classList.remove('entra');const st=card.querySelector('.stamp.'+r);if(st)st.style.opacity=1;
     const s=r==='dato'?1:-1;card.style.transform=`translateX(${s*520}px) rotate(${s*22}deg)`;card.style.opacity='0';}
@@ -405,6 +436,7 @@ function mazo(){
 function fin(){
   $('#bar').style.width='100%';
   const ok=dm.ok,tot=dm.set.length;
+  medir('termina',{aciertos:ok,total:tot});
   const best=Math.max(store.get('dmBest',0),ok);store.set('dmBest',best);
   const msg=ok>=tot-1?'¡Impresionante! Sabes más de minería que la mayoría. Desafía a alguien a superarte.'
     :ok>=Math.ceil(tot/2)?'¡Bien! Ya separas los datos de los mitos. Sigue explorando para subir de nivel.'
@@ -415,7 +447,7 @@ function fin(){
     <p>${msg}${dm.pts?` Sumaste ${dm.pts} pts.`:''} Tu mejor marca: ${best} de ${tot}.</p>
     <div class="stack">
       <button class="btn" id="share">Comparte tu resultado</button>
-      <a class="btn ghost" href="${URL_MINERIA}" target="_top">Sigue jugando en Minería en Números →</a>
+      <a class="btn ghost" href="${URL_MINERIA}" target="_top" onclick="medir('sigue_mineria')">Sigue jugando en Minería en Números →</a>
       <button class="btn ghost" id="again">Jugar de nuevo ↻</button>
     </div>
     <section class="emra" aria-labelledby="emra-t">
@@ -428,7 +460,7 @@ function fin(){
         <li style="--c:var(--e);--j:3"><small>OE4</small>Mejorar la institucionalidad pública</li>
         <li style="--c:var(--tl);--j:4"><small>OE5</small>Reforzar el ecosistema del conocimiento</li>
       </ol>
-      <a class="btn ghost" href="https://www.emra.cl/sobre-la-emra/" target="_top">Conoce la EMRA 2023-2050 →</a>
+      <a class="btn ghost" href="https://www.emra.cl/sobre-la-emra/" target="_top" onclick="medir('conoce_emra')">Conoce la EMRA 2023-2050 →</a>
     </section>`;
   show('s-end');
   const pf=$('#s-end');[...pf.children].forEach((k,j)=>{if(!k.classList.contains('emra'))k.style.setProperty('--i',j);});
@@ -443,6 +475,7 @@ function fin(){
   }
   $('#again').onclick=start;
   $('#share').onclick=async()=>{
+    medir('comparte',{aciertos:ok,total:tot});
     const txt=`Saqué ${ok} de ${tot} en "¿Dato o mito?" de Minería en Números (EMRA) y soy ${nivel(XP)} 🔥 ¿Te atreves?`;
     try{if(navigator.share){await navigator.share({title:'¿Dato o mito?',text:txt,url:DM_URL});return;}}catch(e){return;}
     try{await navigator.clipboard.writeText(txt+' '+DM_URL);toast('Copiado. ¡Pégalo en tus historias!');}catch(e){toast('No se pudo copiar');}

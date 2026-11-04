@@ -1226,6 +1226,7 @@ svg{display:block}
         <button class="a-tab" id="at-preg" onclick="setAdminTab('preg')">❓ Preguntas</button>
       <button class="a-tab" id="at-evt" onclick="setAdminTab('evt')">🎪 Eventos</button>
       <button class="a-tab" id="at-links" onclick="setAdminTab('links')">🔗 Links</button>
+      <button class="a-tab" id="at-dm" onclick="setAdminTab('dm')">🃏 Dato o mito</button>
     </div>
     <div class="admin-content" id="admin-content"></div>
   </div>
@@ -2550,7 +2551,7 @@ function authLogout(){
 }
 
 function setAdminTab(id){
-  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta','evt','links','reto','banner','preg'].forEach(t=>{
+  ['dash','ini','new','tl','pres','portal','oe','rutas','claude','pdf','seg','diseno','part','porta','evt','links','reto','banner','preg','dm'].forEach(t=>{
     const el=document.getElementById('at-'+t);
     if(el)el.classList.toggle('on',t===id);
   });
@@ -2563,6 +2564,7 @@ function setAdminTab(id){
     banner:renderAdminBanner,
     preg:renderAdminPreg,
     importar:renderImportExcel,
+    dm:renderAdminDM,
   };
   if(fn[id])fn[id]();
 }
@@ -5344,6 +5346,63 @@ async function lkEnviar(){
 // ADMIN — TAB LINKS (página tipo Linktree)
 // ═══════════════════════════════════════════════════════
 let LADM=null;
+// ══ ¿DATO O MITO? · resultados de la campaña ══
+// Lee las vistas de sql/dato-o-mito.sql (solo con sesión). "Personas" = navegadores distintos.
+async function renderAdminDM(){
+  const el=document.getElementById('admin-content');
+  el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando resultados…</div>';
+  const desde=new Date(Date.now()-29*864e5).toISOString().slice(0,10);
+  let res=[],dias=[],tarj=[],punt=[],err=null;
+  try{
+    [res,dias,tarj,punt]=await Promise.all([
+      sbFetch('dm_resumen?select=*'),
+      sbFetch('dm_por_dia?select=*&dia=gte.'+desde+'&order=dia.asc'),
+      sbFetch('dm_tarjetas?select=*&order=pct_acierto.asc'),
+      sbFetch('dm_puntajes?select=*')]);
+  }catch(e){err=e.message;}
+  const esc2=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const tot=t=>(res||[]).find(r=>r.fuente===null&&r.tipo===t)?.personas||0;
+  const pct=(a,b)=>b?Math.round(100*a/b)+'%':'—';
+  const entran=tot('entra');
+  const pasos=[['entra','Entraron'],['empieza','Empezaron a jugar'],['termina','Terminaron'],['comparte','Compartieron'],['sigue_mineria','Siguieron a Minería en Números'],['conoce_emra','Fueron a "Conoce la EMRA"']];
+  const fuentes=[...new Set((res||[]).filter(r=>r.fuente!==null).map(r=>r.fuente))];
+  const porF=(f,t)=>(res||[]).find(r=>r.fuente===f&&r.tipo===t)?.personas||0;
+  fuentes.sort((a,b)=>porF(b,'entra')-porF(a,'entra'));
+  const diasU=[...new Set((dias||[]).map(d=>d.dia))];
+  const porD=(d,t)=>(dias||[]).find(x=>x.dia===d&&x.tipo===t)?.personas||0;
+  const maxD=Math.max(1,...diasU.map(d=>porD(d,'entra')));
+  const p=(punt||[])[0]||{};
+  const conRes=(tarj||[]).filter(t=>t.respuestas>=1);
+  const link='https://portal.emra.cl/dato-o-mito?utm_source=instagram&utm_medium=social&utm_campaign=dato-o-mito';
+  const fila=t=>`<div style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--sbb);font-size:11px"><span style="flex:1;color:var(--sbt)">${esc2(t.tarjeta)}</span><b style="color:${t.pct_acierto<50?'#ff8a7a':'#10b981'}">${t.pct_acierto}%</b><span style="color:var(--sbm);width:60px;text-align:right">${t.respuestas} resp.</span></div>`;
+  el.innerHTML=`
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.6">⚠ No se pudieron leer los resultados (${esc2(err)}).<br/>Si es la primera vez, ejecuta <b>sql/dato-o-mito.sql</b> en Supabase (SQL Editor) y recarga.</div></div>`:''}
+    <div style="font-size:11px;color:var(--sbm);margin-bottom:12px;line-height:1.6">Resultados del juego <b style="color:var(--e)">portal.emra.cl/dato-o-mito</b>. "Personas" cuenta navegadores distintos (anónimo). Visitas totales, países y dispositivos: Vercel → proyecto → Analytics.</div>
+    <div class="a-grid2" style="gap:14px;align-items:start">
+      <div class="a-box">
+        <div class="a-box-title">📈 Embudo (desde el inicio)</div>
+        ${pasos.map(([t,n],i)=>{const v=tot(t);return `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sbt)"><span>${n}</span><span><b style="color:#fff">${v}</b>${i?` <span style="color:var(--sbm)">· ${pct(v,entran)}</span>`:''}</span></div><div style="height:6px;background:rgba(255,255,255,.06);border-radius:9px;margin-top:4px"><div style="height:100%;width:${entran?Math.max(2,100*v/entran):0}%;background:var(--e);border-radius:9px"></div></div></div>`;}).join('')}
+        <div style="font-size:11px;color:var(--sbm);margin-top:10px">Juegos terminados: <b style="color:#fff">${p.juegos||0}</b> · Puntaje promedio: <b style="color:#fff">${p.promedio??'—'}</b> (${p.pct_promedio??'—'}% de aciertos)</div>
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">🧭 De dónde llegan</div>
+        ${fuentes.length?`<table style="width:100%;font-size:11px;border-collapse:collapse;color:var(--sbt)"><tr style="color:var(--sbm);text-align:right"><th style="text-align:left;font-weight:600">Fuente</th><th>Entran</th><th>Juegan</th><th>Terminan</th><th>Comparten</th></tr>
+          ${fuentes.map(f=>`<tr style="text-align:right;border-top:1px solid var(--sbb)"><td style="text-align:left;padding:5px 0">${esc2(f)}</td><td><b style="color:#fff">${porF(f,'entra')}</b></td><td>${porF(f,'empieza')}</td><td>${porF(f,'termina')}</td><td>${porF(f,'comparte')}</td></tr>`).join('')}</table>`:'<div style="font-size:12px;color:var(--sbm)">Sin datos aún.</div>'}
+        <div style="font-size:10px;color:var(--sbm);margin-top:10px;line-height:1.6">Para separar Instagram de otros lados, usa en la campaña este link:<br/><b style="color:var(--sbt);word-break:break-all">${link}</b></div>
+        <button class="a-btn a-btn-g" style="margin-top:8px;font-size:10px" onclick="navigator.clipboard.writeText('${link}').then(()=>showAdminToast('✓ Link de campaña copiado'))">🔗 Copiar link de campaña</button>
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">📅 Últimos 30 días (personas que entran / terminan)</div>
+        ${diasU.length?diasU.map(d=>`<div style="display:flex;align-items:center;gap:8px;font-size:10px;margin-bottom:4px"><span style="width:44px;color:var(--sbm)">${d.slice(8,10)}/${d.slice(5,7)}</span><div style="flex:1;height:10px;background:rgba(255,255,255,.04);border-radius:4px;position:relative"><div style="position:absolute;inset:0 auto 0 0;width:${100*porD(d,'entra')/maxD}%;background:rgba(3,143,207,.45);border-radius:4px"></div><div style="position:absolute;inset:0 auto 0 0;width:${100*porD(d,'termina')/maxD}%;background:#10b981;border-radius:4px"></div></div><span style="width:56px;text-align:right;color:var(--sbt)">${porD(d,'entra')} / ${porD(d,'termina')}</span></div>`).join(''):'<div style="font-size:12px;color:var(--sbm)">Sin datos aún.</div>'}
+      </div>
+      <div class="a-box">
+        <div class="a-box-title">🃏 Tarjetas</div>
+        ${conRes.length?`<div style="font-size:10px;color:var(--sbm);margin-bottom:4px">Las que más se fallan</div>${conRes.slice(0,5).map(fila).join('')}
+          ${conRes.length>5?`<div style="font-size:10px;color:var(--sbm);margin:12px 0 4px">Las que más se aciertan</div>${conRes.slice(5).slice(-5).reverse().map(fila).join('')}`:''}`:'<div style="font-size:12px;color:var(--sbm)">Sin respuestas aún.</div>'}
+      </div>
+    </div>
+    <button class="a-btn a-btn-g" style="margin-top:14px" onclick="renderAdminDM()">↻ Actualizar</button>`;
+}
 function renderAdminLinks(){
   LADM=Object.assign(linksDefaults(),LINKS_CFG||{});
   if(!Array.isArray(LADM.links))LADM.links=[];
