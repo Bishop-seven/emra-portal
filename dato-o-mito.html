@@ -52,7 +52,13 @@ a{color:var(--e)}
 h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-height:1.08}
 
 /* barra superior */
-.top{display:flex;align-items:center;gap:10px;margin:-12px -16px 14px;padding:10px 16px;position:sticky;top:0;z-index:5;background:var(--bg)}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:-12px -16px 14px;padding:10px 16px 8px;position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--bd)}
+/* Segunda fila del encabezado: el título del juego con Gorito a la izquierda. */
+.fila2{flex:0 0 100%;display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.fila2 img{width:34px;height:34px;object-fit:contain;flex:none}
+.fila2 b{font-family:var(--disp);font-size:20px;font-weight:800;color:var(--wh);letter-spacing:-.02em;line-height:1}
+.fila2 b .d{color:var(--gr-tx)}.fila2 b .m{color:var(--rd-tx)}
+.fila2 small{margin-left:auto;font-size:11px;font-weight:600;color:var(--mut);white-space:nowrap}
 /* Encabezado: logo EMRA (el de emra.cl) a la izquierda, puntos y logo del Clúster a la derecha. */
 .brand{display:flex;align-items:center;min-width:0;flex:1;text-decoration:none;line-height:0}
 .brand img{height:46px;width:auto;max-width:100%;object-fit:contain;object-position:left center}
@@ -96,7 +102,7 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .prog{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:6px}
 .prog i{display:block;height:100%;width:0;background:var(--cu);transition:width .35s ease}
 .cnt{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-bottom:12px}
-.deck{position:relative;flex:1;min-height:clamp(380px,calc(100dvh - 240px),440px);max-height:560px;margin-bottom:14px;touch-action:pan-y}
+.deck{position:relative;flex:1;min-height:clamp(350px,calc(100dvh - 290px),440px);max-height:560px;margin-bottom:14px;touch-action:pan-y}
 .card{position:absolute;inset:0;background:var(--bg3);border:1px solid var(--bd2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px;user-select:none;-webkit-user-select:none;cursor:grab;box-shadow:0 14px 30px rgba(42,42,46,.12);transition:transform .35s ease,opacity .35s ease}
 /* Ilustración arriba, de borde a borde (como las tarjetas de Datos por tema). */
 .card{overflow:hidden}
@@ -107,6 +113,9 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .tag{align-self:flex-start;font-size:12px;font-weight:700;color:var(--cu-tx);background:rgba(0,144,212,.12);border-radius:99px;padding:5px 10px}
 .stmt{font-family:var(--disp);font-size:clamp(21px,5.8vw,26px);font-weight:600;color:var(--wh);line-height:1.18;margin:auto 0}
 .hint{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
+/* En pantallas bajas se oculta la pista de la tarjeta (los botones de abajo dicen lo mismo):
+   con el encabezado de dos filas, si no, las frases largas no caben. */
+@media (max-height:700px){.card .hint{display:none}}
 .rev{font-size:11px;color:var(--yl-tx)}
 .stamp{position:absolute;z-index:2;background:rgba(255,255,255,.92);top:20px;font-family:var(--disp);font-weight:800;font-size:26px;padding:2px 12px;border:3px solid;border-radius:10px;opacity:0;pointer-events:none}
 .stamp.mito{left:20px;color:var(--rd-tx);transform:rotate(-10deg)}
@@ -232,6 +241,11 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
       <span><b id="xp-n">0</b> pts<span class="lvl"> · <span id="xp-l">Aprendiz</span></span></span>
     </div>
     <span class="cluster"><img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-Cluster-.webp" alt="Corporación Clúster Minero Región de Antofagasta" width="219" height="150"/></span>
+    <div class="fila2">
+      <img src="gorito.webp" alt="" onerror="this.onerror=null;this.src='https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png'"/>
+      <b>¿<span class="d">Dato</span> o <span class="m">mito</span>?</b>
+      <small>Minería en Números</small>
+    </div>
   </header>
 
   <!-- INICIO -->
