@@ -167,7 +167,7 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
   <!-- JUEGO -->
   <section class="screen" id="s-game">
     <div class="prog"><i id="bar"></i></div>
-    <div class="cnt"><span id="cnt">1 de 13</span><span id="racha"></span></div>
+    <div class="cnt"><span id="cnt"></span><span id="racha"></span></div>
     <div id="zona" style="display:flex;flex-direction:column;flex:1"></div>
   </section>
 
@@ -210,7 +210,7 @@ const DM_PTS=5,DM_RACHA=3,DM_BONUS=2;
 let dm={set:[],i:0,ok:0,racha:0,pts:0,resp:false};
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0);}
 function start(){
-  dm={set:shuffle(DATO_O_MITO.filter(c=>DM_MOSTRAR_EN_REVISION||!c.rev)),i:0,ok:0,racha:0,pts:0,resp:false};
+  dm={set:mazo(),i:0,ok:0,racha:0,pts:0,resp:false};
   show('s-game');render(true);
 }
 function hud(){
@@ -276,6 +276,19 @@ function responder(r){
     $('#next').onclick=()=>render(true);
     $('#next').focus({preventScroll:true});
   },260);
+}
+// Saca DM_POR_JUEGO tarjetas al azar, primero las que esta persona no ha visto (se guardan por
+// su frase), para que "Jugar de nuevo" traiga tarjetas nuevas hasta agotar la lista.
+function mazo(){
+  const todas=DATO_O_MITO.filter(c=>DM_MOSTRAR_EN_REVISION||!c.rev);
+  const n=Math.min(DM_POR_JUEGO,todas.length);
+  let vistas=store.get('dmVistas',[]);
+  const nuevas=shuffle(todas.filter(c=>!vistas.includes(c.f)));
+  const set=nuevas.concat(shuffle(todas.filter(c=>vistas.includes(c.f)))).slice(0,n);
+  // Cuando ya vio todas, se empieza la cuenta de nuevo con las de este juego.
+  vistas=nuevas.length>=n?vistas.concat(set.map(c=>c.f)):set.map(c=>c.f);
+  store.set('dmVistas',vistas.filter(f=>todas.some(c=>c.f===f)));
+  return set;
 }
 function fin(){
   $('#bar').style.width='100%';

@@ -18,6 +18,9 @@
 
 // false = las tarjetas con `rev` no aparecen en el juego hasta que se revisen.
 const DM_MOSTRAR_EN_REVISION=true;
+// Cuántas tarjetas muestra cada juego, sacadas al azar de la lista. Se pueden agregar todas las
+// tarjetas que se quiera: el juego elige primero las que esa persona todavía no ha visto.
+const DM_POR_JUEGO=7;
 // El link que se comparte al terminar: la página independiente del juego (la de la campaña).
 const DM_URL='https://portal.emra.cl/dato-o-mito';
 
