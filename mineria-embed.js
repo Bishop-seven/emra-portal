@@ -8,6 +8,9 @@
    Slider "EMRA en videos" (home):
      <div id="emra-videos-home"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
+   Juego "¿Dato o mito?" solo (por ejemplo, en una página de campaña en emra.cl):
+     <div id="emra-dato-o-mito"></div>
+     <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
    Cada iframe crece al alto de su contenido (sin doble scroll).
    Link directo a una sección de la página de datos: emra.cl/datos-sobre-mineria/#dato-o-mito
    (el ancla se le pasa al iframe, que le pide al sitio que haga scroll hasta ahí).
@@ -19,7 +22,8 @@
   var TIPOS={
     'emra-mineria':{src:'mineria.html?embed=1',title:'Minería en Números: aprende minería jugando',h:1600,bg:'#0B1929',radius:'16px'},
     'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'},
-    'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'}
+    'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'},
+    'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#0B1929',radius:'16px'}
   };
   var frames=[];
   // Solo anclas simples (#dato-o-mito); el iframe revisa que la sección exista.

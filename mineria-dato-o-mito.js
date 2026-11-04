@@ -1,4 +1,5 @@
-/* Minería en Números · tarjetas del juego "¿Dato o mito?" (sección #dato-o-mito de mineria.html).
+/* Minería en Números · tarjetas del juego "¿Dato o mito?". Las usan la página independiente
+   dato-o-mito.html (portal.emra.cl/dato-o-mito, para la campaña) y la sección #dato-o-mito de mineria.html.
    Se editan aquí, sin tocar la página. Cada tarjeta lleva su fuente y, si sale del libro,
    la página del PDF ("Minería en Números", 8ª ed., Consejo Minero, mayo 2025). */
 // ══════════════════════════════════════════════════════════════════════
@@ -15,8 +16,8 @@
 
 // false = las tarjetas con `rev` no aparecen en el juego hasta que se revisen.
 const DM_MOSTRAR_EN_REVISION=true;
-// El link que se comparte al terminar (el de emra.cl, que es donde está embebido).
-const DM_URL='https://www.emra.cl/datos-sobre-mineria/#dato-o-mito';
+// El link que se comparte al terminar: la página independiente del juego (la de la campaña).
+const DM_URL='https://portal.emra.cl/dato-o-mito';
 
 const DATO_O_MITO=[
   {tag:'Chile en el mundo',f:'Chile produce la mitad de todo el cobre del mundo.',r:'mito',
