@@ -52,6 +52,9 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd2)}
 .btn.ghost:hover{border-color:var(--cu);color:var(--wh)}
 .src{font-size:12px;color:var(--mut)}
+/* El logo tiene letras verdes oscuras sobre transparente: sobre el fondo azul no se leen, por eso va en una placa blanca. */
+.pie{display:flex;justify-content:center;margin-top:24px}
+.pie img{height:64px;width:auto;background:#fff;border-radius:12px;padding:8px 12px;box-sizing:content-box}
 .src b{color:var(--tx);font-weight:600}
 :focus-visible{outline:2px solid var(--e);outline-offset:2px}
 
@@ -162,6 +165,11 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 
   <!-- FINAL -->
   <section class="screen final" id="s-end" aria-live="polite"></section>
+
+  <!-- PIE: logo del Clúster Minero (el mismo archivo que usa emra.cl) -->
+  <footer class="pie">
+    <img src="https://www.emra.cl/web/wp-content/uploads/2025/04/logo-Cluster-.webp" alt="Corporación Clúster Minero Región de Antofagasta" width="219" height="150" loading="lazy"/>
+  </footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
