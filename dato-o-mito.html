@@ -23,7 +23,9 @@
    --wh es "el texto más fuerte" (en la paleta oscura era blanco).
    Los colores de marca (--gr, --rd, --cu, --yl, --tl) se usan tal cual en fondos, bordes, la barra de
    avance y la franja. Como texto sobre el fondo claro no llegan a 4,5:1 (el amarillo da 1,75), así que
-   los textos usan su versión oscura del mismo tono (--*-tx). El botón va en #A4602F y no en el
+   los textos usan su versión oscura del mismo tono (--*-tx). Excepción pedida por la EMRA: las palabras
+   "Dato" y "mito" (títulos, etiquetas de cómo jugar, sellos y "Es dato/mito") van en el verde y naranjo
+   exactos de la marca, aunque su contraste sobre el fondo claro es bajo (2,4:1 y 2,8:1). El botón va en #A4602F y no en el
    #CC824D de la paleta: con texto blanco el original daba 3,06:1 y este da 4,9:1. */
 :root{
   --bg:#F7F1EC;--bg2:#FFFFFF;--bg3:#EFE6DD;--bd:rgba(42,42,46,.10);--bd2:rgba(42,42,46,.16);
@@ -57,7 +59,7 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .fila2{flex:0 0 100%;display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--bd)}
 .fila2 img{width:34px;height:34px;object-fit:contain;flex:none}
 .fila2 b{font-family:var(--disp);font-size:20px;font-weight:800;color:var(--wh);letter-spacing:-.02em;line-height:1}
-.fila2 b .d{color:var(--gr-tx)}.fila2 b .m{color:var(--rd-tx)}
+.fila2 b .d{color:var(--gr)}.fila2 b .m{color:var(--rd)}
 .fila2 small{margin-left:auto;font-size:11px;font-weight:600;color:var(--mut);white-space:nowrap}
 /* Encabezado: logo EMRA (el de emra.cl) a la izquierda, puntos y logo del Clúster a la derecha. */
 .brand{display:flex;align-items:center;min-width:0;flex:1;text-decoration:none;line-height:0}
@@ -86,14 +88,14 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 /* inicio */
 .kick{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cu-tx);margin:14px 0 8px}
 .intro h1{font-size:clamp(44px,13vw,64px);font-weight:800}
-.intro h1 .d{color:var(--gr-tx)}
-.intro h1 .m{color:var(--rd-tx)}
+.intro h1 .d{color:var(--gr)}
+.intro h1 .m{color:var(--rd)}
 .intro .lead{color:var(--mut);font-size:16px;margin:14px 0 20px}
 .howto{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
 .howto div{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:14px;font-size:14px;line-height:1.4}
 .howto b{display:block;font-family:var(--disp);font-size:20px;margin-bottom:4px}
-.howto .l b{color:var(--rd-tx)}
-.howto .r b{color:var(--gr-tx)}
+.howto .l b{color:var(--rd)}
+.howto .r b{color:var(--gr)}
 .intro .src{text-align:center;margin-top:14px;line-height:1.5}
 .gorito-intro{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-bottom:18px;font-size:14px}
 .gorito-intro img{width:52px;height:52px;object-fit:contain;flex-shrink:0}
@@ -118,8 +120,8 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 @media (max-height:700px){.card .hint{display:none}}
 .rev{font-size:11px;color:var(--yl-tx)}
 .stamp{position:absolute;z-index:2;background:rgba(255,255,255,.92);top:20px;font-family:var(--disp);font-weight:800;font-size:26px;padding:2px 12px;border:3px solid;border-radius:10px;opacity:0;pointer-events:none}
-.stamp.mito{left:20px;color:var(--rd-tx);transform:rotate(-10deg)}
-.stamp.dato{right:20px;color:var(--gr-tx);transform:rotate(10deg)}
+.stamp.mito{left:20px;color:var(--rd);transform:rotate(-10deg)}
+.stamp.dato{right:20px;color:var(--gr);transform:rotate(10deg)}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .choice{background:var(--bg2);border:2px solid var(--bd);color:var(--wh);border-radius:16px;padding:15px 10px;font-size:18px;font-weight:800;transition:.15s}
 .choice small{display:block;font-size:12px;font-weight:500;color:var(--mut);margin-top:2px}
@@ -134,8 +136,8 @@ h1,h2,h3{font-family:var(--disp);color:var(--wh);letter-spacing:-.02em;line-heig
 .ver{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:700;color:var(--wh)}
 .pts-pop{display:inline-block;background:rgba(112,173,87,.18);color:var(--gr-tx);font-weight:700;font-size:13px;border-radius:99px;padding:3px 10px}
 .res h2{font-size:30px;font-weight:800;margin-top:10px}
-.res h2.dato{color:var(--gr-tx)}
-.res h2.mito{color:var(--rd-tx)}
+.res h2.dato{color:var(--gr)}
+.res h2.mito{color:var(--rd)}
 .cita{font-size:13px;color:var(--mut);margin-top:4px}
 .big{font-family:var(--disp);font-size:46px;font-weight:800;color:var(--cu);line-height:1;margin:14px 0 8px}
 .exp{font-size:16px;margin-bottom:10px}
