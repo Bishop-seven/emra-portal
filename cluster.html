@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Mesa del Cluster · EMRA</title>
+<title>Mesa del Cluster · ViveConectado</title>
 <style>
 :root{
   --bg:#081220;--panel:#0d1b2e;--panel2:#112236;--line:#1e3350;--txt:#e6eef7;--mut:#8aa0b8;
@@ -32,6 +32,13 @@ a{color:#7cc8ef}
 #login h1{margin:0 0 4px;font-size:20px}
 #login p{margin:0 0 12px;color:var(--mut)}
 #login .err{color:var(--bad);font-size:13px;min-height:18px;margin-top:8px}
+.vc-marca{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:.2px;color:#fff;margin-bottom:18px}
+.vc-marca i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#0a5cd6,#038fcf);display:grid;place-items:center;font-style:normal;font-size:13px;color:#fff}
+.vc-marca em{font-style:normal}.vc-marca span{color:#5b9bff}
+.vc-pie{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--mut);line-height:1.6;text-align:center}
+.vc-pie b{color:#9fc3ff}
+header .vc-firma{font-size:11px;color:var(--mut);white-space:nowrap}
+header .vc-firma b{color:#9fc3ff}
 
 #app{height:100%;display:flex;flex-direction:column}
 header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
@@ -151,18 +158,20 @@ details.mas summary{cursor:pointer;font-size:12px;color:var(--mut);margin-top:6p
 
 <section id="login">
   <form onsubmit="login(event)">
-    <h1>Mesa del Cluster <span style="color:var(--brand)">EMRA</span></h1>
-    <p>Comparte avances, documentos y novedades con el equipo EMRA. Ingresa con la cuenta que te entregaron.</p>
+    <div class="vc-marca"><i>V</i><em>Vive<span>Conectado</span></em></div>
+    <h1>Mesa del Cluster</h1>
+    <p>Plataforma de ViveConectado para ordenar los avances, documentos y novedades del cluster minero y hacerlos llegar al equipo EMRA. Ingresa con la cuenta que te entregó ViveConectado.</p>
     <label>Correo</label><input id="l-email" type="email" autocomplete="username" required>
     <label>Contraseña</label><input id="l-pwd" type="password" autocomplete="current-password" required>
     <div class="err" id="l-err"></div>
     <button class="pri" id="l-btn" style="width:100%;margin-top:8px">Ingresar</button>
+    <div class="vc-pie">Plataforma desarrollada y operada por <b>ViveConectado</b>.<br>¿Problemas para entrar? Escríbenos a <a href="mailto:pablo@viveconectado.cl">pablo@viveconectado.cl</a></div>
   </form>
 </section>
 
 <section id="app" class="hide">
   <header>
-    <div class="logo"><b>EMRA</b> · Mesa del Cluster</div>
+    <div class="logo"><span class="vc-marca" style="margin:0;font-size:14px"><i>V</i><em>Vive<span>Conectado</span></em></span> <span style="color:var(--mut);font-weight:500">· Mesa del Cluster</span></div>
     <nav id="nav"></nav>
     <div class="chip" id="chip"></div>
     <button class="sm" onclick="logout()">Salir</button>
@@ -304,7 +313,7 @@ function logout(){ guardarSesion(null); location.reload(); }
 async function entrar(){
   if(!['admin','editor','cluster'].includes(SESSION.rol)){
     const r = SESSION.rol; guardarSesion(null);
-    throw new Error(`Esta cuenta no tiene acceso a la Mesa del Cluster (rol: ${r||'sin rol'}). Pide acceso al equipo EMRA.`);
+    throw new Error(`Esta cuenta no tiene acceso a la Mesa del Cluster (rol: ${r||'sin rol'}). Pide acceso a ViveConectado (pablo@viveconectado.cl).`);
   }
   $('login').classList.add('hide'); $('app').classList.remove('hide');
   $('chip').innerHTML = `${esc(SESSION.nombre)}<br><span style="opacity:.8">${EQUIPO()?(SESSION.rol==='admin'?'Administrador EMRA':'Equipo EMRA'):esc(SESSION.organizacion||'Cluster minero')}</span>`;
@@ -418,7 +427,7 @@ addEventListener('drop',e=>{ e.preventDefault(); _dc=0; $('drop').classList.add(
 
 // ── Agente ──
 function systemPrompt(){
-  return `Eres el asistente de la "Mesa del Cluster" de EMRA (Estrategia Minera Regional de Antofagasta, Chile). Atiendes a personas del cluster minero, que dan asistencia técnica a la EMRA y coordinan con las compañías mineras los estados de avance de las iniciativas. Te envían información muy variada (planillas Excel, presentaciones PowerPoint, PDF, Word, fotos, texto pegado). Tu trabajo es ayudarles a ORDENARLA para que el equipo EMRA la reciba clara y decida qué publicar y dónde. Tú nunca publicas nada.
+  return `Eres el asistente de la "Mesa del Cluster", una plataforma de ViveConectado (empresa chilena de tecnología y comunicación) que conecta al cluster minero con el equipo de la EMRA (Estrategia Minera Regional de Antofagasta, Chile). La plataforma es de ViveConectado: si te preguntan quién la hizo, de quién es o a quién pedir ayuda técnica (accesos, contraseñas, errores), responde que es de ViveConectado y que el contacto es pablo@viveconectado.cl. No digas que la plataforma es de EMRA ni del cluster. Atiendes a personas del cluster minero, que dan asistencia técnica a la EMRA y coordinan con las compañías mineras los estados de avance de las iniciativas. Te envían información muy variada (planillas Excel, presentaciones PowerPoint, PDF, Word, fotos, texto pegado). Tu trabajo es ayudarles a ORDENARLA para que el equipo EMRA la reciba clara y decida qué publicar y dónde. Tú nunca publicas nada.
 
 Hablas en español de Chile, cordial, breve y práctico. La persona es un colega técnico: no le expliques lo obvio.
 
@@ -608,7 +617,8 @@ function renderMsgs(pensando){
     el.innerHTML = `<div class="vacio"><h2>¿Qué nos traes hoy?</h2>
       <p>Adjunta lo que tengas — planillas de avance, presentaciones, informes, fotos — o cuéntalo con tus palabras.
       El asistente lo ordena por minera e iniciativa, te pregunta lo que falte y lo deja listo para el equipo EMRA.</p>
-      <p>Nada se publica sin que el equipo EMRA lo revise.</p></div>`;
+      <p>Nada se publica sin que el equipo EMRA lo revise.</p>
+      <p style="font-size:11px;margin-top:18px">Mesa del Cluster es una plataforma de <b>ViveConectado</b>.</p></div>`;
     return;
   }
   el.innerHTML = htmlMensajes(MSGS, pensando && OCUPADO) +
