@@ -2526,7 +2526,15 @@ async function adminLogin(){
   btn.disabled=true;btn.textContent='Verificando…';
   try{
     const d = await authRequest('token?grant_type=password',{email,password:pwd});
-    saveSession(sessionFromAuth(d));
+    const ses=sessionFromAuth(d);
+    if(ses.rol==='cluster'){
+      err.innerHTML='Esta cuenta es del cluster: entra en <a href="/cluster" style="color:inherit;text-decoration:underline">portal.emra.cl/cluster</a>';
+      err.classList.add('on');
+      document.getElementById('admin-pwd').value='';
+      btn.disabled=false;btn.textContent='Ingresar';
+      return;
+    }
+    saveSession(ses);
     err.classList.remove('on');
     document.getElementById('admin-pwd').value='';
     enterAdmin();
@@ -3989,6 +3997,46 @@ async function workerAdmin(method, body){
   if(!res.ok) throw new Error(data.error||('HTTP '+res.status));
   return data;
 }
+const ROL_INFO={
+  admin:{label:'Admin',color:'#f59e0b'},
+  editor:{label:'Editor',color:'#10b981'},
+  cluster:{label:'Cluster',color:'#038FCF'}
+};
+async function sbRpc(fn,args){
+  const tok=await ensureFreshToken();
+  if(!tok) throw new Error('Sesión expirada — vuelve a iniciar sesión');
+  const res=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
+    body:JSON.stringify(args||{})});
+  const txt=await res.text();
+  let data=null; try{data=txt?JSON.parse(txt):null}catch(e){}
+  if(!res.ok) throw new Error((data&&(data.message||data.hint))||('HTTP '+res.status));
+  return data;
+}
+function escSeg(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let SEG_USERS=[];
+function filaUsuario(u){
+  const ri=ROL_INFO[u.rol]||ROL_INFO.editor;
+  const yo=u.email===SESSION.email;
+  return `
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:6px;flex-wrap:wrap;${u.banned?'opacity:.55':''}">
+      <div style="flex:1;min-width:170px">
+        <div style="font-size:12px;font-weight:700;color:#fff">${escSeg(u.nombre||u.email)} ${yo?'<span style="color:var(--e);font-size:9px">(tú)</span>':''}</div>
+        <div style="font-size:10px;color:var(--sbm)">${escSeg(u.email)} · <b style="color:${ri.color}">${ri.label}</b>${u.organizacion?' · '+escSeg(u.organizacion):''}${u.banned?' · <b style="color:#ff8a7a">SUSPENDIDO</b>':''}${u.last_sign_in?' · último acceso '+new Date(u.last_sign_in).toLocaleDateString('es-CL'):' · nunca ha entrado'}</div>
+      </div>
+      ${yo?'':`<select class="a-form-inp" style="width:auto;font-size:10px;padding:4px 6px" title="Cambiar rol" onchange="cambiarRolUsuario('${u.id}',this.value)">
+        ${Object.entries(ROL_INFO).map(([k,r])=>`<option value="${k}" ${u.rol===k?'selected':''}>${r.label}</option>`).join('')}
+      </select>`}
+      ${u.rol==='cluster'?`<button class="a-btn a-btn-g" style="font-size:9px" title="Cambiar organización" onclick="cambiarOrgUsuario('${u.id}')">🏢</button>`:''}
+      <button class="a-btn a-btn-g" style="font-size:9px" title="Nueva contraseña" onclick="resetPwdUsuario('${u.id}','${escSeg(u.email)}')">🔑</button>
+      ${yo?'':`<button class="a-btn a-btn-g" style="font-size:9px" title="${u.banned?'Reactivar':'Suspender'}" onclick="banUsuario('${u.id}',${u.banned?'false':'true'})">${u.banned?'▶':'⏸'}</button>
+      <button class="a-btn a-btn-g" style="font-size:9px;color:#ff8a7a" title="Eliminar" onclick="if(confirm('¿Eliminar a ${escSeg(u.email)}? Se pierde su acceso, no sus envíos.'))eliminarUsuario('${u.id}')">🗑</button>`}
+    </div>`;
+}
+function toggleOrgNuevo(){
+  const r=document.getElementById('nu-rol')?.value;
+  const f=document.getElementById('nu-org-wrap'); if(f) f.style.display=r==='cluster'?'':'none';
+}
 async function renderAdminSegV2(){
   const el=document.getElementById('admin-content');
   if(!SESSION||SESSION.rol!=='admin'){
@@ -3997,10 +4045,19 @@ async function renderAdminSegV2(){
     return;
   }
   el.innerHTML='<div style="color:var(--sbm);font-size:12px">⏳ Cargando usuarios…</div>';
-  let users=[],err=null;
+  let users=[],err=null,errRoles=null;
   try{ users=(await workerAdmin('GET')).users||[]; }catch(e){ err=e.message; }
+  try{
+    const roles=await sbRpc('admin_roles');
+    const m=new Map((roles||[]).map(r=>[r.id,r]));
+    users.forEach(u=>{const r=m.get(u.id); if(r){ u.rol=r.rol||'editor'; u.organizacion=r.organizacion||''; }});
+  }catch(e){ errRoles=e.message; }
+  SEG_USERS=users;
+  const equipo=users.filter(u=>u.rol!=='cluster');
+  const cluster=users.filter(u=>u.rol==='cluster');
   el.innerHTML=`
-    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.7">⚠ No se pudo conectar con el servicio de usuarios (${err}).<br/>Verifica que el worker v2 esté desplegado con el secret <b>SUPABASE_SERVICE_ROLE</b> (ver instrucciones del deploy).</div></div>`:''}
+    ${err?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.7">⚠ No se pudo conectar con el servicio de usuarios (${escSeg(err)}).<br/>Verifica que el worker v2 esté desplegado con el secret <b>SUPABASE_SERVICE_ROLE</b> (ver instrucciones del deploy).</div></div>`:''}
+    ${errRoles?`<div class="a-box" style="border-color:rgba(255,120,80,.4);margin-bottom:14px"><div style="font-size:12px;color:#ffb08a;line-height:1.7">⚠ No se pudieron leer los roles (${escSeg(errRoles)}). Falta correr <b>sql/cluster/006_roles_desde_portal.sql</b> en Supabase; mientras tanto no se pueden crear cuentas del cluster.</div></div>`:''}
     <div class="a-grid2" style="gap:14px;align-items:start">
       <div class="a-box">
         <div class="a-box-title">➕ Nuevo usuario</div>
@@ -4009,26 +4066,26 @@ async function renderAdminSegV2(){
           <div class="a-field"><div class="a-label">Email *</div><input id="nu-email" type="email" class="a-form-inp" placeholder="maria@emra.cl"/></div>
           <div class="a-field"><div class="a-label">Contraseña * (mín. 8)</div><input id="nu-pwd" type="text" class="a-form-inp" placeholder="Contraseña inicial"/></div>
           <div class="a-field"><div class="a-label">Rol</div>
-            <select id="nu-rol" class="a-form-inp">
+            <select id="nu-rol" class="a-form-inp" onchange="toggleOrgNuevo()">
               <option value="editor">Editor — gestiona contenido</option>
               <option value="admin">Administrador — contenido + usuarios</option>
+              <option value="cluster">Cluster minero — solo Mesa del Cluster</option>
             </select></div>
+          <div class="a-field" id="nu-org-wrap" style="display:none"><div class="a-label">Organización</div><input id="nu-org" class="a-form-inp" value="Cluster Minero" placeholder="Ej: Cluster Minero, Minera Escondida"/></div>
           <button class="a-btn a-btn-p" onclick="crearUsuario()">Crear usuario</button>
+          <div style="font-size:10px;color:var(--sbm);line-height:1.6">Las cuentas <b style="color:${ROL_INFO.cluster.color}">Cluster</b> solo entran a <a href="/cluster" target="_blank" style="color:var(--e)">portal.emra.cl/cluster</a>: no pueden editar el portal. Comparte el correo y la contraseña con la persona por un canal privado.</div>
         </div>
       </div>
-      <div class="a-box">
-        <div class="a-box-title">👥 Usuarios (${users.length})</div>
-        ${users.map(u=>`
-          <div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--sbb);border-radius:8px;margin-bottom:6px;${u.banned?'opacity:.55':''}">
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:700;color:#fff">${u.nombre||u.email} ${u.email===SESSION.email?'<span style="color:var(--e);font-size:9px">(tú)</span>':''}</div>
-              <div style="font-size:10px;color:var(--sbm)">${u.email} · <b style="color:${u.rol==='admin'?'#f59e0b':'#10b981'}">${u.rol==='admin'?'Admin':'Editor'}</b>${u.banned?' · <b style="color:#ff8a7a">SUSPENDIDO</b>':''}${u.last_sign_in?' · último acceso '+new Date(u.last_sign_in).toLocaleDateString('es-CL'):''}</div>
-            </div>
-            <button class="a-btn a-btn-g" style="font-size:9px" title="Cambiar rol" onclick="cambiarRolUsuario('${u.id}','${u.rol==='admin'?'editor':'admin'}')">${u.rol==='admin'?'→ Editor':'→ Admin'}</button>
-            <button class="a-btn a-btn-g" style="font-size:9px" title="Nueva contraseña" onclick="resetPwdUsuario('${u.id}','${u.email}')">🔑</button>
-            <button class="a-btn a-btn-g" style="font-size:9px" title="${u.banned?'Reactivar':'Suspender'}" onclick="banUsuario('${u.id}',${u.banned?'false':'true'})">${u.banned?'▶':'⏸'}</button>
-            ${u.email!==SESSION.email?`<button class="a-btn a-btn-g" style="font-size:9px;color:#ff8a7a" onclick="if(confirm('¿Eliminar a ${u.email}?'))eliminarUsuario('${u.id}')">🗑</button>`:''}
-          </div>`).join('')||'<div style="font-size:11px;color:var(--sbm)">Sin usuarios.</div>'}
+      <div>
+        <div class="a-box">
+          <div class="a-box-title">👥 Equipo EMRA (${equipo.length})</div>
+          ${equipo.map(filaUsuario).join('')||'<div style="font-size:11px;color:var(--sbm)">Sin usuarios.</div>'}
+        </div>
+        <div class="a-box" style="margin-top:14px">
+          <div class="a-box-title">⛏ Cluster minero (${cluster.length})</div>
+          ${cluster.map(filaUsuario).join('')||'<div style="font-size:11px;color:var(--sbm)">Aún no hay cuentas del cluster. Créalas con el rol “Cluster minero”.</div>'}
+          <div style="font-size:10px;color:var(--sbm);margin-top:6px">Un cambio de rol se aplica la próxima vez que la persona entre (o en máx. 1 hora).</div>
+        </div>
       </div>
     </div>
     <div class="a-box" style="margin-top:14px">
@@ -4044,12 +4101,35 @@ async function crearUsuario(){
   const email=(document.getElementById('nu-email')?.value||'').trim();
   const password=document.getElementById('nu-pwd')?.value||'';
   const rol=document.getElementById('nu-rol')?.value||'editor';
+  const org=(document.getElementById('nu-org')?.value||'').trim();
   if(!nombre||!email||password.length<8){showAdminToast('⚠ Completa nombre, email y contraseña de 8+ caracteres',true);return}
-  try{ await workerAdmin('POST',{email,password,nombre,rol});showAdminToast('✓ Usuario creado');renderAdminSeg(); }
-  catch(e){showAdminToast('⚠ '+e.message,true)}
+  if(rol==='cluster'&&!org){showAdminToast('⚠ Indica la organización',true);return}
+  try{
+    // El worker solo conoce admin/editor: se crea como editor y, si es del
+    // cluster, se cambia el rol al instante. Si eso falla, se borra la cuenta
+    // para no dejar un editor por error.
+    const r=await workerAdmin('POST',{email,password,nombre,rol:rol==='admin'?'admin':'editor'});
+    if(rol==='cluster'){
+      try{ await sbRpc('admin_set_rol',{uid:r.id,nuevo_rol:'cluster',org}); }
+      catch(e){ try{ await workerAdmin('DELETE',{id:r.id}); }catch(_){}
+        throw new Error('No se pudo asignar el rol cluster ('+e.message+'). La cuenta no se creó.'); }
+    }
+    showAdminToast('✓ Usuario creado');renderAdminSeg();
+  }catch(e){showAdminToast('⚠ '+e.message,true)}
 }
 async function cambiarRolUsuario(id,rol){
-  try{ await workerAdmin('PATCH',{id,rol});showAdminToast('✓ Rol actualizado');renderAdminSeg(); }
+  const u=SEG_USERS.find(x=>x.id===id);
+  let org=null;
+  if(rol==='cluster'&&!(u&&u.organizacion)){ org=prompt('Organización de esta persona:','Cluster Minero'); if(org===null){renderAdminSeg();return} }
+  if(u&&u.rol==='cluster'&&rol!=='cluster'&&!confirm(`¿Dar rol ${ROL_INFO[rol].label} a ${u.email}? Podrá editar el portal.`)){renderAdminSeg();return}
+  try{ await sbRpc('admin_set_rol',{uid:id,nuevo_rol:rol,org});showAdminToast('✓ Rol actualizado');renderAdminSeg(); }
+  catch(e){showAdminToast('⚠ '+e.message,true);renderAdminSeg()}
+}
+async function cambiarOrgUsuario(id){
+  const u=SEG_USERS.find(x=>x.id===id); if(!u) return;
+  const org=prompt('Organización de '+u.email+':',u.organizacion||'Cluster Minero');
+  if(org===null) return;
+  try{ await sbRpc('admin_set_rol',{uid:id,nuevo_rol:u.rol,org});showAdminToast('✓ Organización actualizada');renderAdminSeg(); }
   catch(e){showAdminToast('⚠ '+e.message,true)}
 }
 async function resetPwdUsuario(id,email){
