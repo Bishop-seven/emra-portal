@@ -9,6 +9,10 @@
       "destination": "/recopilador.html"
     },
     {
+      "source": "/cluster",
+      "destination": "/cluster.html"
+    },
+    {
       "source": "/dato-o-mito",
       "destination": "/dato-o-mito.html"
     },
