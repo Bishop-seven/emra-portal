@@ -151,6 +151,33 @@ button.link{border:0}
 .exp-pie a:hover{text-decoration:underline}
 .leaflet-tooltip.tt{font-family:'Figtree',sans-serif;font-size:13px;font-weight:700;color:var(--tx);border-radius:4px}
 
+/* ── cartera de corto plazo ── */
+.cp-sel{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--mut)}
+.cp-sel select{border:1.5px solid var(--bd);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;color:var(--tx);background:#fff}
+.tw{overflow-x:auto;border:1.5px solid var(--bd);border-radius:6px}
+.tb{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}
+.tb th{position:sticky;top:0;background:var(--card);text-align:left;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:10px 12px;border-bottom:1.5px solid var(--bd);white-space:nowrap}
+.tb td{padding:9px 12px;border-bottom:1px solid #f0e8e1;vertical-align:top}
+.tb tr.sec td{background:#fbf8f5;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx);border-left:5px solid var(--oe2);padding-top:12px}
+.tb tr.sec td i{font-style:normal;font-weight:600;color:var(--mut);letter-spacing:0;text-transform:none;margin-left:6px}
+.tb .idc{font-weight:800;color:var(--oe2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tb .n{color:var(--mut);font-variant-numeric:tabular-nums}
+.tb td[data-l]{white-space:nowrap}
+.tb .pj{font-weight:700}.tb .pj small{display:block;font-weight:500;color:var(--mut);font-size:12.5px;margin-top:2px}
+.disp{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.04em;color:#2e6b1d;background:#e8f3e2;border:1px solid #cfe5c4;border-radius:3px;padding:2px 7px;white-space:nowrap}
+.cp-nota{margin-top:14px;background:var(--card);border-left:5px solid var(--oe2);border-radius:4px;padding:14px 16px;font-size:15px}
+.cp-nota a{color:var(--cu2);font-weight:700}
+@media (max-width:700px){
+  .tb thead{display:none}
+  .tb,.tb tbody,.tb tr,.tb td{display:block;width:100%}
+  .tb tr:not(.sec){padding:10px 12px;border-bottom:1px solid #f0e8e1;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+  .tb tr:not(.sec) td{border:0;padding:0}
+  .tb td.n{display:none}
+  .tb td.pj{grid-column:1/-1;order:-1}
+  .tb td[data-l]:before{content:attr(data-l)": ";color:var(--mut);font-weight:600;font-size:12.5px}
+  .tb td[data-l]{grid-column:1/-1;font-size:13.5px;white-space:normal}
+  .tb td.idc{grid-column:1/-1;order:-2}
+}
 @media (max-width:860px){
   .mv{grid-template-columns:minmax(0,1fr)}
   #map{height:360px}
@@ -211,6 +238,33 @@ button.link{border:0}
     <div class="grid" id="grid" hidden></div>
     <div class="exp-pie"><a href="https://portal.emra.cl/" target="_top">Ver el detalle completo en el Portal EMRA →</a></div>
   </section>
+
+  <!-- cartera de corto plazo: se abre con el botón del video 2 -->
+  <section class="exp" id="cp" hidden aria-labelledby="cp-t">
+    <div class="exp-h">
+      <div>
+        <div class="kick" style="--c:var(--oe2)">Corto plazo · OE1 Calidad de vida</div>
+        <h3 id="cp-t">Alianza estratégica de corto plazo OE1</h3>
+        <p>Cartera de proyectos de salud, agua potable y educación que el Gobierno Regional impulsa junto a empresas mineras y otras instituciones. Los marcados como <span class="disp">Disponible</span> aún no tienen una institución a cargo del diseño.</p>
+      </div>
+      <button class="x" id="cp-x" aria-label="Cerrar la cartera de proyectos">×</button>
+    </div>
+    <div class="fil">
+      <div class="frow" role="group" aria-label="Filtrar por sector"><span class="flab">Sector</span><span id="cp-f" style="display:contents"></span></div>
+    </div>
+    <div class="bar">
+      <div class="bar-l">
+        <input class="q" id="cp-q" type="search" placeholder="Buscar: ID, localidad, empresa…" aria-label="Buscar en la cartera de proyectos"/>
+        <label class="cp-sel">Comuna <select id="cp-c"></select></label>
+        <span class="cnt" id="cp-n" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="tw"><table class="tb">
+      <thead><tr><th>N°</th><th>ID EMRA</th><th>Proyecto</th><th>Localidad</th><th>Comuna</th><th>Encargado del diseño</th></tr></thead>
+      <tbody id="cp-tb"></tbody>
+    </table></div>
+    <p class="cp-nota">Para consultar el avance de cada proyecto, revisa su <b>ID EMRA</b> en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
+  </section>
 </div>
 
 <script>
@@ -228,7 +282,7 @@ const VIDEOS=[
    titulo:'Corto plazo: respuestas a necesidades urgentes OE1',
    texto:'Vecinos, autoridades y empresas cuentan cómo la EMRA busca responder a desafíos históricos de la región como la salud, la educación y el agua, con una alianza público-privada que acorta los tiempos: proyectos que antes tardaban más de una década en diseñarse ahora pueden diseñarse entre 7 a 18 meses según tipología.',
    lista:[['Proyecto piloto: cuatro postas rurales impulsadas junto a SQM Litio'],['Necesidades levantadas por las propias comunidades, como en Toconao: salud, jardín infantil y agua potable'],['Empresas mineras que aportan más que recursos: ayudan a diseñar e implementar los proyectos']],
-   cta:['Ver avance de las iniciativas de corto plazo OE1','']},  // sin vínculo por ahora (pedido 14-oct)
+   cta:['Alianza estratégica de corto plazo OE1','#cortoplazo']},  // abre la cartera de proyectos aquí mismo (pedido 7-nov, doc «Texto explicativa Corto Plazo 071126»)
   {yt:'gZgGWvyC0Ls',img:'https://www.emra.cl/web/wp-content/uploads/2026/09/meniplazo.jpg',color:'var(--oe3)',
    tab:'Mediano plazo',dur:'11 min',
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
@@ -310,7 +364,7 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      ${v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
+      ${v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{
@@ -318,6 +372,7 @@ function ir(i,foco){
     $('#vid').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.yt}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.titulo)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   };
   const ab=$('#abrir-ini');if(ab)ab.onclick=abrirExplorador;
+  const ac=$('#abrir-cp');if(ac)ac.onclick=abrirCartera;
 }
 ir(0);
 
@@ -342,6 +397,7 @@ function cargarLeaflet(){
 }
 function abrirExplorador(){
   const ex=$('#exp');
+  $('#cp').hidden=true;
   if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();cargarVivo();}
   irA(ex);
 }
@@ -486,8 +542,93 @@ function encuadrar(){
   const ll=Object.values(marcas).map(m=>m.getLatLng());
   if(ll.length)mapa.fitBounds(L.latLngBounds(ll).pad(.15),{maxZoom:13});
 }
-// enlace directo: videos-home.html#iniciativas abre el video 3 con el explorador
+// ══ CARTERA DE CORTO PLAZO (video 2) ══
+// Transcrita de la tabla del documento «Texto explicativa Corto Plazo (071126)» (hoja pág. Web 071126); verificada contra la imagen de la tabla el 9-nov.
+// [n°, ID EMRA, sector, tipología/proyecto, localidad, comuna, encargado del diseño]  · 'DISPONIBLE' = sin encargado aún
+const SPA='San Pedro de Atacama';
+const CARTERA=[
+  [1,'471','Salud','Posta','Socaire',SPA,'NOVANDINO'],
+  [2,'472','Salud','Posta','Camar',SPA,'NOVANDINO'],
+  [3,'470','Salud','Posta','Talabre',SPA,'NOVANDINO'],
+  [4,'473','Salud','Posta','Río Grande',SPA,'NOVANDINO'],
+  [5,'465','Salud','Posta','Caspana','Calama','GORE'],
+  [6,'466','Salud','Posta','Ayquina','Calama','GORE'],
+  [7,'555','Salud','Posta','Baquedano','Sierra Gorda','AMSA'],
+  [8,'467','Salud','Posta','Chiu-Chiu','Calama','EL ABRA'],
+  [9,'468','Salud','Posta','Ollagüe','Ollagüe','EL ABRA'],
+  [10,'469','Salud','Posta','Quillagua','María Elena','EL ABRA'],
+  [11,'474','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
+  [12,'475','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
+  [13,'723','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
+  [14,'724','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
+  [15,'725','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
+  [16,'726','Salud','CESFAM','María Elena','María Elena','GORE'],
+  [17,'478','Salud','CESFAM','Sierra Gorda','Sierra Gorda','BHP SPENCE'],
+  [18,'479','Salud','Hospital (prefactibilidad)',SPA,SPA,'CODELCO'],
+  [19,'487/524','Agua','Normalización red de alcantarillado y APR','Toconao',SPA,'GORE-UCN'],
+  [20,'488/493','Agua','Normalización red de alcantarillado y APR','Socaire',SPA,'GORE-UCN'],
+  [21,'492','Agua','Construcción red de alcantarillado y PTAS','Paposo','Taltal','DISPONIBLE'],
+  [22,'491','Agua','Mejoramiento sistema de APR','Quillagua','María Elena','CODELCO'],
+  [23,'712','Agua','Mejoramiento de redes de agua potable, Ayllú de Solor','Ayllú de Solor',SPA,'DISPONIBLE'],
+  [24,'713','Agua','Mejoramiento de planta de tratamiento de aguas servidas','Toconao',SPA,'GORE-UCN'],
+  [25,'714','Agua','Mejoramiento de planta de tratamiento de aguas servidas','Socaire',SPA,'GORE'],
+  [26,'715','Agua','Normalización PTAS (planta de tratamiento de aguas servidas) San Pedro de Atacama',SPA,SPA,'CODELCO'],
+  [27,'497/527','Agua','Normalización sistema de APR y alcantarillado','Ayquina y Turi','Calama','CODELCO'],
+  [28,'457','Agua','Normalización PTAS, Peine','Peine',SPA,'AMSA'],
+  [29,'496','Agua','Factibilidad y diseño APR y alcantarillado','Lasana','Calama','CODELCO'],
+  [30,'499','Agua','Factibilidad y diseño alcantarillado','Chiu-Chiu','Calama','CODELCO'],
+  [31,'495','Agua','Factibilidad y diseño APR y alcantarillado','Caspana','Calama','CODELCO'],
+  [32,'716','Educación','Jardín Infantil Prat · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
+  [33,'717','Educación','Jardín Infantil Azufre · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
+  [34,'718','Educación','Jardín Infantil 03 · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
+  [35,'719','Educación','Jardín Infantil 04 · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
+  [36,'482','Educación','Jardín Río Loa · diseño y ejecución, operador JUNJI','Calama','Calama','MINERA SIERRA GORDA'],
+  [37,'486','Educación','Jardín Infantil Pauna · diseño y ejecución, operador INTEGRA',SPA,SPA,'NOVANDINO'],
+  [38,'720','Educación','Jardín Infantil 02 · diseño y ejecución, operador INTEGRA','María Elena','María Elena','SQM YODO / GORE'],
+  [39,'721','Educación','Jardín Infantil Pequeño Navegante · diseño y ejecución, operador INTEGRA','Antofagasta','Antofagasta','GORE'],
+  [40,'625','Educación','Jardín Infantil 04 · diseño y ejecución, operador INTEGRA','Taltal','Taltal','DISPONIBLE'],
+  [41,'553','Educación','Jardín Infantil 05 · diseño y ejecución, operador INTEGRA','Calama','Calama','DISPONIBLE'],
+  [42,'727','Educación','Jardín Infantil Capullito · ejecución, operador JUNJI','Antofagasta','Antofagasta','GORE'],
+  [43,'728','Educación','Jardín Infantil La Chimba · ejecución, operador JUNJI','Antofagasta','Antofagasta','GORE'],
+  [44,'626','Educación','Escuela multigrado · a definir','Talabre',SPA,'DISPONIBLE'],
+  [45,'627','Educación','Escuela multigrado · a definir','Socaire',SPA,'DISPONIBLE'],
+  [46,'628','Educación','Escuela multigrado · a definir','Toconce',SPA,'DISPONIBLE']
+].map(([n,id,s,p,loc,com,enc])=>({n,id,s,p,loc,com,enc}));
+const SECTORES=[['Salud','Salud'],['Agua','Agua potable y alcantarillado'],['Educación','Educación']];
+const CP={s:'',c:'',q:''};
+function abrirCartera(){
+  const cp=$('#cp');$('#exp').hidden=true;
+  if(cp.hidden){
+    cp.hidden=false;
+    const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
+    $('#cp-c').innerHTML=`<option value="">Todas</option>`+comunas.map(c=>`<option>${esc(c)}</option>`).join('');
+    pintarCartera();
+  }
+  irA(cp);
+}
+$('#cp-x').onclick=()=>{$('#cp').hidden=true;irA($('#tabs'));const ac=$('#abrir-cp');if(ac)ac.focus();};
+$('#cp-q').oninput=e=>{CP.q=norm(e.target.value.trim());pintarCartera();};
+$('#cp-c').onchange=e=>{CP.c=e.target.value;pintarCartera();};
+function pintarCartera(){
+  const nS=s=>CARTERA.filter(x=>x.s===s).length;
+  $('#cp-f').innerHTML=[['','Todos',CARTERA.length],...SECTORES.map(([k,t])=>[k,t,nS(k)])]
+    .map(([v,t,n])=>`<button class="chip" data-s="${v}" style="--c:var(--oe2)" aria-pressed="${CP.s===v}">${esc(t)} <i>${n}</i></button>`).join('');
+  document.querySelectorAll('#cp-f .chip').forEach(b=>b.onclick=()=>{CP.s=b.dataset.s;pintarCartera();});
+  const L=CARTERA.filter(x=>(!CP.s||x.s===CP.s)&&(!CP.c||x.com===CP.c)&&(!CP.q||norm([x.id,x.p,x.loc,x.com,x.enc,x.s].join(' ')).includes(CP.q)));
+  $('#cp-n').innerHTML=`<b>${L.length}</b> de ${CARTERA.length} proyectos`;
+  if(!L.length){$('#cp-tb').innerHTML=`<tr><td colspan="6" class="vacio">No hay proyectos con esos filtros.</td></tr>`;return;}
+  $('#cp-tb').innerHTML=SECTORES.map(([k,t])=>{
+    const g=L.filter(x=>x.s===k);if(!g.length)return '';
+    return `<tr class="sec"><td colspan="6">${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i></td></tr>`+g.map(x=>`<tr>
+      <td class="n">${x.n}</td><td class="idc">ID ${esc(x.id)}</td>
+      <td class="pj">${esc(x.p)}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
+      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`).join('');
+  }).join('');
+}
+
+// enlaces directos: #iniciativas abre el video 3 con el explorador; #cortoplazo el video 2 con la cartera
 if(location.hash==='#iniciativas'){ir(2);abrirExplorador();}
+if(location.hash==='#cortoplazo'){ir(1);abrirCartera();}
 
 // ── iframe: avisar alto al sitio padre ──
 if(parent!==window){
