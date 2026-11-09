@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="emra-conocimiento.js"></script>
 <style>
 :root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;
   --oe1:#FAA900;--oe2:#70AD57;--oe3:#FF5812;--oe4:#0090D4;--oe5:#00BCB6}
@@ -151,6 +152,36 @@ button.link{border:0}
 .exp-pie a:hover{text-decoration:underline}
 .leaflet-tooltip.tt{font-family:'Figtree',sans-serif;font-size:13px;font-weight:700;color:var(--tx);border-radius:4px}
 
+/* ── los 5 objetivos ── */
+.oe-w{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:16px;margin-top:16px}
+.oe-tabs{display:grid;gap:8px;align-content:start}
+.oe-t{display:flex;gap:12px;align-items:center;text-align:left;background:#fff;border:1.5px solid var(--bd);border-left:6px solid var(--c);border-radius:6px;padding:11px 12px;color:var(--tx);transition:.15s}
+.oe-t:hover{border-color:var(--c)}
+.oe-t b{flex-shrink:0;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-size:14px;font-weight:800}
+.oe-t span{font-weight:700;font-size:14.5px;line-height:1.25}
+.oe-t[aria-selected="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.oe-t[aria-selected="true"] b{background:#fff;color:var(--c)}
+.oe-d{background:var(--card);border-radius:6px;border-top:8px solid var(--c);padding:22px 24px 24px;animation:fade .35s ease both}
+.oe-d .kick{color:var(--c)}
+.oe-d h4{font-size:clamp(19px,2vw,23px);font-weight:800;line-height:1.25;margin:6px 0 12px}
+.oe-d .obj{font-size:16px;line-height:1.55}
+.oe-d h5{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:18px 0 8px}
+.oe-d ul{margin-top:0}
+.oe-d li{font-size:15px}
+.oe-acc{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.oe-acc .link{margin-top:0}
+.oe-pie{margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;font-size:14.5px;color:var(--mut)}
+.oe-pie a{color:var(--cu2);font-weight:700;text-decoration:none}.oe-pie a:hover{text-decoration:underline}
+@media (max-width:860px){
+  .oe-w{grid-template-columns:minmax(0,1fr)}
+  .oe-tabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .oe-t{flex-direction:column;justify-content:center;gap:0;padding:8px 4px;border-left-width:1.5px;border-bottom:5px solid var(--c)}
+  .oe-t span{display:none}
+  .oe-t b{width:auto;height:auto;background:none;color:var(--c);font-size:15px}
+  .oe-t[aria-selected="true"] b{background:none;color:#fff}
+  .oe-d{padding:18px 16px 20px}
+}
+
 /* ── cartera de corto plazo ── */
 .cp-sel{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--mut)}
 .cp-sel select{border:1.5px solid var(--bd);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;color:var(--tx);background:#fff}
@@ -239,6 +270,26 @@ button.link{border:0}
     <div class="exp-pie"><a href="https://portal.emra.cl/" target="_top">Ver el detalle completo en el Portal EMRA →</a></div>
   </section>
 
+  <!-- los 5 objetivos: se abre con el botón del video 1 -->
+  <section class="exp" id="oe" hidden aria-labelledby="oe-tt">
+    <div class="exp-h">
+      <div>
+        <div class="kick" style="--c:var(--oe4)">Pilares de la EMRA 2023-2050</div>
+        <h3 id="oe-tt">Objetivos Estratégicos de la EMRA 2023-2050</h3>
+        <p>La Estrategia Minera para el Bienestar de la Región de Antofagasta (EMRA 2023-2050) se basa en cinco objetivos estratégicos que guían su accionar hacia una minería sostenible, inclusiva y que beneficie a toda la comunidad. Estos objetivos, representados por cinco colores distintivos, son los pilares que sostienen la visión de un futuro mejor para la región.</p>
+      </div>
+      <button class="x" id="oe-x" aria-label="Cerrar los objetivos estratégicos">×</button>
+    </div>
+    <div class="oe-w">
+      <div class="oe-tabs" role="tablist" aria-label="Objetivos estratégicos" id="oe-tabs"></div>
+      <div id="oe-d" role="tabpanel"></div>
+    </div>
+    <div class="oe-pie">
+      <span>Descarga el documento completo y sé parte de este importante plan para el bienestar de todos.</span>
+      <a href="https://www.emra.cl/web/wp-content/uploads/2025/04/documento-EMRA-v3.pdf" target="_blank" rel="noopener">Descargar documento →</a>
+    </div>
+  </section>
+
   <!-- cartera de corto plazo: se abre con el botón del video 2 -->
   <section class="exp" id="cp" hidden aria-labelledby="cp-t">
     <div class="exp-h">
@@ -276,7 +327,7 @@ const VIDEOS=[
    titulo:'¿Qué es la EMRA 2023–2050?',
    texto:'Es el instrumento de planificación del Gobierno Regional de Antofagasta para transformar la minería en un motor de progreso integral. Fue aprobada por el Consejo Regional en marzo de 2024, se basa en recomendaciones de la OCDE y reunió por primera vez a la sociedad civil, la gran minería, la academia y el sector público.',
    lista:[['5 objetivos estratégicos: Mejorar la calidad de vida, Minería sustentable, Fortalecer las empresas regionales, Mejorar la institucionalidad pública y Reforzar el ecosistema del conocimiento'],['19 acuerdos transversales en lo ambiental, social, económico e institucional, que se evalúan cada año'],['Una gobernanza de diálogo permanente, constituida el 22 de marzo de 2024']],
-   cta:['Conoce los 5 objetivos','https://www.emra.cl/objetivos-estrategicos/']},
+   cta:['Conoce los 5 objetivos','#objetivos']},  // abre los 5 OE aquí mismo (textos literales de emra.cl/objetivos-estrategicos, 9-nov)
   {yt:'cVl2reybEOQ',img:'video-cortoplazo-oe1.jpg',color:'var(--oe2)',
    tab:'Corto plazo',dur:'6 min',
    titulo:'Corto plazo: respuestas a necesidades urgentes OE1',
@@ -364,7 +415,7 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      ${v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
+      ${v.cta[1]==='#objetivos'?`<button class="link" id="abrir-oe" aria-controls="oe">${esc(v.cta[0])} →</button>`:v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{
@@ -373,6 +424,7 @@ function ir(i,foco){
   };
   const ab=$('#abrir-ini');if(ab)ab.onclick=abrirExplorador;
   const ac=$('#abrir-cp');if(ac)ac.onclick=abrirCartera;
+  const ao=$('#abrir-oe');if(ao)ao.onclick=()=>abrirObjetivos();
 }
 ir(0);
 
@@ -397,7 +449,7 @@ function cargarLeaflet(){
 }
 function abrirExplorador(){
   const ex=$('#exp');
-  $('#cp').hidden=true;
+  $('#cp').hidden=true;$('#oe').hidden=true;
   if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();cargarVivo();}
   irA(ex);
 }
@@ -543,61 +595,12 @@ function encuadrar(){
   if(ll.length)mapa.fitBounds(L.latLngBounds(ll).pad(.15),{maxZoom:13});
 }
 // ══ CARTERA DE CORTO PLAZO (video 2) ══
-// Transcrita de la tabla del documento «Texto explicativa Corto Plazo (071126)» (hoja pág. Web 071126); verificada contra la imagen de la tabla el 9-nov.
-// [n°, ID EMRA, sector, tipología/proyecto, localidad, comuna, encargado del diseño]  · 'DISPONIBLE' = sin encargado aún
-const SPA='San Pedro de Atacama';
-const CARTERA=[
-  [1,'471','Salud','Posta','Socaire',SPA,'NOVANDINO'],
-  [2,'472','Salud','Posta','Camar',SPA,'NOVANDINO'],
-  [3,'470','Salud','Posta','Talabre',SPA,'NOVANDINO'],
-  [4,'473','Salud','Posta','Río Grande',SPA,'NOVANDINO'],
-  [5,'465','Salud','Posta','Caspana','Calama','GORE'],
-  [6,'466','Salud','Posta','Ayquina','Calama','GORE'],
-  [7,'555','Salud','Posta','Baquedano','Sierra Gorda','AMSA'],
-  [8,'467','Salud','Posta','Chiu-Chiu','Calama','EL ABRA'],
-  [9,'468','Salud','Posta','Ollagüe','Ollagüe','EL ABRA'],
-  [10,'469','Salud','Posta','Quillagua','María Elena','EL ABRA'],
-  [11,'474','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
-  [12,'475','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
-  [13,'723','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
-  [14,'724','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
-  [15,'725','Salud','CESFAM','Antofagasta','Antofagasta','GORE'],
-  [16,'726','Salud','CESFAM','María Elena','María Elena','GORE'],
-  [17,'478','Salud','CESFAM','Sierra Gorda','Sierra Gorda','BHP SPENCE'],
-  [18,'479','Salud','Hospital (prefactibilidad)',SPA,SPA,'CODELCO'],
-  [19,'487/524','Agua','Normalización red de alcantarillado y APR','Toconao',SPA,'GORE-UCN'],
-  [20,'488/493','Agua','Normalización red de alcantarillado y APR','Socaire',SPA,'GORE-UCN'],
-  [21,'492','Agua','Construcción red de alcantarillado y PTAS','Paposo','Taltal','DISPONIBLE'],
-  [22,'491','Agua','Mejoramiento sistema de APR','Quillagua','María Elena','CODELCO'],
-  [23,'712','Agua','Mejoramiento de redes de agua potable, Ayllú de Solor','Ayllú de Solor',SPA,'DISPONIBLE'],
-  [24,'713','Agua','Mejoramiento de planta de tratamiento de aguas servidas','Toconao',SPA,'GORE-UCN'],
-  [25,'714','Agua','Mejoramiento de planta de tratamiento de aguas servidas','Socaire',SPA,'GORE'],
-  [26,'715','Agua','Normalización PTAS (planta de tratamiento de aguas servidas) San Pedro de Atacama',SPA,SPA,'CODELCO'],
-  [27,'497/527','Agua','Normalización sistema de APR y alcantarillado','Ayquina y Turi','Calama','CODELCO'],
-  [28,'457','Agua','Normalización PTAS, Peine','Peine',SPA,'AMSA'],
-  [29,'496','Agua','Factibilidad y diseño APR y alcantarillado','Lasana','Calama','CODELCO'],
-  [30,'499','Agua','Factibilidad y diseño alcantarillado','Chiu-Chiu','Calama','CODELCO'],
-  [31,'495','Agua','Factibilidad y diseño APR y alcantarillado','Caspana','Calama','CODELCO'],
-  [32,'716','Educación','Jardín Infantil Prat · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
-  [33,'717','Educación','Jardín Infantil Azufre · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
-  [34,'718','Educación','Jardín Infantil 03 · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
-  [35,'719','Educación','Jardín Infantil 04 · diseño y ejecución, operador JUNJI','Antofagasta','Antofagasta','BHP'],
-  [36,'482','Educación','Jardín Río Loa · diseño y ejecución, operador JUNJI','Calama','Calama','MINERA SIERRA GORDA'],
-  [37,'486','Educación','Jardín Infantil Pauna · diseño y ejecución, operador INTEGRA',SPA,SPA,'NOVANDINO'],
-  [38,'720','Educación','Jardín Infantil 02 · diseño y ejecución, operador INTEGRA','María Elena','María Elena','SQM YODO / GORE'],
-  [39,'721','Educación','Jardín Infantil Pequeño Navegante · diseño y ejecución, operador INTEGRA','Antofagasta','Antofagasta','GORE'],
-  [40,'625','Educación','Jardín Infantil 04 · diseño y ejecución, operador INTEGRA','Taltal','Taltal','DISPONIBLE'],
-  [41,'553','Educación','Jardín Infantil 05 · diseño y ejecución, operador INTEGRA','Calama','Calama','DISPONIBLE'],
-  [42,'727','Educación','Jardín Infantil Capullito · ejecución, operador JUNJI','Antofagasta','Antofagasta','GORE'],
-  [43,'728','Educación','Jardín Infantil La Chimba · ejecución, operador JUNJI','Antofagasta','Antofagasta','GORE'],
-  [44,'626','Educación','Escuela multigrado · a definir','Talabre',SPA,'DISPONIBLE'],
-  [45,'627','Educación','Escuela multigrado · a definir','Socaire',SPA,'DISPONIBLE'],
-  [46,'628','Educación','Escuela multigrado · a definir','Toconce',SPA,'DISPONIBLE']
-].map(([n,id,s,p,loc,com,enc])=>({n,id,s,p,loc,com,enc}));
+// Datos en emra-conocimiento.js (fuente única, también la usa Gorito).
+const CARTERA=window.EMRA_CARTERA_CP||[];
 const SECTORES=[['Salud','Salud'],['Agua','Agua potable y alcantarillado'],['Educación','Educación']];
 const CP={s:'',c:'',q:''};
 function abrirCartera(){
-  const cp=$('#cp');$('#exp').hidden=true;
+  const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;
   if(cp.hidden){
     cp.hidden=false;
     const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
@@ -626,7 +629,66 @@ function pintarCartera(){
   }).join('');
 }
 
-// enlaces directos: #iniciativas abre el video 3 con el explorador; #cortoplazo el video 2 con la cartera
+// ══ LOS 5 OBJETIVOS ESTRATÉGICOS (video 1) ══
+// Textos LITERALES de https://www.emra.cl/objetivos-estrategicos/ (copiados el 9-nov-2026). No resumir ni reescribir.
+const OBJETIVOS=[
+  {k:1,corto:'Mejorar la calidad de vida',url:'https://www.emra.cl/web/oe1-mejorar-la-calidad-de-vida/',
+   t:'OE1: Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',
+   obj:'Asegurar que la minería contribuya al desarrollo humano y social de la región, mejorando la calidad de vida de las comunidades y pueblos indígenas.',
+   imp:['Generar oportunidades de empleo de calidad.','Mejorar el acceso a servicios básicos como salud, educación y vivienda.','Fortalecer la infraestructura y el desarrollo urbano.','Promover la participación ciudadana en la toma de decisiones.','Proteger el patrimonio cultural de la región.']},
+  {k:2,corto:'Minería sustentable',url:'https://www.emra.cl/web/oe2-mineria-sustentable/',
+   t:'OE2: Minería sustentable, que contemple la rehabilitación y preservación del patrimonio natural y cultural.',
+   obj:'Promover una minería que minimice su impacto ambiental y contribuya a la protección del medio ambiente.',
+   imp:['Reducir el consumo de agua, especialmente agua continental.','Promover el uso de energías renovables en la industria minera.','Gestionar los residuos de manera responsable, promoviendo el reciclaje y la reutilización.','Proteger la biodiversidad de la región.','Rehabilitar las áreas impactadas por la actividad minera.']},
+  {k:3,corto:'Fortalecer las empresas regionales',url:'https://www.emra.cl/web/oe3-fortalecer-las-empresas-regionales/',
+   t:'OE3: Incentivar la creación y fortalecer las empresas regionales para aumentar su participación en la cadena de valor de la minería, con una perspectiva descentralizada.',
+   obj:'Aumentar la participación y competitividad de las empresas locales en la cadena de valor de la minería, diversificando la economía regional y generando mayor valor agregado.',
+   imp:['Incrementar el encadenamiento productivo local con la gran minería.','Fomentar la innovación y la adopción de nuevas tecnologías en las PYMES regionales.','Mejorar el acceso a financiamiento y capacitación para empresas locales.','Crear nuevas oportunidades de negocio y diversificación económica.','Promover el desarrollo de proveedores y servicios especializados desde la región.']},
+  {k:4,corto:'Mejorar la institucionalidad pública',url:'https://www.emra.cl/web/oe4-mejorar-la-institucionalidad-publica/',
+   t:'OE4: Mejorar la institucionalidad pública y la gobernanza para un sector minero más competitivo y sostenible.',
+   obj:'Fortalecer el marco institucional y la capacidad de gestión pública y multisectorial para una gobernanza minera más eficiente, transparente y participativa.',
+   imp:['Fomentar la coordinación y articulación entre los distintos actores públicos y privados.','Promover la transparencia y el acceso a la información en la gestión minera.','Fortalecer las capacidades de los organismos públicos en fiscalización y regulación.','Establecer mecanismos claros de rendición de cuentas y evaluación de la estrategia.','Impulsar marcos regulatorios que incentiven la sostenibilidad y la innovación.']},
+  {k:5,corto:'Reforzar el ecosistema del conocimiento',url:'https://www.emra.cl/web/oe5_reforzar_ecosistema_del_conocimiento/',
+   t:'OE5: Reforzar el ecosistema del conocimiento. y la innovación en la cadena del valor minero.',
+   obj:'Potenciar la generación, difusión y aplicación de conocimiento científico y tecnológico para la minería y el desarrollo regional, impulsando la innovación y la competitividad.',
+   imp:['Fortalecer la investigación y el desarrollo en el sector minero.','Fortalecer la formación técnica y profesional en áreas relacionadas con la minería.','Promover la transferencia tecnológica entre la academia y la industria.','Fomentar la creación de empresas de base tecnológica.','Promover la colaboración entre universidades, centros de investigación y empresas mineras.']}
+];
+let oeSel=1;
+function abrirObjetivos(k){
+  const s=$('#oe');$('#exp').hidden=true;$('#cp').hidden=true;
+  if(k)oeSel=k;
+  s.hidden=false;pintarObjetivos();irA(s);
+}
+$('#oe-x').onclick=()=>{$('#oe').hidden=true;irA($('#tabs'));const a=$('#abrir-oe');if(a)a.focus();};
+function pintarObjetivos(foco){
+  $('#oe-tabs').innerHTML=OBJETIVOS.map(o=>`<button class="oe-t" role="tab" id="oe-t${o.k}" aria-controls="oe-d" aria-selected="${o.k===oeSel}" tabindex="${o.k===oeSel?0:-1}" style="--c:var(--oe${o.k})"><b>OE${o.k}</b><span>${esc(o.corto)}</span></button>`).join('');
+  document.querySelectorAll('.oe-t').forEach((b,i)=>{
+    b.onclick=()=>{oeSel=i+1;pintarObjetivos();};
+    b.onkeydown=e=>{const d={ArrowDown:1,ArrowRight:1,ArrowUp:-1,ArrowLeft:-1}[e.key];if(d){e.preventDefault();oeSel=(oeSel-1+d+5)%5+1;pintarObjetivos(true);}};
+  });
+  if(foco)$('#oe-t'+oeSel).focus();
+  const o=OBJETIVOS[oeSel-1], n=INICIATIVAS.filter(x=>x.oe===o.k).length;
+  $('#oe-d').setAttribute('aria-labelledby','oe-t'+o.k);
+  $('#oe-d').innerHTML=`<div class="oe-d" style="--c:var(--oe${o.k})">
+    <div class="kick">Objetivo estratégico ${o.k} de 5</div>
+    <h4>${esc(o.t)}</h4>
+    <p class="obj"><b>Objetivo:</b> ${esc(o.obj)}</p>
+    <h5>¿Qué implica?</h5>
+    <ul>${o.imp.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+    <div class="oe-acc">
+      ${n?`<button class="link" id="oe-ini">Ver ${n===1?'la iniciativa':'las '+n+' iniciativas'} de este objetivo →</button>`:''}
+      <a class="btn2" href="${o.url}" target="_top" style="text-decoration:none;display:inline-flex;align-items:center">Ver objetivo en emra.cl</a>
+    </div></div>`;
+  const bi=$('#oe-ini');
+  if(bi)bi.onclick=()=>{ // abre el explorador de mediano plazo filtrado por este OE
+    F.oe=o.k;F.c='';F.q='';F.sel=null;$('#q').value='';
+    if(!$('#exp').hidden){$('#exp').hidden=true;} // forzar repintado con el filtro
+    ir(2);abrirExplorador();
+  };
+}
+
+// enlaces directos: #objetivos abre el video 1 con los objetivos; #iniciativas el video 3 con el explorador; #cortoplazo el video 2 con la cartera
+if(location.hash==='#objetivos'){abrirObjetivos();}
 if(location.hash==='#iniciativas'){ir(2);abrirExplorador();}
 if(location.hash==='#cortoplazo'){ir(1);abrirCartera();}
 

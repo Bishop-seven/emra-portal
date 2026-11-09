@@ -53,6 +53,7 @@ header img{height:28px;object-fit:contain}
 </div>
 <div class="foot">Conoce el mapa completo de iniciativas en el <a id="portal-link" href="/" target="_blank">Portal EMRA →</a></div>
 
+<script src="emra-conocimiento.js"></script>
 <script>
 // ── Configuración (misma infraestructura del portal) ──
 const SB_URL='https://tjoveoqolrfxntvvdjwh.supabase.co';
@@ -102,10 +103,15 @@ function reglaConv(){
     : 'Ya estás en medio de la conversación: NO saludes ni te presentes de nuevo — responde directo.')
     +' No uses formato markdown; texto plano natural.';
 }
+// emra-conocimiento.js: cartera de corto plazo + marco del mediano plazo (fuente única con videos-home.html)
+const CONOC=()=>window.EMRA_CONOCIMIENTO||'';
 function armarPrompt(ctxJson){
   if(GCFG.usarExperto&&(GCFG.promptExperto||'').trim()){
     let p=GCFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
-    return (p.includes('{{EMRA}}')?p.replace('{{EMRA}}',EMRA_CTX):EMRA_CTX+'\n\n'+p)+'\n\n'+reglaConv();
+    p=p.includes('{{EMRA}}')?p.replace('{{EMRA}}',EMRA_CTX):EMRA_CTX+'\n\n'+p;
+    // conocimiento compartido (corto y mediano plazo): en su marcador o al final
+    p=p.includes('{{CONOCIMIENTO}}')?p.replace('{{CONOCIMIENTO}}',CONOC()):p+'\n\n'+CONOC();
+    return p+'\n\n'+reglaConv();
   }
   const partes=[GCFG.identidad||'Eres Gorito, asistente de la EMRA 2023-2050. Responde en español, breve, cercano y directo (máx ~120 palabras). No uses formato markdown.'];
   const si=lineas(GCFG.hacer); if(si.length)partes.push('DEBES:\n'+si.map(s=>'- '+s).join('\n'));
@@ -113,6 +119,7 @@ function armarPrompt(ctxJson){
   const avs=(GCFG.avisos||[]).filter(avisoVigente);
   if(avs.length)partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente):\n'+avs.map(a=>'- '+a.texto).join('\n'));
   partes.push(EMRA_CTX);
+  if(CONOC())partes.push(CONOC());
   partes.push(reglaConv());
   partes.push('Iniciativas:\n'+ctxJson);
   return partes.join('\n\n');

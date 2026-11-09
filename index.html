@@ -14,6 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="emra-conocimiento.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -4529,6 +4530,8 @@ function goritoSystemPrompt(ctxJson){
   if(GORITO_CFG.usarExperto && (GORITO_CFG.promptExperto||'').trim()){
     let p=GORITO_CFG.promptExperto.replace('{{INICIATIVAS}}',ctxJson);
     p = p.includes('{{EMRA}}') ? p.replace('{{EMRA}}',emraContextText()) : emraContextText()+'\n\n'+p;
+    const kc=window.EMRA_CONOCIMIENTO||''; // corto y mediano plazo (emra-conocimiento.js)
+    p = p.includes('{{CONOCIMIENTO}}') ? p.replace('{{CONOCIMIENTO}}',kc) : (kc? p+'\n\n'+kc : p);
     return p+'\n\n'+reglaConversacion();
   }
   const partes=[G('identidad')];
@@ -4539,6 +4542,7 @@ function goritoSystemPrompt(ctxJson){
   const avs=(G('avisos')||[]).filter(avisoVigente);
   if(avs.length) partes.push('AVISOS VIGENTES (menciónalos cuando sea pertinente a la conversación):\n'+avs.map(a=>'- '+a.texto).join('\n'));
   partes.push(emraContextText());
+  if(window.EMRA_CONOCIMIENTO) partes.push(window.EMRA_CONOCIMIENTO); // corto y mediano plazo (emra-conocimiento.js)
   if(window.CHAT_EXTRA_CTX) partes.push(window.CHAT_EXTRA_CTX);
   partes.push(reglaConversacion());
   partes.push('Si hay iniciativas relevantes en tu respuesta, termina con IDS:[id1,id2,...]');
