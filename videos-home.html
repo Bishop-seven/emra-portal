@@ -107,8 +107,44 @@ button.link{border:0}
 .dl dt{color:var(--mut);font-weight:600}
 .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--c);border-radius:3px;padding:2px 7px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.card{border:1.5px solid var(--bd);border-top:6px solid var(--c);border-radius:6px;background:#fff;padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
-.card p{font-size:14px;line-height:1.45;flex:1}
+.grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{border:1.5px solid var(--bd);border-radius:6px;background:#fff;overflow:hidden;position:relative;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:var(--c);box-shadow:0 4px 14px rgba(56,56,56,.08)}
+.cab{display:flex;flex-direction:column;width:100%;height:100%;background:none;border:0;text-align:left;color:var(--tx);padding:0}
+.ph{position:relative;aspect-ratio:16/9;background:#e9e4de;overflow:hidden;border-bottom:5px solid var(--c)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.card:hover .cab .ph img{transform:scale(1.04)}
+.cb{padding:11px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
+.ver{margin-top:auto;padding-top:6px;font-size:13px;font-weight:700;color:var(--cu2)}
+/* ficha abierta: ocupa todo el ancho */
+.card.open{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);border-color:var(--c);box-shadow:0 6px 22px rgba(56,56,56,.12);animation:fade .35s ease both}
+.card.open .ph{aspect-ratio:auto;min-height:100%;border-bottom:0;border-right:6px solid var(--c)}
+.card.open .ph-w{display:flex;flex-direction:column;background:#1c1c1c}
+.card.open .ph-w .ph{flex:1;min-height:320px}
+.gal{display:flex;gap:6px;padding:8px;overflow-x:auto;background:#1c1c1c}
+.gal button{flex-shrink:0;width:72px;height:48px;border:2px solid transparent;border-radius:3px;padding:0;overflow:hidden;background:#333;opacity:.7}
+.gal button img{width:100%;height:100%;object-fit:cover;display:block}
+.gal button[aria-pressed="true"]{border-color:#fff;opacity:1}
+.det{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px}
+.det h4{font-size:22px;font-weight:800;line-height:1.2}
+.det p{font-size:15px;line-height:1.55}
+.det .acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn2{border:1.5px solid var(--bd);background:#fff;color:var(--tx);border-radius:4px;padding:8px 14px;font-weight:700;font-size:13px}
+.btn2:hover{border-color:var(--cu);color:var(--cu2)}
+.card .x{position:absolute;top:10px;right:10px;z-index:2;background:rgba(255,255,255,.92)}
+.th{flex-shrink:0;width:56px;height:56px;border-radius:4px;overflow:hidden;background:#e9e4de}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.it-r{display:flex;gap:10px;align-items:flex-start}
+.it-r>div{min-width:0;flex:1}
+.it .foto{display:none;margin-top:8px;border-radius:4px;overflow:hidden;aspect-ratio:16/9;background:#e9e4de}
+.it.sel .foto{display:block}.it.sel .th{display:none}
+.it .foto img{width:100%;height:100%;object-fit:cover;display:block}
+@media (max-width:860px){
+  .card.open{grid-template-columns:minmax(0,1fr)}
+  .card.open .ph{border-right:0;border-bottom:5px solid var(--c)}
+  .card.open .ph-w .ph{min-height:0;aspect-ratio:16/9}
+  .det{padding:16px 16px 18px}
+}
 .vacio{padding:30px 10px;text-align:center;color:var(--mut);grid-column:1/-1}
 .exp-pie{margin-top:16px;display:flex;justify-content:flex-end}
 .exp-pie a{color:var(--cu2);font-weight:700;font-size:14px;text-decoration:none}
@@ -201,47 +237,48 @@ const VIDEOS=[
    cta:['Explora las 37 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
 ];
 
-// Las 37 iniciativas (copiadas del arreglo INI del Portal EMRA v2.5, 8-nov-2026).
+// Las 37 iniciativas: copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
+// Al abrir el explorador se recargan en vivo desde Supabase (fotos y textos editados en el admin del portal).
 // Todas son de mediano plazo (al 2035); aún no hay iniciativas de corto plazo en el mapa.
 // oe: número de objetivo · c: ciudad ("Regional" = abarca varias comunas) · lat/lng para el mapa.
 const INICIATIVAS=[
-  {"id": "r1", "n": "Declaración Área Metropolitana Antofagasta-Mejillones", "oe": 1, "c": "Antofagasta", "lat": -23.64, "lng": -70.39, "tipo": "Proyecto estructural", "resp": "SUBDERE · Gobernación Regional", "d": "Mecanismo administrativo que une Antofagasta y Mejillones para coordinar planificación, transporte y servicios. Beneficia a más de 400.000 habitantes del área metropolitana emergente."},
-  {"id": "r2", "n": "Tren interurbano Antofagasta-Mejillones", "oe": 1, "c": "Regional", "lat": -23.54, "lng": -70.38, "tipo": "Infraestructura de transporte", "resp": "MOP · MTT", "d": "Sistema ferroviario interurbano que conecta el área metropolitana. Alta velocidad, estaciones modernas, alternativa al transporte carretero."},
-  {"id": "r3", "n": "Ruta 5 Tramo Caldera–Antofagasta", "oe": 1, "c": "Regional", "lat": -23.8, "lng": -70.31, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "466 km de doble calzada a 120 km/h. Zonas de descanso, postes SOS, segregación de flujos y altos estándares de seguridad vial."},
-  {"id": "r4", "n": "Ruta 5 Tramo Antofagasta–Iquique", "oe": 1, "c": "Regional", "lat": -23.59, "lng": -70.25, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "Doble calzada con pasarelas peatonales, pasos desnivelados y velocidad de diseño 120 km/h con resistencia sísmica."},
-  {"id": "r5", "n": "Aeropuerto Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.45, "lng": -70.44, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Remodelación completa con nuevo puente de embarque, red eléctrica, hall de pasajeros y áreas comerciales renovadas."},
-  {"id": "r6", "n": "Aeropuerto Calama", "oe": 1, "c": "Calama", "lat": -22.5, "lng": -68.9, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Ampliación con nuevas dependencias SAR, cuartel SSEI, hall público de pasajeros y señalética actualizada."},
-  {"id": "r7", "n": "Mejoramiento Ruta B-39", "oe": 1, "c": "Regional", "lat": -23.66, "lng": -68.74, "tipo": "Vialidad regional", "resp": "MOP", "d": "Pavimentación de la Ruta B-39 que une Peine y Baquedano, mejorando significativamente el acceso al Salar de Atacama."},
-  {"id": "r8", "n": "Doble vía Ruta 24 Tocopilla-Calama", "oe": 1, "c": "Regional", "lat": -22.07, "lng": -70.19, "tipo": "Vialidad regional", "resp": "MOP · Municipios", "d": "Mejoramiento de la Ruta 24 con doble calzada y 120 km/h, estándar de concesiones, entre Tocopilla y Calama."},
-  {"id": "r9", "n": "Solución al Déficit Habitacional Regional", "oe": 1, "c": "Regional", "lat": -23.56, "lng": -70.37, "tipo": "Programa habitacional", "resp": "MINVU · Seremi", "d": "Plan de Emergencia Habitacional MINVU 2022-2025: meta de 17.400 soluciones habitacionales para la región."},
-  {"id": "r10", "n": "Electromovilidad Transporte Público", "oe": 1, "c": "Regional", "lat": -23.67, "lng": -70.41, "tipo": "Programa de movilidad", "resp": "MTT · Municipios", "d": "Transformación gradual de la flota de transporte público regional a buses eléctricos de última generación."},
-  {"id": "r11", "n": "Centro de Excelencia Oncológica", "oe": 1, "c": "Regional", "lat": -23.62, "lng": -70.38, "tipo": "Infraestructura de salud", "resp": "Minería · MINSAL · Sociedad civil", "d": "Centro oncológico acreditado internacionalmente en alianza público-privada-sociedad civil con convenios mineros y fondo ciudadano."},
-  {"id": "r12", "n": "Cobertura 100% Jardines Infantiles", "oe": 1, "c": "Regional", "lat": -23.64, "lng": -70.39, "tipo": "Programa educacional", "resp": "JUNJI · Municipios", "d": "Alcanzar cobertura del 100% en educación inicial para la Región de Antofagasta."},
-  {"id": "r13", "n": "Nueva Fundición Región Antofagasta", "oe": 2, "c": "Regional", "lat": -23.79, "lng": -70.31, "tipo": "Proyecto industrial", "resp": "CODELCO · GLENCORE", "d": "Fundición de cobre de alta tecnología con capacidad de 1,5 millones de toneladas métricas secas al año. Operación proyectada 2032-2033."},
-  {"id": "r14", "n": "Red de Zonas Industriales de Primer Nivel", "oe": 3, "c": "Regional", "lat": -23.77, "lng": -70.3, "tipo": "Desarrollo industrial", "resp": "GORE · Municipios · Privados", "d": "Consolidación de red regional de zonas industriales integradas a la cadena de valor minera en toda la región."},
-  {"id": "r15", "n": "Distrito Tecnológico Regional", "oe": 5, "c": "Regional", "lat": -23.45, "lng": -70.44, "tipo": "Ecosistema de innovación", "resp": "Minciencia · GORE", "d": "Centro Espacial, ITL e INLiSa integrados para diversificar la economía regional hacia alta tecnología."},
-  {"id": "a1", "n": "Tren urbano Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.7, "lng": -70.4, "tipo": "Transporte urbano", "resp": "MTT · Municipio Antofagasta", "d": "Sistema de tren urbano para reducir la congestión vehicular y ofrecer transporte masivo sostenible en Antofagasta."},
-  {"id": "a2", "n": "Conectividad Eje Central Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.61, "lng": -70.39, "tipo": "Vialidad estructural", "resp": "MOP · Municipio", "d": "Proyecto vial estructural para el eje central de Antofagasta, aliviando la congestión y mejorando la conectividad entre sectores."},
-  {"id": "a3", "n": "Red de Aguas Grises Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.56, "lng": -70.38, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Captación, tratamiento y reutilización de aguas grises domiciliarias contribuyendo al uso eficiente del agua en contexto desértico."},
-  {"id": "a4", "n": "Marina Pública Playa La Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.55, "lng": -70.4, "tipo": "Infraestructura costera", "resp": "MOP · Municipio", "d": "Marina pública y circuito ferry para potenciar el turismo costero, la conectividad marítima y el uso recreativo del borde mar."},
-  {"id": "a5", "n": "FUC Humedal de la Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.39, "tipo": "Recuperación ambiental", "resp": "Municipio · MMA", "d": "Formulación de uso de suelo condicionado en el humedal La Chimba para habilitar desarrollo turístico sustentable."},
-  {"id": "a6", "n": "FUC Estanques Codelco-Petrobras", "oe": 1, "c": "Antofagasta", "lat": -23.62, "lng": -70.4, "tipo": "Recuperación urbana", "resp": "Municipio · MINVU", "d": "Reconversión de predios industriales de Codelco y Petrobras en espacios públicos de calidad integrados a la trama urbana."},
-  {"id": "a7", "n": "FUC Sector Vertedero Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.38, "tipo": "Recuperación ambiental", "resp": "Municipio · MINVU", "d": "Planificación del uso futuro del vertedero de Antofagasta orientado a recuperación ambiental y espacio urbano público."},
-  {"id": "a8", "n": "Recuperación Edificio Balneario Puntilla", "oe": 1, "c": "Antofagasta", "lat": -23.68, "lng": -70.41, "tipo": "Patrimonio y espacio público", "resp": "Municipio · Consejo de Monumentos", "d": "Recuperación del histórico Edificio Balneario y su entorno en La Puntilla como espacio público emblemático."},
-  {"id": "t1", "n": "Extensión Calle Matta Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.1, "lng": -70.2, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Tocopilla", "d": "Extensión de calle Matta como eje vial estructurante de Tocopilla, mejorando la conectividad interna."},
-  {"id": "t2", "n": "Red de Aguas Grises Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.08, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red para tratamiento y reutilización de aguas grises en ciudad costera con escasez de agua potable."},
-  {"id": "t3", "n": "Reuso Aguas Servidas Mejillones-Taltal-Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS", "d": "Reutilización de aguas servidas tratadas en tres ciudades costeras para riego de áreas verdes y reducción de demanda."},
-  {"id": "t4", "n": "Mirador Familiar Barros Aranas Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.2, "tipo": "Espacio público", "resp": "Municipio Tocopilla · GORE", "d": "Mirador familiar con vistas al mar para la comunidad de Tocopilla, generando espacio público de recreación."},
-  {"id": "t5", "n": "Centro Revalorización Industrial Tocopilla", "oe": 2, "c": "Tocopilla", "lat": -22.09, "lng": -70.21, "tipo": "Desarrollo industrial", "resp": "GORE · Municipio", "d": "Centro que impulse la transformación industrial aprovechando la infraestructura portuaria y energética de Tocopilla."},
-  {"id": "t6", "n": "Rediseño Línea Férrea Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.18, "tipo": "Movilidad y espacio público", "resp": "MOP · Municipio", "d": "Reconversión de la antigua línea férrea en espacio público, paseo costero o corredor multimodal sustentable."},
-  {"id": "t7", "n": "Estudio Prefactibilidad Puerto Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura portuaria", "resp": "MOP · Municipio", "d": "Estudio técnico-económico de prefactibilidad para el desarrollo o modernización del puerto de Tocopilla."},
-  {"id": "c1", "n": "Avenida Granadero Calama", "oe": 1, "c": "Calama", "lat": -22.43, "lng": -68.92, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Calama", "d": "Mejoramiento y ampliación de Avenida Granadero como vía estructurante de Calama, optimizando la circulación vehicular."},
-  {"id": "c2", "n": "Red de Aguas Grises Calama", "oe": 1, "c": "Calama", "lat": -22.46, "lng": -68.94, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red de aguas grises orientada a reutilización eficiente en ciudad del desierto con alta demanda hídrica."},
-  {"id": "c3", "n": "Borde Río El Loa Calama", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -68.92, "tipo": "Espacio público fluvial", "resp": "Municipio Calama · GORE", "d": "Parque lineal continuo con espacios verdes, ciclovías y áreas de recreación a lo largo del cauce urbano del río El Loa."},
-  {"id": "c4", "n": "Parque Los Yacimientos Calama", "oe": 1, "c": "Calama", "lat": -22.44, "lng": -68.91, "tipo": "Espacio público temático", "resp": "Municipio · GORE", "d": "Gran parque urbano temático en Calama que rinde homenaje a la tradición minera regional."},
-  {"id": "c5", "n": "Centro Recreacional Ojo de Opache", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -69.0, "tipo": "Turismo y recreación", "resp": "Municipio · GORE · SERNATUR", "d": "Centro recreacional en el oasis Ojo de Opache, aprovechando el ecosistema natural para crear un destino turístico regional."},
-  {"id": "c6", "n": "ARENAS Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.92, "tipo": "Equipamiento deportivo-cultural", "resp": "Municipio · GORE · Privados", "d": "Recinto multiuso tipo arena en Calama para eventos deportivos, culturales y de entretenimiento de escala regional."},
-  {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta."}
+  {"id": "r1", "n": "Declaración Área Metropolitana Antofagasta-Mejillones", "oe": 1, "c": "Antofagasta", "lat": -23.64, "lng": -70.39, "tipo": "Proyecto estructural", "resp": "SUBDERE · Gobernación Regional", "d": "Mecanismo administrativo que une Antofagasta y Mejillones para coordinar planificación, transporte y servicios. Beneficia a más de 400.000 habitantes del área metropolitana emergente.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782370360/emra/ovdzvzjgxstukpib22pr.webp", "gal": []},
+  {"id": "r2", "n": "Tren interurbano Antofagasta-Mejillones", "oe": 1, "c": "Regional", "lat": -23.54, "lng": -70.38, "tipo": "Infraestructura de transporte", "resp": "MOP · MTT", "d": "Sistema ferroviario interurbano que conecta el área metropolitana. Alta velocidad, estaciones modernas, alternativa al transporte carretero.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782364200/emra/gblz0atcalqm04wjqs9e.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782411237/emra/fp7gm9skooogfprxztvj.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782411401/emra/ueclvpwg7tgpolqbsrgd.webp"]},
+  {"id": "r3", "n": "Ruta 5 Tramo Caldera–Antofagasta", "oe": 1, "c": "Regional", "lat": -23.8, "lng": -70.31, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "466 km de doble calzada a 120 km/h. Zonas de descanso, postes SOS, segregación de flujos y altos estándares de seguridad vial.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782421059/emra/z6bq4r7sb59ofbynzwwg.webp", "gal": []},
+  {"id": "r4", "n": "Ruta 5 Tramo Antofagasta–Iquique", "oe": 1, "c": "Regional", "lat": -23.59, "lng": -70.25, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "Doble calzada con pasarelas peatonales, pasos desnivelados y velocidad de diseño 120 km/h con resistencia sísmica.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782421470/emra/wydoomnnvrboq8iwanv4.webp", "gal": []},
+  {"id": "r5", "n": "Aeropuerto Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.45, "lng": -70.44, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Remodelación completa con nuevo puente de embarque, red eléctrica, hall de pasajeros y áreas comerciales renovadas.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782433357/emra/gwn5q1mzkqyxdmbtfoo2.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782433360/emra/a5r2sfcj0onbx4dcmunu.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782433361/emra/x5g78ocjmxgavl7x2qvs.webp"]},
+  {"id": "r6", "n": "Aeropuerto Calama", "oe": 1, "c": "Calama", "lat": -22.5, "lng": -68.9, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Ampliación con nuevas dependencias SAR, cuartel SSEI, hall público de pasajeros y señalética actualizada.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782364348/emra/et1v8l8np9dt9fy2prku.webp", "gal": []},
+  {"id": "r7", "n": "Mejoramiento Ruta B-39", "oe": 1, "c": "Regional", "lat": -23.66, "lng": -68.74, "tipo": "Vialidad regional", "resp": "MOP", "d": "Pavimentación de la Ruta B-39 que une Peine y Baquedano, mejorando significativamente el acceso al Salar de Atacama.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782420754/emra/cvxozkdboj40faskzpg9.webp", "gal": []},
+  {"id": "r8", "n": "Doble vía Ruta 24 Tocopilla-Calama", "oe": 1, "c": "Regional", "lat": -22.07, "lng": -70.19, "tipo": "Vialidad regional", "resp": "MOP · Municipios", "d": "Mejoramiento de la Ruta 24 con doble calzada y 120 km/h, estándar de concesiones, entre Tocopilla y Calama.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782409134/emra/z6abfrx1xfojfeandh3k.webp", "gal": []},
+  {"id": "r9", "n": "Solución al Déficit Habitacional Regional", "oe": 1, "c": "Regional", "lat": -23.56, "lng": -70.37, "tipo": "Programa habitacional", "resp": "MINVU · Seremi", "d": "Plan de Emergencia Habitacional MINVU 2022-2025: meta de 17.400 soluciones habitacionales para la región.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782410774/emra/ymlc0rsq6ictaztln5gk.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782410779/emra/p15tocu6kfo7neufpxwb.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782410780/emra/nh5ncgzrtfsy3bj6abyx.webp"]},
+  {"id": "r10", "n": "Electromovilidad Transporte Público", "oe": 1, "c": "Regional", "lat": -23.67, "lng": -70.41, "tipo": "Programa de movilidad", "resp": "MTT · Municipios", "d": "Transformación gradual de la flota de transporte público regional a buses eléctricos de última generación.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782407366/emra/lklgoi5tuqj6zq2mlkg0.webp", "gal": []},
+  {"id": "r11", "n": "Centro de Excelencia Oncológica", "oe": 1, "c": "Regional", "lat": -23.62, "lng": -70.38, "tipo": "Infraestructura de salud", "resp": "Minería · MINSAL · Sociedad civil", "d": "Centro oncológico acreditado internacionalmente en alianza público-privada-sociedad civil con convenios mineros y fondo ciudadano.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782420553/emra/nixrdktmaddjwotidbuy.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782420562/emra/u3prpdqinrvjkkm1fdug.webp"]},
+  {"id": "r12", "n": "Cobertura 100% Jardines Infantiles", "oe": 1, "c": "Regional", "lat": -23.64, "lng": -70.39, "tipo": "Programa educacional", "resp": "JUNJI · Municipios", "d": "Alcanzar cobertura del 100% en educación inicial para la Región de Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782405823/emra/lfj9lnj2jvz4qrwi0tlh.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782405826/emra/b2lh7zmeghzwkhbklwwc.webp"]},
+  {"id": "r13", "n": "Nueva Fundición Región Antofagasta", "oe": 2, "c": "Regional", "lat": -23.79, "lng": -70.31, "tipo": "Proyecto industrial", "resp": "CODELCO · GLENCORE", "d": "Fundición de cobre de alta tecnología con capacidad de 1,5 millones de toneladas métricas secas al año. Operación proyectada 2032-2033.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782368367/emra/cw5zrav7bbfp2zxfrnnv.webp", "gal": []},
+  {"id": "r14", "n": "Red de Zonas Industriales de Primer Nivel", "oe": 3, "c": "Regional", "lat": -23.77, "lng": -70.3, "tipo": "Desarrollo industrial", "resp": "GORE · Municipios · Privados", "d": "Consolidación de red regional de zonas industriales integradas a la cadena de valor minera en toda la región.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782404862/emra/y4aa5aajnhqnq1mksjy8.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782405139/emra/vvzhepm3oxdtfyfcigy4.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782405140/emra/t0wvwbkuvral55xiq6nu.webp"]},
+  {"id": "r15", "n": "Distrito Tecnológico Regional", "oe": 5, "c": "Regional", "lat": -23.45, "lng": -70.44, "tipo": "Ecosistema de innovación", "resp": "Minciencia · GORE", "d": "Centro Espacial, ITL e INLiSa integrados para diversificar la economía regional hacia alta tecnología.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367361/emra/mcgyd3cmiq7q5jatjhit.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782371423/emra/v9j5ld0dlr8hfhv5cqln.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782371423/emra/odpgh6higpxlkvysobf6.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782371424/emra/pjxpfmxsuw5icnrn1fpn.webp"]},
+  {"id": "a1", "n": "Tren urbano Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.7, "lng": -70.4, "tipo": "Transporte urbano", "resp": "MTT · Municipio Antofagasta", "d": "Sistema de tren urbano para reducir la congestión vehicular y ofrecer transporte masivo sostenible en Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782364429/emra/znhcaie6nfenonlj6w2t.webp", "gal": []},
+  {"id": "a2", "n": "Conectividad Eje Central Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.61, "lng": -70.39, "tipo": "Vialidad estructural", "resp": "MOP · Municipio", "d": "Proyecto vial estructural para el eje central de Antofagasta, aliviando la congestión y mejorando la conectividad entre sectores.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782408130/emra/mi2s2r9fvrd6i7dyyjow.webp", "gal": []},
+  {"id": "a3", "n": "Red de Aguas Grises Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.56, "lng": -70.38, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Captación, tratamiento y reutilización de aguas grises domiciliarias contribuyendo al uso eficiente del agua en contexto desértico.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782414484/emra/lllir7zwl69zd0pxohtp.webp", "gal": []},
+  {"id": "a4", "n": "Marina Pública Playa La Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.55, "lng": -70.4, "tipo": "Infraestructura costera", "resp": "MOP · Municipio", "d": "Marina pública y circuito ferry para potenciar el turismo costero, la conectividad marítima y el uso recreativo del borde mar.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367515/emra/lmzx2o3gjski23evv1pl.webp", "gal": []},
+  {"id": "a5", "n": "FUC Humedal de la Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.39, "tipo": "Recuperación ambiental", "resp": "Municipio · MMA", "d": "Formulación de uso de suelo condicionado en el humedal La Chimba para habilitar desarrollo turístico sustentable.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782409985/emra/copya3jkcfcqcaurxkc4.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782410027/emra/gdh4mnb5zrnlubqu5sjc.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782410029/emra/xi7rhvd5ly6t7hpbmkfa.webp"]},
+  {"id": "a6", "n": "FUC Estanques Codelco-Petrobras", "oe": 1, "c": "Antofagasta", "lat": -23.62, "lng": -70.4, "tipo": "Recuperación urbana", "resp": "Municipio · MINVU", "d": "Reconversión de predios industriales de Codelco y Petrobras en espacios públicos de calidad integrados a la trama urbana.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782432166/emra/p17rozeng7shzrn8xxci.webp", "gal": []},
+  {"id": "a7", "n": "FUC Sector Vertedero Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.38, "tipo": "Recuperación ambiental", "resp": "Municipio · MINVU", "d": "Planificación del uso futuro del vertedero de Antofagasta orientado a recuperación ambiental y espacio urbano público.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782422902/emra/aqdkmggcslyer36uqltj.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782422905/emra/t6k45zllcrbh7qjlbtar.webp"]},
+  {"id": "a8", "n": "Recuperación Edificio Balneario Puntilla", "oe": 1, "c": "Antofagasta", "lat": -23.68, "lng": -70.41, "tipo": "Patrimonio y espacio público", "resp": "Municipio · Consejo de Monumentos", "d": "Recuperación del histórico Edificio Balneario y su entorno en La Puntilla como espacio público emblemático.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782399044/emra/kdnt6apv4p3ynrobwcyx.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782399047/emra/exhr9kkoxmtlplzyd8bc.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782399049/emra/f9dguivz7mr89tt1zvlv.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782399050/emra/swn5di4itsjnsp3jonpn.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782399051/emra/bzjzsp6iwt4zkx6jlhtr.webp"]},
+  {"id": "t1", "n": "Extensión Calle Matta Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.1, "lng": -70.2, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Tocopilla", "d": "Extensión de calle Matta como eje vial estructurante de Tocopilla, mejorando la conectividad interna.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782370930/emra/a2yflu5724co3bjmi3fs.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782370937/emra/cfgf1uzu0hbh9kqiujhp.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782370938/emra/hyxhwb44x9wuzkylqbvf.webp"]},
+  {"id": "t2", "n": "Red de Aguas Grises Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.08, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red para tratamiento y reutilización de aguas grises en ciudad costera con escasez de agua potable.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782370112/emra/yvyk8hwfuyzlmjyuqs7b.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782370118/emra/uooak3qoodqzdutqdmat.webp"]},
+  {"id": "t3", "n": "Reuso Aguas Servidas Mejillones-Taltal-Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS", "d": "Reutilización de aguas servidas tratadas en tres ciudades costeras para riego de áreas verdes y reducción de demanda.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782370555/emra/qfxp8fkhgsqxab44ilcf.webp", "gal": []},
+  {"id": "t4", "n": "Mirador Familiar Barros Aranas Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.2, "tipo": "Espacio público", "resp": "Municipio Tocopilla · GORE", "d": "Mirador familiar con vistas al mar para la comunidad de Tocopilla, generando espacio público de recreación.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782368899/emra/ofcidcz6jrqs9jkv9umu.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782368905/emra/yambdofo20ptudoyzafx.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782368906/emra/rksts04xgpp90austnd5.webp"]},
+  {"id": "t5", "n": "Centro Revalorización Industrial Tocopilla", "oe": 2, "c": "Tocopilla", "lat": -22.09, "lng": -70.21, "tipo": "Desarrollo industrial", "resp": "GORE · Municipio", "d": "Centro que impulse la transformación industrial aprovechando la infraestructura portuaria y energética de Tocopilla.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782369527/emra/g5efo9fdegffu0zaxbq1.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782369532/emra/ficyvhwa8c53mcfqjhg9.webp", "https://res.cloudinary.com/diajsuwpi/image/upload/v1782369533/emra/e4ga5gyhkctedkx0gwt5.webp"]},
+  {"id": "t6", "n": "Rediseño Línea Férrea Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.18, "tipo": "Movilidad y espacio público", "resp": "MOP · Municipio", "d": "Reconversión de la antigua línea férrea en espacio público, paseo costero o corredor multimodal sustentable.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782369764/emra/jb4jaewrmt5vqix4hi2v.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782369771/emra/aleld7xttmdokjrurkre.webp"]},
+  {"id": "t7", "n": "Estudio Prefactibilidad Puerto Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura portuaria", "resp": "MOP · Municipio", "d": "Estudio técnico-económico de prefactibilidad para el desarrollo o modernización del puerto de Tocopilla.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367915/emra/ikfam0fwcu7oj6wv8uaz.webp", "gal": []},
+  {"id": "c1", "n": "Avenida Granadero Calama", "oe": 1, "c": "Calama", "lat": -22.43, "lng": -68.92, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Calama", "d": "Mejoramiento y ampliación de Avenida Granadero como vía estructurante de Calama, optimizando la circulación vehicular.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366316/emra/k406fmuxvrennyllzx04.webp", "gal": []},
+  {"id": "c2", "n": "Red de Aguas Grises Calama", "oe": 1, "c": "Calama", "lat": -22.46, "lng": -68.94, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red de aguas grises orientada a reutilización eficiente en ciudad del desierto con alta demanda hídrica.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782414030/emra/hjxpidfqhvnnpzrn1axl.webp", "gal": []},
+  {"id": "c3", "n": "Borde Río El Loa Calama", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -68.92, "tipo": "Espacio público fluvial", "resp": "Municipio Calama · GORE", "d": "Parque lineal continuo con espacios verdes, ciclovías y áreas de recreación a lo largo del cauce urbano del río El Loa.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366436/emra/pmxlw2be1y7vdpau1tbj.webp", "gal": []},
+  {"id": "c4", "n": "Parque Los Yacimientos Calama", "oe": 1, "c": "Calama", "lat": -22.44, "lng": -68.91, "tipo": "Espacio público temático", "resp": "Municipio · GORE", "d": "Gran parque urbano temático en Calama que rinde homenaje a la tradición minera regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367003/emra/j8pakb1o2rr36xaluwyd.webp", "gal": []},
+  {"id": "c5", "n": "Centro Recreacional Ojo de Opache", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -69.0, "tipo": "Turismo y recreación", "resp": "Municipio · GORE · SERNATUR", "d": "Centro recreacional en el oasis Ojo de Opache, aprovechando el ecosistema natural para crear un destino turístico regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366495/emra/xtnwsjgzvf5cfx1h5pj3.webp", "gal": []},
+  {"id": "c6", "n": "ARENAS Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.92, "tipo": "Equipamiento deportivo-cultural", "resp": "Municipio · GORE · Privados", "d": "Recinto multiuso tipo arena en Calama para eventos deportivos, culturales y de entretenimiento de escala regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366193/emra/lowhdpqvaqdpsxoxvcsf.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782422465/emra/gii4u0j0lkmt1sgkctev.webp"]},
+  {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367093/emra/twrk0dtr2r95g38wnzfh.webp", "gal": []}
 ];
 const OES={1:['Calidad de vida','var(--oe1)'],2:['Minería sustentable','var(--oe2)'],3:['Empresas regionales','var(--oe3)'],4:['Institucionalidad pública','var(--oe4)'],5:['Ecosistema del conocimiento','var(--oe5)']};
 const OE_HEX={1:'#FAA900',2:'#70AD57',3:'#FF5812',4:'#0090D4',5:'#00BCB6'};
@@ -305,9 +342,27 @@ function cargarLeaflet(){
 }
 function abrirExplorador(){
   const ex=$('#exp');
-  if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();}
+  if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();cargarVivo();}
   irA(ex);
 }
+// datos en vivo: misma tabla pública (sólo lectura) que usa el Portal EMRA
+const SB='https://tjoveoqolrfxntvvdjwh.supabase.co/rest/v1/iniciativas?order=id&select=id,nombre,oe,ciudad,lat,lng,tipo,responsable,descripcion,image_url,gallery';
+let vivoHecho=false;
+function cargarVivo(){
+  if(vivoHecho)return;vivoHecho=true;
+  fetch(SB,{headers:{apikey:'sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE'}}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{
+    if(!Array.isArray(rows)||rows.length<10)return; // ante algo raro, se queda con la copia de respaldo
+    const orden=INICIATIVAS.map(x=>x.id);
+    const nuevos=rows.map(r=>({id:r.id,n:r.nombre,oe:+String(r.oe).replace(/\D/g,'')||1,c:r.ciudad,lat:+r.lat,lng:+r.lng,
+      tipo:r.tipo||'',resp:r.responsable||'',d:r.descripcion||'',img:r.image_url||'',gal:Array.isArray(r.gallery)?r.gallery:[]}))
+      .filter(x=>x.n&&isFinite(x.lat)&&isFinite(x.lng))
+      .sort((a,b)=>{const i=orden.indexOf(a.id),j=orden.indexOf(b.id);return (i<0?999:i)-(j<0?999:j);});
+    INICIATIVAS.splice(0,INICIATIVAS.length,...nuevos);
+    pintarFiltros();pintar(true);
+  }).catch(()=>{});
+}
+// Cloudinary: pedir la foto al tamaño justo (f_auto/q_auto = webp/avif liviano)
+const foto=(u,w,h)=>!u?'':/res\.cloudinary\.com\/.+\/upload\//.test(u)?u.replace('/upload/',`/upload/c_fill,g_center,w_${w},h_${h},f_auto,q_auto/`):u;
 $('#exp-x').onclick=()=>{$('#exp').hidden=true;irA($('#tabs'));const ab=$('#abrir-ini');if(ab)ab.focus();};
 
 function pintarFiltros(){
@@ -339,11 +394,48 @@ function pintar(reencuadrar){
   $('#cnt').innerHTML=`<b>${L.length}</b> de ${INICIATIVAS.length} iniciativas`;
   const vacio=`<div class="vacio">No hay iniciativas con esos filtros. Prueba con otra ciudad u objetivo.</div>`;
   $('#lst').innerHTML=L.length?L.map(x=>`<button class="it${F.sel===x.id?' sel':''}" data-id="${x.id}" style="--c:${OES[x.oe][1]}" aria-expanded="${F.sel===x.id}">
-      ${meta(x)}<div class="nm">${esc(x.n)}</div>
-      <div class="more">${esc(x.d)}${ficha(x)}</div></button>`).join(''):vacio;
+      <div class="it-r">${x.img?`<span class="th"><img src="${foto(x.img,112,112)}" alt="" loading="lazy"/></span>`:''}<div>${meta(x)}<div class="nm">${esc(x.n)}</div></div></div>
+      <div class="more">${x.img?`<div class="foto"><img src="${foto(x.img,640,360)}" alt="${esc(x.n)}" loading="lazy"/></div>`:''}<p style="margin-top:8px">${esc(x.d)}</p>${ficha(x)}</div></button>`).join(''):vacio;
   document.querySelectorAll('#lst .it').forEach(b=>b.onclick=()=>elegir(b.dataset.id===F.sel?null:b.dataset.id,true));
-  $('#grid').innerHTML=L.length?L.map(x=>`<article class="card" style="--c:${OES[x.oe][1]}">${meta(x)}<div class="nm">${esc(x.n)}</div><p>${esc(x.d)}</p>${ficha(x)}</article>`).join(''):vacio;
+  pintarFichas(L);
   if(mapa)pintarMapa(L,reencuadrar);
+  if(F.sel)setTimeout(()=>verEnLista(F.sel),0);
+}
+
+// ── vista Fichas: tarjeta compacta (foto + título); al hacer clic se expande con el detalle ──
+function pintarFichas(L){
+  if(!L.length){$('#grid').innerHTML=`<div class="vacio">No hay iniciativas con esos filtros. Prueba con otra ciudad u objetivo.</div>`;return;}
+  if(F.abierta&&!L.some(x=>x.id===F.abierta))F.abierta=null;
+  $('#grid').innerHTML=L.map(x=>F.abierta===x.id?fichaAbierta(x):`<article class="card" style="--c:${OES[x.oe][1]}">
+      <button class="cab" data-id="${x.id}" aria-expanded="false" aria-label="Ver ficha: ${esc(x.n)}">
+        <span class="ph">${x.img?`<img src="${foto(x.img,480,268)}" alt="" loading="lazy"/>`:''}</span>
+        <span class="cb">${meta(x)}<span class="nm">${esc(x.n)}</span><span class="ver">Ver ficha +</span></span>
+      </button></article>`).join('');
+  document.querySelectorAll('#grid .cab').forEach(b=>b.onclick=()=>abrirFicha(b.dataset.id));
+  const ab=$('#grid .card.open');
+  if(ab){
+    ab.querySelector('.x').onclick=()=>{const id=F.abierta;F.abierta=null;pintarFichas(visibles());const b=document.querySelector(`#grid .cab[data-id="${id}"]`);if(b){b.focus();irA(b);}};
+    ab.querySelectorAll('.gal button').forEach(g=>g.onclick=()=>{
+      ab.querySelector('.ph img').src=foto(g.dataset.u,1000,558);
+      ab.querySelectorAll('.gal button').forEach(o=>o.setAttribute('aria-pressed',o===g));
+    });
+    const vm=ab.querySelector('[data-mapa]');if(vm)vm.onclick=()=>{const id=F.abierta;F.sel=id;vista('map');elegir(id,false);irA($('#mv'));};
+  }
+}
+function fichaAbierta(x){
+  const fotos=[x.img,...(x.gal||[])].filter(Boolean);
+  return `<article class="card open" style="--c:${OES[x.oe][1]}" aria-labelledby="ft-${x.id}">
+    <button class="x" aria-label="Cerrar ficha">×</button>
+    <div class="ph-w"><div class="ph">${fotos[0]?`<img src="${foto(fotos[0],1000,558)}" alt="${esc(x.n)}"/>`:''}</div>
+      ${fotos.length>1?`<div class="gal" role="group" aria-label="Galería de fotos">${fotos.map((u,i)=>`<button data-u="${esc(u)}" aria-pressed="${i===0}" aria-label="Foto ${i+1} de ${fotos.length}"><img src="${foto(u,144,80)}" alt="" loading="lazy"/></button>`).join('')}</div>`:''}
+    </div>
+    <div class="det">${meta(x)}<h4 id="ft-${x.id}">${esc(x.n)}</h4><p>${esc(x.d)}</p>${ficha(x)}
+      <div class="acc"><button class="btn2" data-mapa>Ver en el mapa</button></div>
+    </div></article>`;
+}
+function abrirFicha(id){
+  F.abierta=id;pintarFichas(visibles());
+  const ab=$('#grid .card.open');if(ab){irA(ab);ab.querySelector('.x').focus({preventScroll:true});}
 }
 function elegir(id,desdeLista){
   F.sel=id;
@@ -352,10 +444,13 @@ function elegir(id,desdeLista){
   if(!id)return;
   const m=marcas[id];
   if(m&&mapa){m.bringToFront();if(desdeLista)mapa.flyTo(m.getLatLng(),Math.max(mapa.getZoom(),12),{duration:.6});}
-  if(!desdeLista){ // desde el mapa: llevar la ficha a la vista dentro de la lista
-    const el=document.querySelector(`#lst .it[data-id="${id}"]`),ls=$('#lst');
-    if(el&&ls.scrollHeight>ls.clientHeight)ls.scrollTo({top:el.offsetTop-8,behavior:'smooth'});
-  }
+  verEnLista(id);
+}
+// llevar la ficha a la vista dentro de la lista si quedó fuera (desde el mapa o desde «Ver en el mapa»)
+function verEnLista(id){
+  const el=document.querySelector(`#lst .it[data-id="${id}"]`),ls=$('#lst');
+  if(el&&ls.scrollHeight>ls.clientHeight&&(el.offsetTop<ls.scrollTop||el.offsetTop+el.offsetHeight>ls.scrollTop+ls.clientHeight))
+    ls.scrollTop=el.offsetTop-8; // instantáneo: uno suave se cancela si la página también se está desplazando
 }
 
 // mapa (Leaflet + teselas OpenStreetMap, se carga sólo al abrir el explorador)
@@ -386,6 +481,8 @@ function pintarMapa(L_,reencuadrar){
   if(reencuadrar)encuadrar();
 }
 function encuadrar(){
+  const s=F.sel&&marcas[F.sel];
+  if(s){mapa.setView(s.getLatLng(),13);return;} // hay una iniciativa elegida: centrar en ella
   const ll=Object.values(marcas).map(m=>m.getLatLng());
   if(ll.length)mapa.fitBounds(L.latLngBounds(ll).pad(.15),{maxZoom:13});
 }
