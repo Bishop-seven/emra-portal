@@ -62,6 +62,66 @@ li:before{content:"";flex-shrink:0;width:10px;height:10px;border-radius:50%;marg
 :focus-visible{outline:2px solid var(--oe4);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
+button.link{border:0}
+
+/* ── explorador de las 37 iniciativas ── */
+.exp{margin-top:22px;background:#fff;border:1.5px solid var(--bd);border-radius:6px;padding:20px 22px 22px}
+.exp[hidden]{display:none}
+.exp-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.exp-h h3{margin:4px 0 6px}
+.exp-h p{color:var(--mut);font-size:15px;max-width:760px}
+.x{flex-shrink:0;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;color:var(--mut);font-size:22px;line-height:1;display:grid;place-items:center}
+.x:hover{border-color:var(--cu);color:var(--cu)}
+.fil{display:grid;gap:10px;margin:16px 0 14px}
+.frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.flab{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);width:78px}
+.chip{border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px;font-weight:600;color:var(--tx);display:inline-flex;gap:6px;align-items:center;transition:.15s}
+.chip:hover{border-color:var(--c,var(--cu))}
+.chip i{font-style:normal;color:var(--mut);font-weight:500;font-size:12px}
+.chip .sw{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.chip[aria-pressed="true"]{background:var(--c,var(--tx));border-color:var(--c,var(--tx));color:#fff}
+.chip[aria-pressed="true"] i{color:rgba(255,255,255,.85)}
+.chip[aria-pressed="true"] .sw{background:#fff}
+.chip:disabled{opacity:.4;cursor:default}.chip:disabled:hover{border-color:var(--bd)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.bar-l{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cnt{font-size:14px;color:var(--mut)}.cnt b{color:var(--tx)}
+.q{border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px;font:inherit;font-size:14px;width:220px;max-width:100%;color:var(--tx)}
+.q:focus{border-color:var(--cu);outline:0}
+.seg{display:inline-flex;border:1.5px solid var(--bd);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:7px 14px;font-weight:700;font-size:14px;color:var(--mut)}
+.seg button+button{border-left:1.5px solid var(--bd)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--tx);box-shadow:inset 0 -3px 0 var(--cu)}
+.mv{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:14px}
+.mv[hidden],.grid[hidden]{display:none}
+#map{height:540px;border-radius:4px;background:#e9e4de;z-index:0}
+.lst{height:540px;overflow:auto;display:grid;align-content:start;gap:8px;padding-right:4px;position:relative}
+.it{text-align:left;background:#fff;border:1.5px solid var(--bd);border-left:5px solid var(--c);border-radius:6px;padding:10px 12px;color:var(--tx);width:100%;transition:.15s}
+.it:hover{border-color:var(--c)}
+.it.sel{background:var(--card);border-color:var(--c)}
+.meta{font-size:12px;color:var(--mut);font-weight:600;display:flex;gap:4px 10px;flex-wrap:wrap;align-items:center}
+.nm{font-weight:700;font-size:15px;line-height:1.3;margin:3px 0 0}
+.more{display:none;font-size:14px;line-height:1.45;margin-top:6px}
+.it.sel .more{display:block}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px;margin-top:8px}
+.dl dt{color:var(--mut);font-weight:600}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--c);border-radius:3px;padding:2px 7px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{border:1.5px solid var(--bd);border-top:6px solid var(--c);border-radius:6px;background:#fff;padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.card p{font-size:14px;line-height:1.45;flex:1}
+.vacio{padding:30px 10px;text-align:center;color:var(--mut);grid-column:1/-1}
+.exp-pie{margin-top:16px;display:flex;justify-content:flex-end}
+.exp-pie a{color:var(--cu2);font-weight:700;font-size:14px;text-decoration:none}
+.exp-pie a:hover{text-decoration:underline}
+.leaflet-tooltip.tt{font-family:'Figtree',sans-serif;font-size:13px;font-weight:700;color:var(--tx);border-radius:4px}
+
+@media (max-width:860px){
+  .mv{grid-template-columns:minmax(0,1fr)}
+  #map{height:360px}
+  .lst{height:auto;overflow:visible;padding-right:0}
+  .exp{padding:16px 14px 18px}
+  .flab{width:100%}
+}
 @media (max-width:860px){
   .slide{grid-template-columns:minmax(0,1fr)}
   .txt{padding:22px 20px 24px 26px}
@@ -84,6 +144,37 @@ li:before{content:"";flex-shrink:0;width:10px;height:10px;border-radius:50%;marg
     <div class="dots" id="dots"></div>
     <button class="arr" id="next" aria-label="Video siguiente">›</button>
   </div>
+
+  <!-- explorador: se abre con el botón del video 3 -->
+  <section class="exp" id="exp" hidden aria-labelledby="exp-t">
+    <div class="exp-h">
+      <div>
+        <div class="kick" style="--c:var(--oe3)">Mediano plazo · al 2035</div>
+        <h3 id="exp-t">Explora las 37 iniciativas</h3>
+        <p>Filtra por ciudad o por objetivo estratégico (OE). Toca un punto del mapa o una iniciativa de la lista para ver su ficha.</p>
+      </div>
+      <button class="x" id="exp-x" aria-label="Cerrar el explorador de iniciativas">×</button>
+    </div>
+    <div class="fil">
+      <div class="frow" role="group" aria-label="Filtrar por ciudad"><span class="flab">Ciudad</span><span id="f-c" style="display:contents"></span></div>
+      <div class="frow" role="group" aria-label="Filtrar por objetivo estratégico"><span class="flab">Objetivo</span><span id="f-oe" style="display:contents"></span></div>
+    </div>
+    <div class="bar">
+      <div class="bar-l">
+        <input class="q" id="q" type="search" placeholder="Buscar: tren, agua, parque…" aria-label="Buscar iniciativa por nombre"/>
+        <span class="cnt" id="cnt" aria-live="polite"></span>
+      </div>
+      <div class="seg" role="group" aria-label="Forma de ver las iniciativas">
+        <button id="v-map" aria-pressed="true">Mapa</button><button id="v-fic" aria-pressed="false">Fichas</button>
+      </div>
+    </div>
+    <div class="mv" id="mv">
+      <div id="map" role="region" aria-label="Mapa de iniciativas"></div>
+      <div class="lst" id="lst"></div>
+    </div>
+    <div class="grid" id="grid" hidden></div>
+    <div class="exp-pie"><a href="https://portal.emra.cl/" target="_top">Ver el detalle completo en el Portal EMRA →</a></div>
+  </section>
 </div>
 
 <script>
@@ -107,8 +198,54 @@ const VIDEOS=[
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
    texto:'Diseño de mediano plazo al 2035: la EMRA busca dar un salto en el desarrollo urbano de nuestras capitales provinciales. En este ámbito, 30 son las iniciativas en que nos hemos puesto de acuerdo como región y queremos construir juntos, y 7 son las iniciativas estratégicas de responsabilidad del Gobierno, donde la región asume el compromiso de apoyar iniciativas regionales estratégicas que dependen del nivel central.',
    lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
-   cta:['Explora las 37 iniciativas en el Portal EMRA','https://portal.emra.cl/']}
+   cta:['Explora las 37 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
 ];
+
+// Las 37 iniciativas (copiadas del arreglo INI del Portal EMRA v2.5, 8-nov-2026).
+// Todas son de mediano plazo (al 2035); aún no hay iniciativas de corto plazo en el mapa.
+// oe: número de objetivo · c: ciudad ("Regional" = abarca varias comunas) · lat/lng para el mapa.
+const INICIATIVAS=[
+  {"id": "r1", "n": "Declaración Área Metropolitana Antofagasta-Mejillones", "oe": 1, "c": "Antofagasta", "lat": -23.64, "lng": -70.39, "tipo": "Proyecto estructural", "resp": "SUBDERE · Gobernación Regional", "d": "Mecanismo administrativo que une Antofagasta y Mejillones para coordinar planificación, transporte y servicios. Beneficia a más de 400.000 habitantes del área metropolitana emergente."},
+  {"id": "r2", "n": "Tren interurbano Antofagasta-Mejillones", "oe": 1, "c": "Regional", "lat": -23.54, "lng": -70.38, "tipo": "Infraestructura de transporte", "resp": "MOP · MTT", "d": "Sistema ferroviario interurbano que conecta el área metropolitana. Alta velocidad, estaciones modernas, alternativa al transporte carretero."},
+  {"id": "r3", "n": "Ruta 5 Tramo Caldera–Antofagasta", "oe": 1, "c": "Regional", "lat": -23.8, "lng": -70.31, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "466 km de doble calzada a 120 km/h. Zonas de descanso, postes SOS, segregación de flujos y altos estándares de seguridad vial."},
+  {"id": "r4", "n": "Ruta 5 Tramo Antofagasta–Iquique", "oe": 1, "c": "Regional", "lat": -23.59, "lng": -70.25, "tipo": "Concesión vial", "resp": "MOP · Concesiones", "d": "Doble calzada con pasarelas peatonales, pasos desnivelados y velocidad de diseño 120 km/h con resistencia sísmica."},
+  {"id": "r5", "n": "Aeropuerto Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.45, "lng": -70.44, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Remodelación completa con nuevo puente de embarque, red eléctrica, hall de pasajeros y áreas comerciales renovadas."},
+  {"id": "r6", "n": "Aeropuerto Calama", "oe": 1, "c": "Calama", "lat": -22.5, "lng": -68.9, "tipo": "Concesión aeroportuaria", "resp": "MOP · DGAC", "d": "Ampliación con nuevas dependencias SAR, cuartel SSEI, hall público de pasajeros y señalética actualizada."},
+  {"id": "r7", "n": "Mejoramiento Ruta B-39", "oe": 1, "c": "Regional", "lat": -23.66, "lng": -68.74, "tipo": "Vialidad regional", "resp": "MOP", "d": "Pavimentación de la Ruta B-39 que une Peine y Baquedano, mejorando significativamente el acceso al Salar de Atacama."},
+  {"id": "r8", "n": "Doble vía Ruta 24 Tocopilla-Calama", "oe": 1, "c": "Regional", "lat": -22.07, "lng": -70.19, "tipo": "Vialidad regional", "resp": "MOP · Municipios", "d": "Mejoramiento de la Ruta 24 con doble calzada y 120 km/h, estándar de concesiones, entre Tocopilla y Calama."},
+  {"id": "r9", "n": "Solución al Déficit Habitacional Regional", "oe": 1, "c": "Regional", "lat": -23.56, "lng": -70.37, "tipo": "Programa habitacional", "resp": "MINVU · Seremi", "d": "Plan de Emergencia Habitacional MINVU 2022-2025: meta de 17.400 soluciones habitacionales para la región."},
+  {"id": "r10", "n": "Electromovilidad Transporte Público", "oe": 1, "c": "Regional", "lat": -23.67, "lng": -70.41, "tipo": "Programa de movilidad", "resp": "MTT · Municipios", "d": "Transformación gradual de la flota de transporte público regional a buses eléctricos de última generación."},
+  {"id": "r11", "n": "Centro de Excelencia Oncológica", "oe": 1, "c": "Regional", "lat": -23.62, "lng": -70.38, "tipo": "Infraestructura de salud", "resp": "Minería · MINSAL · Sociedad civil", "d": "Centro oncológico acreditado internacionalmente en alianza público-privada-sociedad civil con convenios mineros y fondo ciudadano."},
+  {"id": "r12", "n": "Cobertura 100% Jardines Infantiles", "oe": 1, "c": "Regional", "lat": -23.64, "lng": -70.39, "tipo": "Programa educacional", "resp": "JUNJI · Municipios", "d": "Alcanzar cobertura del 100% en educación inicial para la Región de Antofagasta."},
+  {"id": "r13", "n": "Nueva Fundición Región Antofagasta", "oe": 2, "c": "Regional", "lat": -23.79, "lng": -70.31, "tipo": "Proyecto industrial", "resp": "CODELCO · GLENCORE", "d": "Fundición de cobre de alta tecnología con capacidad de 1,5 millones de toneladas métricas secas al año. Operación proyectada 2032-2033."},
+  {"id": "r14", "n": "Red de Zonas Industriales de Primer Nivel", "oe": 3, "c": "Regional", "lat": -23.77, "lng": -70.3, "tipo": "Desarrollo industrial", "resp": "GORE · Municipios · Privados", "d": "Consolidación de red regional de zonas industriales integradas a la cadena de valor minera en toda la región."},
+  {"id": "r15", "n": "Distrito Tecnológico Regional", "oe": 5, "c": "Regional", "lat": -23.45, "lng": -70.44, "tipo": "Ecosistema de innovación", "resp": "Minciencia · GORE", "d": "Centro Espacial, ITL e INLiSa integrados para diversificar la economía regional hacia alta tecnología."},
+  {"id": "a1", "n": "Tren urbano Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.7, "lng": -70.4, "tipo": "Transporte urbano", "resp": "MTT · Municipio Antofagasta", "d": "Sistema de tren urbano para reducir la congestión vehicular y ofrecer transporte masivo sostenible en Antofagasta."},
+  {"id": "a2", "n": "Conectividad Eje Central Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.61, "lng": -70.39, "tipo": "Vialidad estructural", "resp": "MOP · Municipio", "d": "Proyecto vial estructural para el eje central de Antofagasta, aliviando la congestión y mejorando la conectividad entre sectores."},
+  {"id": "a3", "n": "Red de Aguas Grises Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.56, "lng": -70.38, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Captación, tratamiento y reutilización de aguas grises domiciliarias contribuyendo al uso eficiente del agua en contexto desértico."},
+  {"id": "a4", "n": "Marina Pública Playa La Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.55, "lng": -70.4, "tipo": "Infraestructura costera", "resp": "MOP · Municipio", "d": "Marina pública y circuito ferry para potenciar el turismo costero, la conectividad marítima y el uso recreativo del borde mar."},
+  {"id": "a5", "n": "FUC Humedal de la Chimba", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.39, "tipo": "Recuperación ambiental", "resp": "Municipio · MMA", "d": "Formulación de uso de suelo condicionado en el humedal La Chimba para habilitar desarrollo turístico sustentable."},
+  {"id": "a6", "n": "FUC Estanques Codelco-Petrobras", "oe": 1, "c": "Antofagasta", "lat": -23.62, "lng": -70.4, "tipo": "Recuperación urbana", "resp": "Municipio · MINVU", "d": "Reconversión de predios industriales de Codelco y Petrobras en espacios públicos de calidad integrados a la trama urbana."},
+  {"id": "a7", "n": "FUC Sector Vertedero Antofagasta", "oe": 1, "c": "Antofagasta", "lat": -23.54, "lng": -70.38, "tipo": "Recuperación ambiental", "resp": "Municipio · MINVU", "d": "Planificación del uso futuro del vertedero de Antofagasta orientado a recuperación ambiental y espacio urbano público."},
+  {"id": "a8", "n": "Recuperación Edificio Balneario Puntilla", "oe": 1, "c": "Antofagasta", "lat": -23.68, "lng": -70.41, "tipo": "Patrimonio y espacio público", "resp": "Municipio · Consejo de Monumentos", "d": "Recuperación del histórico Edificio Balneario y su entorno en La Puntilla como espacio público emblemático."},
+  {"id": "t1", "n": "Extensión Calle Matta Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.1, "lng": -70.2, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Tocopilla", "d": "Extensión de calle Matta como eje vial estructurante de Tocopilla, mejorando la conectividad interna."},
+  {"id": "t2", "n": "Red de Aguas Grises Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.08, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red para tratamiento y reutilización de aguas grises en ciudad costera con escasez de agua potable."},
+  {"id": "t3", "n": "Reuso Aguas Servidas Mejillones-Taltal-Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS", "d": "Reutilización de aguas servidas tratadas en tres ciudades costeras para riego de áreas verdes y reducción de demanda."},
+  {"id": "t4", "n": "Mirador Familiar Barros Aranas Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.2, "tipo": "Espacio público", "resp": "Municipio Tocopilla · GORE", "d": "Mirador familiar con vistas al mar para la comunidad de Tocopilla, generando espacio público de recreación."},
+  {"id": "t5", "n": "Centro Revalorización Industrial Tocopilla", "oe": 2, "c": "Tocopilla", "lat": -22.09, "lng": -70.21, "tipo": "Desarrollo industrial", "resp": "GORE · Municipio", "d": "Centro que impulse la transformación industrial aprovechando la infraestructura portuaria y energética de Tocopilla."},
+  {"id": "t6", "n": "Rediseño Línea Férrea Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.09, "lng": -70.18, "tipo": "Movilidad y espacio público", "resp": "MOP · Municipio", "d": "Reconversión de la antigua línea férrea en espacio público, paseo costero o corredor multimodal sustentable."},
+  {"id": "t7", "n": "Estudio Prefactibilidad Puerto Tocopilla", "oe": 1, "c": "Tocopilla", "lat": -22.07, "lng": -70.19, "tipo": "Infraestructura portuaria", "resp": "MOP · Municipio", "d": "Estudio técnico-económico de prefactibilidad para el desarrollo o modernización del puerto de Tocopilla."},
+  {"id": "c1", "n": "Avenida Granadero Calama", "oe": 1, "c": "Calama", "lat": -22.43, "lng": -68.92, "tipo": "Vialidad estructural", "resp": "MOP · Municipio Calama", "d": "Mejoramiento y ampliación de Avenida Granadero como vía estructurante de Calama, optimizando la circulación vehicular."},
+  {"id": "c2", "n": "Red de Aguas Grises Calama", "oe": 1, "c": "Calama", "lat": -22.46, "lng": -68.94, "tipo": "Infraestructura hídrica", "resp": "MOP · SISS · Municipio", "d": "Red de aguas grises orientada a reutilización eficiente en ciudad del desierto con alta demanda hídrica."},
+  {"id": "c3", "n": "Borde Río El Loa Calama", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -68.92, "tipo": "Espacio público fluvial", "resp": "Municipio Calama · GORE", "d": "Parque lineal continuo con espacios verdes, ciclovías y áreas de recreación a lo largo del cauce urbano del río El Loa."},
+  {"id": "c4", "n": "Parque Los Yacimientos Calama", "oe": 1, "c": "Calama", "lat": -22.44, "lng": -68.91, "tipo": "Espacio público temático", "resp": "Municipio · GORE", "d": "Gran parque urbano temático en Calama que rinde homenaje a la tradición minera regional."},
+  {"id": "c5", "n": "Centro Recreacional Ojo de Opache", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -69.0, "tipo": "Turismo y recreación", "resp": "Municipio · GORE · SERNATUR", "d": "Centro recreacional en el oasis Ojo de Opache, aprovechando el ecosistema natural para crear un destino turístico regional."},
+  {"id": "c6", "n": "ARENAS Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.92, "tipo": "Equipamiento deportivo-cultural", "resp": "Municipio · GORE · Privados", "d": "Recinto multiuso tipo arena en Calama para eventos deportivos, culturales y de entretenimiento de escala regional."},
+  {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta."}
+];
+const OES={1:['Calidad de vida','var(--oe1)'],2:['Minería sustentable','var(--oe2)'],3:['Empresas regionales','var(--oe3)'],4:['Institucionalidad pública','var(--oe4)'],5:['Ecosistema del conocimiento','var(--oe5)']};
+const OE_HEX={1:'#FAA900',2:'#70AD57',3:'#FF5812',4:'#0090D4',5:'#00BCB6'};
+const CIUDADES=['Antofagasta','Calama','Tocopilla','Regional'];
 
 // ══ LÓGICA ══
 const $=s=>document.querySelector(s);
@@ -136,15 +273,124 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      ${v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
+      ${v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{
     // youtube-nocookie: no deja cookies de seguimiento hasta que se reproduce
     $('#vid').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.yt}?autoplay=1&rel=0&modestbranding=1" title="${esc(v.titulo)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
   };
+  const ab=$('#abrir-ini');if(ab)ab.onclick=abrirExplorador;
 }
 ir(0);
+
+// ══ EXPLORADOR DE INICIATIVAS ══
+const F={c:'',oe:0,q:'',vista:'map',sel:null};
+let mapa=null,capa=null,marcas={};
+const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+
+function irA(el){ // desplaza la página (o el sitio padre) hasta el elemento
+  const y=el.getBoundingClientRect().top+window.pageYOffset;
+  if(parent!==window)parent.postMessage({type:'emra-mineria-scroll',y},'*');
+  else window.scrollTo({top:y-20,behavior:'smooth'});
+}
+function cargarLeaflet(){
+  if(window.L)return Promise.resolve();
+  // se espera también el CSS: sin él Leaflet calcula mal el tamaño y el encuadre inicial
+  const cargar=(tag,attrs)=>new Promise((ok,mal)=>{const e=Object.assign(document.createElement(tag),attrs);e.onload=ok;e.onerror=mal;document.head.appendChild(e);});
+  return Promise.all([
+    cargar('link',{rel:'stylesheet',href:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'}),
+    cargar('script',{src:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'})
+  ]);
+}
+function abrirExplorador(){
+  const ex=$('#exp');
+  if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();}
+  irA(ex);
+}
+$('#exp-x').onclick=()=>{$('#exp').hidden=true;irA($('#tabs'));const ab=$('#abrir-ini');if(ab)ab.focus();};
+
+function pintarFiltros(){
+  const nC=c=>INICIATIVAS.filter(x=>x.c===c).length, nO=o=>INICIATIVAS.filter(x=>x.oe===o).length;
+  $('#f-c').innerHTML=[['','Todas',INICIATIVAS.length],...CIUDADES.map(c=>[c,c,nC(c)])]
+    .map(([v,t,n])=>`<button class="chip" data-c="${v}" aria-pressed="${F.c===v}">${t} <i>${n}</i></button>`).join('');
+  $('#f-oe').innerHTML=`<button class="chip" data-oe="0" aria-pressed="${!F.oe}">Todos <i>${INICIATIVAS.length}</i></button>`+
+    Object.entries(OES).map(([k,[t,col]])=>{const n=nO(+k);return `<button class="chip" data-oe="${k}" style="--c:${col}" aria-pressed="${F.oe===+k}" ${n?'':'disabled title="Sin iniciativas de mediano plazo en este objetivo"'}><span class="sw"></span>OE${k} · ${t} <i>${n}</i></button>`;}).join('');
+  document.querySelectorAll('#f-c .chip').forEach(b=>b.onclick=()=>{F.c=b.dataset.c;F.sel=null;pintarFiltros();pintar(true);});
+  document.querySelectorAll('#f-oe .chip').forEach(b=>b.onclick=()=>{F.oe=+b.dataset.oe;F.sel=null;pintarFiltros();pintar(true);});
+}
+$('#q').oninput=e=>{F.q=norm(e.target.value.trim());F.sel=null;pintar(true);};
+$('#v-map').onclick=()=>vista('map');$('#v-fic').onclick=()=>vista('fic');
+function vista(v){
+  F.vista=v;$('#v-map').setAttribute('aria-pressed',v==='map');$('#v-fic').setAttribute('aria-pressed',v==='fic');
+  $('#mv').hidden=v!=='map';$('#grid').hidden=v!=='fic';
+  if(v==='map'){iniciarMapa();if(mapa)setTimeout(()=>{mapa.invalidateSize();encuadrar();},0);}
+}
+const visibles=()=>INICIATIVAS.filter(x=>(!F.c||x.c===F.c)&&(!F.oe||x.oe===F.oe)&&(!F.q||norm(x.n+' '+x.tipo+' '+x.d).includes(F.q)));
+
+function ficha(x){
+  return `<dl class="dl"><dt>Tipo</dt><dd>${esc(x.tipo)}</dd><dt>Horizonte</dt><dd>Mediano plazo · al 2035</dd><dt>Responsables</dt><dd>${esc(x.resp)}</dd></dl>`;
+}
+function meta(x){
+  return `<span class="meta"><span class="tag">OE${x.oe}</span>${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</span>`;
+}
+function pintar(reencuadrar){
+  const L=visibles();
+  $('#cnt').innerHTML=`<b>${L.length}</b> de ${INICIATIVAS.length} iniciativas`;
+  const vacio=`<div class="vacio">No hay iniciativas con esos filtros. Prueba con otra ciudad u objetivo.</div>`;
+  $('#lst').innerHTML=L.length?L.map(x=>`<button class="it${F.sel===x.id?' sel':''}" data-id="${x.id}" style="--c:${OES[x.oe][1]}" aria-expanded="${F.sel===x.id}">
+      ${meta(x)}<div class="nm">${esc(x.n)}</div>
+      <div class="more">${esc(x.d)}${ficha(x)}</div></button>`).join(''):vacio;
+  document.querySelectorAll('#lst .it').forEach(b=>b.onclick=()=>elegir(b.dataset.id===F.sel?null:b.dataset.id,true));
+  $('#grid').innerHTML=L.length?L.map(x=>`<article class="card" style="--c:${OES[x.oe][1]}">${meta(x)}<div class="nm">${esc(x.n)}</div><p>${esc(x.d)}</p>${ficha(x)}</article>`).join(''):vacio;
+  if(mapa)pintarMapa(L,reencuadrar);
+}
+function elegir(id,desdeLista){
+  F.sel=id;
+  document.querySelectorAll('#lst .it').forEach(b=>{const on=b.dataset.id===id;b.classList.toggle('sel',on);b.setAttribute('aria-expanded',on);});
+  Object.entries(marcas).forEach(([k,m])=>m.setStyle(estilo(k===id,m.options.oe)));
+  if(!id)return;
+  const m=marcas[id];
+  if(m&&mapa){m.bringToFront();if(desdeLista)mapa.flyTo(m.getLatLng(),Math.max(mapa.getZoom(),12),{duration:.6});}
+  if(!desdeLista){ // desde el mapa: llevar la ficha a la vista dentro de la lista
+    const el=document.querySelector(`#lst .it[data-id="${id}"]`),ls=$('#lst');
+    if(el&&ls.scrollHeight>ls.clientHeight)ls.scrollTo({top:el.offsetTop-8,behavior:'smooth'});
+  }
+}
+
+// mapa (Leaflet + teselas OpenStreetMap, se carga sólo al abrir el explorador)
+const estilo=(on,oe)=>({radius:on?11:7,weight:on?3:2,color:'#fff',fillColor:OE_HEX[oe],fillOpacity:on?1:.9});
+function iniciarMapa(){
+  if(mapa)return;
+  cargarLeaflet().then(()=>{
+    if(mapa)return;
+    mapa=L.map('map',{scrollWheelZoom:false,zoomSnap:.5}).setView([-23.2,-69.8],7);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'}).addTo(mapa);
+    capa=L.layerGroup().addTo(mapa);
+    pintarMapa(visibles(),true);
+    // el contenedor puede cambiar de tamaño tras abrirse (fuentes, alto del iframe): recalcular y re-encuadrar
+    let primero=true;
+    new ResizeObserver(()=>{mapa.invalidateSize();if(primero&&$('#map').offsetHeight){primero=false;encuadrar();}}).observe($('#map'));
+    setTimeout(()=>{mapa.invalidateSize();encuadrar();},120);
+  }).catch(()=>{$('#map').innerHTML='<div class="vacio">No se pudo cargar el mapa. Usa la vista «Fichas».</div>';});
+}
+function pintarMapa(L_,reencuadrar){
+  capa.clearLayers();marcas={};
+  L_.forEach(x=>{
+    const m=L.circleMarker([x.lat,x.lng],{...estilo(F.sel===x.id,x.oe),oe:x.oe})
+      .bindTooltip(esc(x.n),{className:'tt',direction:'top',offset:[0,-6]})
+      .on('click',()=>elegir(x.id,false));
+    m.addTo(capa);marcas[x.id]=m;
+  });
+  if(reencuadrar)encuadrar();
+}
+function encuadrar(){
+  const ll=Object.values(marcas).map(m=>m.getLatLng());
+  if(ll.length)mapa.fitBounds(L.latLngBounds(ll).pad(.15),{maxZoom:13});
+}
+// enlace directo: videos-home.html#iniciativas abre el video 3 con el explorador
+if(location.hash==='#iniciativas'){ir(2);abrirExplorador();}
 
 // ── iframe: avisar alto al sitio padre ──
 if(parent!==window){
