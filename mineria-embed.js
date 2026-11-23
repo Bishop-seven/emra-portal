@@ -11,7 +11,7 @@
    Juego "¿Dato o mito?" solo (por ejemplo, en una página de campaña en emra.cl):
      <div id="emra-dato-o-mito"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
-   Carrusel "Iniciativas estratégicas" presentadas al Directorio (home):
+   Carrusel "Proyectos estratégicos" presentados al Directorio (página Actualidad de emra.cl):
      <div id="emra-estrategicas-home"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
    Cada iframe crece al alto de su contenido (sin doble scroll).
@@ -25,7 +25,7 @@
     'emra-mineria-home':{src:'mineria-home.html',title:'Conoce sobre minería',h:640,bg:'transparent',radius:'0'},
     'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'},
     'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#F7F1EC',radius:'16px'},
-    'emra-estrategicas-home':{src:'estrategicas-home.html',title:'Iniciativas estratégicas EMRA',h:560,bg:'transparent',radius:'0'}
+    'emra-estrategicas-home':{src:'estrategicas-home.html',title:'Proyectos estratégicos EMRA',h:560,bg:'transparent',radius:'0'}
   };
   var frames=[];
   Object.keys(TIPOS).forEach(function(id){
