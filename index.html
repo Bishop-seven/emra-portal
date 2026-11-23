@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="emra-conocimiento.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 /* ═══════════════ VARIABLES ═══════════════ */
 :root{
@@ -886,6 +886,217 @@ svg{display:block}
 .leaflet-cluster-anim .leaflet-marker-icon,.leaflet-cluster-anim .leaflet-marker-shadow{
   transition:transform .3s ease-out,opacity .3s ease-in!important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TEMA CLARO · rediseño aprobado el 23-nov-2026 (propuesta archivos/propuesta-portal)
+   Mismo sistema visual que emra.cl: Figtree, fondo claro cálido, cobre y colores OE oficiales.
+   Solo afecta: barra superior, panel lateral, mapa, ficha y Gorito.
+   Admin, portada, tótem, participación, comparador y presentación siguen con su estilo.
+   ═══════════════════════════════════════════════════════════════════ */
+#loading{background:#fbf8f5}#loading::before{display:none}#loading p{color:#6b645e;font-family:'Figtree',sans-serif}
+#app{--top:64px;--sidebar:400px;--drawer:440px;padding-top:var(--top);font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif}
+#topbar,#sidebar,#ficha-wrap,#chat-bar,.basemap-panel,.map-ctrls,.pin-tt{
+  --e:#a9622f;--ed:#8c4f24;
+  --sb:#fff;--sb2:#f7f1ec;--sbb:#e7ddd3;--sbt:#1f1a16;--sbm:#6b645e;
+  --ink:#1f1a16;--tx:#2f2a26;--mut:#6b645e;--bd:#e7ddd3;--card:#f7f1ec;--cu:#CC824D;
+  font-family:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif}
+#app button,#app input,#app select{font-family:inherit}
+#app :focus-visible{outline:3px solid #0090D4;outline-offset:2px}
+
+/* Barra superior */
+#topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:18px;padding:0 18px;z-index:650}
+.tb-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:none}
+.tb-brand .sb-logo{height:34px;width:auto}
+.tb-brand b{display:block;font-size:15px;font-weight:800;line-height:1.1;color:var(--ink);white-space:nowrap}
+.tb-brand span{display:block;font-size:12px;color:var(--mut);white-space:nowrap}
+#topbar .tabs{display:flex;gap:2px;background:var(--card);border-radius:999px;padding:4px;border:0;margin:0}
+#topbar .tab{flex:none;padding:8px 15px;border-radius:999px;font-size:14px;font-weight:700;color:var(--mut);text-transform:none;letter-spacing:0;border:0;white-space:nowrap}
+#topbar .tab.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(60,40,20,.14)}
+#topbar .tab:hover:not(.on){color:var(--ink)}
+.tb-acts{margin-left:auto;display:flex;gap:8px;flex:none}
+.tb-btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;cursor:pointer;white-space:nowrap}
+.tb-btn:hover{border-color:var(--cu)}
+.tb-play{width:0;height:0;border-left:9px solid #d32f2f;border-top:6px solid transparent;border-bottom:6px solid transparent}
+.map-header{display:none!important}
+@media (max-width:1280px){.tb-brand span{display:none}.tb-ig span{display:none}}
+@media (max-width:1100px){#topbar .tab{padding:8px 11px;font-size:13px}.tb-brand b{font-size:14px}}
+
+/* Panel lateral */
+#sidebar{width:var(--sidebar);min-width:var(--sidebar);background:#fff;border-right:1px solid var(--bd);color:var(--tx)}
+#sidebar .sb-head{display:none}
+#sidebar .sb-body{padding:18px 16px}
+#sidebar .sb-body::-webkit-scrollbar{width:6px}
+#sidebar .sb-body::-webkit-scrollbar-thumb{background:var(--bd)}
+.sheet-h{display:none}
+.ph-t{font-size:21px;font-weight:800;line-height:1.15;color:var(--ink);letter-spacing:-.01em}
+.ph-p{font-size:13.5px;color:var(--mut);margin:4px 0 14px}
+#sidebar .search-wrap{margin-bottom:4px}
+#sidebar .search-wrap input{font-size:15px;padding:11px 14px 11px 40px;border:1.5px solid var(--bd);border-radius:10px;background:#fbf8f5;color:var(--ink)}
+#sidebar .search-wrap input:focus{border-color:var(--cu);background:#fff}
+#sidebar .search-wrap input::placeholder{color:#8d857e}
+#sidebar .search-ico{left:13px;width:18px;height:18px;font-size:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b645e' stroke-width='2.4'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center/contain no-repeat}
+#sidebar .cmp-bar>span:first-child{display:none}
+.flt-lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:14px 0 6px}
+#sidebar .oe-pills{gap:6px;margin-bottom:0}
+#sidebar .chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:700;color:var(--tx);cursor:pointer}
+#sidebar .chip .d{width:10px;height:10px;border-radius:50%}
+#sidebar .chip .n{color:var(--mut);font-weight:600}
+#sidebar .chip:hover{border-color:var(--cu)}
+#sidebar .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+#sidebar .chip[aria-pressed="true"] .n{color:rgba(255,255,255,.7)}
+#sidebar .ini-count{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mut);margin:16px 0 4px;padding-top:12px;border-top:1px solid #efe7df}
+.ini-clr{border:0;background:none;color:var(--e);font-weight:700;font-size:13px;cursor:pointer}
+.ini-row{display:flex;align-items:center;gap:4px;border-radius:10px;margin:0 -6px;transition:background .12s}
+.ini-row:hover,.ini-row[aria-current="true"]{background:var(--card)}
+.ini-row[aria-current="true"]{box-shadow:inset 4px 0 0 var(--c)}
+.ini-open{flex:1;min-width:0;display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:center;text-align:left;border:0;background:none;padding:8px 6px;cursor:pointer;color:inherit}
+.ini-open img{width:92px;height:66px;object-fit:cover;border-radius:8px;background:var(--card);display:block}
+.ini-txt{display:block;min-width:0}
+.ini-tags{display:flex;gap:5px;align-items:center}
+#sidebar .ini-card-title{display:-webkit-box;font-size:15px;font-weight:700;line-height:1.25;color:var(--ink);margin:4px 0 2px}
+#sidebar .ini-card-loc{display:block;font-size:13px;color:var(--mut)}
+.ini-cmp{flex:none;width:30px;height:30px;margin-right:8px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;color:var(--mut);font-weight:800;font-size:15px;cursor:pointer;opacity:0;transition:opacity .15s}
+.ini-row:hover .ini-cmp,.ini-cmp[aria-pressed="true"],.ini-cmp:focus-visible{opacity:1}
+.ini-cmp[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.ini-cmp:disabled{opacity:0!important;cursor:default}
+.ini-empty{padding:24px 6px;color:var(--mut);text-align:center}
+/* etiquetas OE e ID: texto oscuro sobre el color OE (contraste AA) */
+#sidebar .oe-badge,#ficha .oe-badge{color:#1f1a16;font-size:11.5px;font-weight:800;letter-spacing:.03em;padding:1px 7px;border-radius:4px}
+#sidebar .id-badge,#ficha .id-badge{color:#1f1a16;background:#fff;border:1.5px solid var(--bd);font-size:11.5px;font-weight:800;padding:0 6px;border-radius:4px}
+/* pie del panel: comparador */
+#sidebar .sb-foot{background:#fbf8f5;border-top:1px solid var(--bd);padding:10px 16px}
+#sidebar .btn-gal{display:none}
+#sidebar .cmp-bar{background:#fff;border-color:var(--bd);font-size:12.5px;color:var(--mut)}
+#sidebar .cmp-bar span{font-size:12.5px!important}
+#sidebar .cmp-slot{border-color:#cfc3b7}
+#sidebar .cmp-slot.on{border-color:var(--ink);background:var(--ink);color:#fff}
+#sidebar .btn-cmp{background:#fff;color:var(--ink);border:1.5px solid var(--bd);font-size:13px}
+#sidebar .btn-cmp:hover:not(:disabled){border-color:var(--cu);background:#fff}
+#sidebar .foot-links{border-top-color:var(--bd)}
+#sidebar .foot-link{font-size:12px;color:var(--mut)}
+/* demás pestañas (La EMRA, Datos, Línea de tiempo, Galería) en tema claro */
+#sidebar .emra-hero,#sidebar .emra-foot-card,#sidebar .stat-hero{background:var(--card);border-color:var(--bd)}
+#sidebar .emra-hero-title{color:var(--ink);font-family:inherit;font-size:20px}
+#sidebar .emra-p{color:var(--tx);font-size:14.5px}
+#sidebar .emra-btn{background:#fff;border-color:var(--bd);color:var(--ink);font-size:13px}
+#sidebar .emra-btn:hover{border-color:var(--cu);color:var(--ink)}
+#sidebar .emra-btn-video{background:#fff}
+#sidebar .emra-btn-tag{background:var(--card)}
+#sidebar .emra-oe-card,#sidebar .stat-mini,#sidebar .tl-card,#sidebar .gal-item{background:#fff;border-color:var(--bd)}
+#sidebar .emra-oe-label{color:var(--ink);font-family:inherit;font-size:14px}
+#sidebar .emra-oe-desc{color:var(--mut);font-size:13px}
+#sidebar .emra-oe-link{font-size:13px}
+#sidebar .emra-actores,#sidebar .sec-title,#sidebar .stat-lbl,#sidebar .stat-mini-lbl,#sidebar .tl-year{font-size:11.5px}
+#sidebar .stat-big,#sidebar .stat-mini-num{font-family:inherit}
+#sidebar .bar-head{font-size:13px}
+#sidebar .bar-track{background:#efe7df}
+#sidebar .tl-title,#sidebar .gal-item-title{font-size:13.5px}
+#sidebar .gal-item img{height:80px}
+#sidebar .tl-spine{background:linear-gradient(180deg,var(--cu) 0%,rgba(204,130,77,.1) 100%)}
+#sidebar [style*="color:#fff"],#sidebar [style*="color: #fff"],#sidebar [style*="color:white"]{color:var(--ink)!important}
+#sidebar [style*="color:rgba(200,220,235"],#sidebar [style*="color:rgba(220,235,245"],#sidebar [style*="color:#e2e8f0"]{color:var(--tx)!important}
+#sidebar [style*="color:rgba(148,180,200"]{color:var(--mut)!important}
+#sidebar [style*="background:#0"],#sidebar [style*="background:rgba(11,25,41"],#sidebar [style*="background:rgba(8,18,32"]{background:var(--card)!important}
+
+/* Mapa */
+#map-area{background:#e9e9e7}
+.pin{border-radius:50%;background:var(--c);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .15s;cursor:pointer}
+.pin b{font-size:12px;font-weight:800;color:#1f1a16}
+.pin.on{box-shadow:0 0 0 6px rgba(31,26,22,.2),0 2px 8px rgba(0,0,0,.3)}
+.pin.hov{transform:scale(1.35)}
+.clu{display:grid;place-items:center;border-radius:50%;background:#1f1a16;color:#fff;font:800 14px/1 'Figtree',sans-serif;border:3px solid #fff;box-shadow:0 0 0 3px var(--c),0 3px 10px rgba(0,0,0,.25)}
+.leaflet-tooltip.pin-tt{font-family:'Figtree',sans-serif;font-size:13.5px;font-weight:700;color:#1f1a16;background:#fff;border:0;border-radius:8px;box-shadow:0 8px 24px rgba(60,40,20,.18);padding:6px 10px;white-space:nowrap}
+.leaflet-tooltip.pin-tt:before{display:none}
+#map-area .leaflet-control-zoom a{background:#fff!important;border:1px solid var(--bd,#e7ddd3)!important;color:#1f1a16!important;width:38px!important;height:38px!important;line-height:36px!important;font-size:20px!important}
+#map-area .leaflet-control-zoom a:hover{color:#a9622f!important;border-color:#CC824D!important}
+.map-ctrls{top:104px;right:10px}
+.map-btn{background:#fff;border:1px solid var(--bd);color:var(--ink);box-shadow:0 2px 8px rgba(60,40,20,.12)}
+.map-btn:hover,.map-btn.on{color:var(--e);border-color:var(--cu);background:#fff;box-shadow:0 2px 8px rgba(60,40,20,.12)}
+.basemap-panel{top:104px;right:58px;background:#fff;border:1px solid var(--bd);box-shadow:0 12px 30px rgba(60,40,20,.16);color:var(--ink)}
+.bm-title{font-size:11.5px}.bm-name{font-size:12px;color:var(--ink)}.bm-desc{font-size:11px}
+.bm-opt{background:#fff;border-color:var(--bd);color:var(--ink)}
+.bm-opt:hover{background:var(--card);border-color:var(--bd)}
+.bm-opt.on{background:var(--card);border-color:var(--cu);color:var(--ink)}
+#app.ficha-on .leaflet-top.leaflet-right,#app.ficha-on .map-ctrls,#app.ficha-on .basemap-panel{transform:translateX(calc(-1 * var(--drawer)))}
+
+/* Ficha lateral (reemplaza la ventana del mapa y el modal) */
+#ficha-wrap{display:block!important;position:absolute;top:0;right:0;bottom:0;left:auto;width:var(--drawer);max-width:100%;background:none;padding:0;z-index:30;transform:translateX(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+#ficha-wrap.on{transform:none;pointer-events:auto}
+#ficha{height:100%;max-height:none;max-width:none;border:0;border-radius:0;background:#fff;color:var(--tx);box-shadow:-12px 0 40px rgba(40,25,10,.16);overflow-y:auto}
+#ficha::-webkit-scrollbar-thumb{background:var(--bd)}
+#ficha .fh img{height:auto;aspect-ratio:16/9;border-radius:0}
+#ficha .fh-over,#ficha .fh-info{display:none}
+#ficha .fh-close{top:12px;right:12px;width:40px;height:40px;background:rgba(255,255,255,.95);border:0;color:var(--ink);font-size:18px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#ficha .fb{padding:18px 22px 24px}
+#ficha .f-tags{display:flex;gap:6px;align-items:center}
+#ficha .f-tags .oe-badge,#ficha .f-tags .id-badge{font-size:15px;padding:4px 11px;border-radius:6px}
+#ficha .f-tags .id-badge{border-width:2px}
+#ficha .fh-title{font-family:inherit;font-size:25px;font-weight:800;line-height:1.15;color:var(--ink);margin:12px 0 10px;letter-spacing:-.01em}
+#ficha .f-obj{display:block;font-size:14px;line-height:1.5;color:var(--mut);border-left:4px solid var(--c);padding:2px 0 2px 12px;text-decoration:none;margin-bottom:16px}
+#ficha .f-obj b{color:var(--ink)}
+#ficha .f-obj:hover{color:var(--tx)}
+#ficha .fmeta{gap:10px;margin-bottom:6px}
+#ficha .fmeta-item{background:var(--card);border:0;border-radius:10px;padding:10px 12px}
+#ficha .fmeta-label{font-size:11.5px;font-weight:800;letter-spacing:.07em;color:var(--mut)}
+#ficha .fmeta-val{font-size:14.5px;color:var(--ink)}
+#ficha .fsec{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--mut);margin:18px 0 8px}
+#ficha .fdesc{font-size:15.5px;line-height:1.6;color:var(--tx);background:none;border:0;padding:0}
+#ficha .fgi{width:96px;height:72px;opacity:1}
+#ficha .fgi.on,#ficha .fgi:hover{border-color:var(--ink)}
+#ficha .frel-item{background:#fff;border:1.5px solid #efe7df;border-radius:10px;padding:6px 10px 6px 6px;gap:10px}
+#ficha .frel-item:hover{border-color:var(--cu);background:#fff}
+#ficha .frel-img{width:54px;height:40px;border-radius:6px}
+#ficha .frel-name{font-size:14px;font-weight:700;color:var(--ink)}
+#ficha .frel-city{font-size:12.5px;color:var(--mut)}
+#ficha .fact{position:sticky;bottom:-24px;margin:18px -22px -24px;padding:12px 22px;background:#fff;border-top:1px solid #efe7df}
+#ficha .f-btn{font-size:14px;padding:11px 14px;border-radius:999px}
+#ficha .f-btn-s{background:#fff;color:var(--ink);border:1.5px solid var(--bd)}
+#ficha .f-btn-p{background:var(--ink);color:#fff}
+#ficha .f-btn-p:hover{background:#000}
+
+/* Gorito en la esquina */
+#chat-bar{left:auto;right:18px;bottom:18px;transform:none;width:min(380px,calc(100% - 36px));transition:right .28s}
+#app.ficha-on #chat-bar{right:calc(var(--drawer) + 18px)}
+#chat-bar #gorito-img{height:60px!important;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))!important}
+#chat-bar .chat-bubble{background:#fff;border:1px solid var(--bd);box-shadow:0 14px 36px rgba(40,25,10,.2)}
+#chat-bar .chat-resp{color:var(--tx);font-size:14px;border-bottom-color:#efe7df;max-height:160px}
+#chat-bar .ai-label{color:var(--e);font-size:11px}
+#chat-bar .chat-input{color:var(--ink);font-size:14.5px}
+#chat-bar .chat-input::placeholder{color:#8d857e}
+#chat-bar .chat-send{width:34px;height:34px;border-radius:50%;background:var(--ink)}
+#chat-bar .chat-send:disabled{background:#d8cec4}
+#chat-bar .chat-sug{background:#fff;border:1.5px solid var(--bd);color:var(--ink);font-size:12.5px;box-shadow:0 2px 8px rgba(60,40,20,.1)}
+#chat-bar .chat-sug:hover{border-color:var(--cu);background:#fff;color:var(--ink)}
+
+/* Celular: mapa arriba, lista como hoja que sube desde abajo */
+@media (max-width:768px){
+  #app{--top:104px}
+  #topbar{flex-wrap:wrap;height:var(--top);padding:8px 12px 0;gap:6px 10px;align-content:flex-start}
+  .tb-brand{flex:1}.tb-brand .sb-logo{height:28px}.tb-brand b{font-size:14px}
+  .tb-acts .tb-btn{padding:7px 11px;font-size:13px}
+  .tb-acts .tb-ig{display:none}
+  #topbar .tabs{order:3;width:calc(100% + 24px);margin:0 -12px;border-radius:0;background:#fff;border-top:1px solid #efe7df;padding:4px 8px;overflow-x:auto;scrollbar-width:none}
+  #topbar .tabs::-webkit-scrollbar{display:none}
+  #topbar .tab{padding:7px 12px;font-size:13.5px}
+  #topbar .tab.on{background:var(--card);box-shadow:none}
+  #sidebar,#sidebar.open{position:fixed;top:auto;left:0;right:0;bottom:0;width:100%;min-width:0;height:46vh;transform:none;border:0;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(40,25,10,.18);transition:height .25s;z-index:600}
+  #sidebar.max{height:calc(100% - var(--top) - 8px)}
+  #sidebar .sb-body{padding:6px 14px 14px}
+  .sheet-h{display:block;width:44px;height:5px;border-radius:3px;background:var(--bd);margin:2px auto 10px;border:0;cursor:pointer}
+  .ph-t{font-size:18px}.ph-p{display:none}
+  #sidebar .search-wrap{margin-top:10px}
+  #sidebar .oe-pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  #sidebar .oe-pills::-webkit-scrollbar{display:none}
+  #sidebar .chip{flex:none}
+  .flt-lbl{margin:10px 0 5px}
+  .ini-cmp{display:none}
+  #sidebar .sb-foot{display:none}
+  #ficha-wrap{position:fixed;top:var(--top);width:100%;z-index:640}
+  #chat-bar{right:10px;bottom:calc(46vh + 10px);width:min(340px,calc(100% - 20px))}
+  #chat-bar #gorito-img{height:48px!important}
+  #chat-bar .chat-sugs{display:none}
+  .map-ctrls{display:none}
+}
 </style>
 </head>
 <body>
@@ -901,6 +1112,26 @@ svg{display:block}
   <!-- Sidebar overlay (mobile) -->
   <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
+  <!-- BARRA SUPERIOR (rediseño 23-nov-2026): marca, secciones y acciones -->
+  <header id="topbar">
+    <div class="tb-brand">
+      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" style="cursor:pointer" title="EMRA" onclick="if(PORTADA_ACTIVA||verPortadaPrueba())showPortada()" onerror="this.style.display='none'"/>
+      <div><b>Portal EMRA 2023–2050</b><span>Estrategia Minera para el Bienestar · Región de Antofagasta</span></div>
+    </div>
+    <nav class="tabs" aria-label="Secciones del portal">
+      <button class="tab on" id="t-l" onclick="switchTab('l')">Iniciativas</button>
+      <button class="tab" id="t-e" onclick="switchTab('e')">La EMRA</button>
+      <button class="tab" id="t-d" onclick="switchTab('d')">Datos</button>
+      <button class="tab" id="t-tl" onclick="switchTab('tl')">Línea de tiempo</button>
+      <button class="tab" id="t-g" onclick="switchTab('g')">Galería</button>
+      <button class="tab" id="t-r" onclick="abrirReto()">Reto</button>
+    </nav>
+    <div class="tb-acts">
+      <button class="tb-btn" onclick="openEMRAVideo()"><span class="tb-play" aria-hidden="true"></span>Video EMRA · 10 min</button>
+      <a class="tb-btn tb-ig" href="https://www.instagram.com/emra.cl/" target="_blank" rel="noopener" aria-label="Instagram @emra.cl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg><span>@emra.cl</span></a>
+    </div>
+  </header>
+
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-head">
@@ -910,25 +1141,23 @@ svg{display:block}
         <div class="sb-sub">Región de Antofagasta · <span id="app-version"></span></div>
       </div>
     </div>
-    <div class="tabs">
-      <button class="tab on" id="t-e" onclick="switchTab('e')">EMRA</button>
-      <button class="tab" id="t-l" onclick="switchTab('l')">Lista</button>
-      <button class="tab" id="t-d" onclick="switchTab('d')">Datos</button>
-      <button class="tab" id="t-tl" onclick="switchTab('tl')">Timeline</button>
-      <button class="tab" id="t-g" onclick="switchTab('g')">Galería</button>
-      <button class="tab" id="t-r" onclick="abrirReto()">Reto 🦉</button>
-    </div>
     <div class="sb-body" id="sb-body">
       <!-- Tab EMRA (¿Qué es la EMRA?) -->
-      <div id="pnl-e"></div>
+      <div id="pnl-e" style="display:none"></div>
       <!-- Tab Lista -->
-      <div id="pnl-l" style="display:none">
+      <div id="pnl-l">
+        <button class="sheet-h" onclick="document.getElementById('sidebar').classList.toggle('max')" aria-label="Agrandar o achicar la lista"></button>
+        <h1 class="ph-t" id="ini-h">Iniciativas de mediano plazo</h1>
+        <p class="ph-p">Diseño al 2035. Toca una en la lista o en el mapa para ver su ficha.</p>
         <div class="search-wrap">
           <span class="search-ico">&#xe592;</span>
-          <input id="search-q" type="text" placeholder="Buscar iniciativa o ID…" oninput="applyFilters()"/>
+          <input id="search-q" type="search" placeholder="Busca por nombre, comuna o ID (ej. 594)" aria-label="Buscar iniciativa" oninput="applyFilters()"/>
         </div>
+        <div class="flt-lbl">Objetivo estratégico</div>
         <div class="oe-pills" id="oe-pills"></div>
-        <div class="city-box">
+        <div class="flt-lbl">Territorio</div>
+        <div class="oe-pills" id="city-chips"></div>
+        <div class="city-box" hidden>
           <label>Ciudad / Territorio</label>
           <select id="city-sel" onchange="applyFilters()">
             <option value="">Todas</option>
@@ -936,7 +1165,7 @@ svg{display:block}
             <option>Tocopilla</option><option>Mejillones</option><option>Regional</option>
           </select>
         </div>
-        <div class="ini-count" id="ini-count"></div>
+        <div class="ini-count"><span id="ini-count"></span><button id="ini-clr" class="ini-clr" hidden onclick="limpiarFiltros()">Limpiar filtros</button></div>
         <div id="ini-list"></div>
       </div>
       <!-- Tab Datos -->
@@ -1019,7 +1248,11 @@ svg{display:block}
     <!-- Basemap panel -->
     <div class="basemap-panel" id="bm-panel">
       <div class="bm-title">Tipo de mapa <button onclick="toggleBasemapPanel()" style="background:none;border:none;color:var(--sbm);cursor:pointer;font-size:13px">&#xe5cd;</button></div>
-      <button class="bm-opt on" data-bm="light" onclick="setBasemap('light',this)">
+      <button class="bm-opt on" data-bm="gris" onclick="setBasemap('gris',this)">
+        <div class="bm-thumb" style="background:#e5e5e3"></div>
+        <div><div class="bm-name">Gris claro</div><div class="bm-desc">Recomendado: destaca los puntos</div></div>
+      </button>
+      <button class="bm-opt" data-bm="light" onclick="setBasemap('light',this)">
         <div class="bm-thumb" style="background:#f4f3f0"></div>
         <div><div class="bm-name">Calle</div><div class="bm-desc">Estilo claro</div></div>
       </button>
@@ -1245,7 +1478,16 @@ svg{display:block}
 // DATOS
 // ═══════════════════════════════════════════════════════
 const APP_VERSION='v2.5';
-const OE_COLORS={'OE 1':'#EFAD1B','OE 2':'#287566','OE 3':'#FF6633','OE 4':'#038FCF','OE 5':'#19BAB6'};
+const OE_COLORS={'OE 1':'#FAA900','OE 2':'#70AD57','OE 3':'#FF5812','OE 4':'#0090D4','OE 5':'#00BCB6'}; // colores oficiales emra.cl (rediseño 23-nov-2026)
+// Textos literales de emra.cl («Objetivos Estratégicos · Pilares de la EMRA 2023-2050»)
+const OE_LIT={'OE 1':{c:'Calidad de vida',t:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',u:'https://www.emra.cl/oe1-mejorar-la-calidad-de-vida/'},
+  'OE 2':{c:'Minería sustentable',t:'Minería sustentable, que contemple la rehabilitación y preservación del patrimonio natural y cultural.',u:'https://www.emra.cl/oe2-mineria-sustentable/'},
+  'OE 3':{c:'Empresas regionales',t:'Incentivar la creación y fortalecer las empresas regionales para aumentar su participación en la cadena de valor de la minería, con una perspectiva descentralizada.',u:'https://www.emra.cl/oe3-fortalecer-las-empresas-regionales/'},
+  'OE 4':{c:'Institucionalidad',t:'Mejorar la institucionalidad pública y la gobernanza para un sector minero más competitivo y sostenible.',u:'https://www.emra.cl/oe4-mejorar-la-institucionalidad-publica/'},
+  'OE 5':{c:'Conocimiento',t:'Reforzar el ecosistema del conocimiento. y la innovación en la cadena del valor minero.',u:'https://www.emra.cl/oe5_reforzar_ecosistema_del_conocimiento/'}};
+const oeKey=o=>(String(o||'').match(/OE ?(\d)/)||[])[1]?'OE '+String(o).match(/OE ?(\d)/)[1]:'OE 1';
+const plazoTxt=p=>/mediano/i.test(p||'')?'Mediano plazo · al 2035':(p||'Por definir');
+const TERRITORIOS=['Antofagasta','Calama','Tocopilla','Mejillones','Regional'];
 const OE_DETAILS={
   'OE 1':{label:'Calidad de vida',desc:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.',n:18},
   'OE 2':{label:'Minería sustentable',desc:'Minería sustentable que contemple la rehabilitación y preservación del patrimonio natural y cultural.',n:4},
@@ -1351,6 +1593,7 @@ let ADMIN_INI=[...INI], ADMIN_TL=[...TIMELINE];
 let map, markersLayer=[], routeLines=[], currentTile;
 
 const BASEMAPS_DEF={
+  gris:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',ref:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri'},
   osm:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> contributors'},
   light:{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',attr:'&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com">CARTO</a>'},
   dark:{url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',attr:'&copy; OpenStreetMap &copy; CARTO'},
@@ -1366,15 +1609,19 @@ function initMap(){
     zoomControl:true,
     preferCanvas:true,
   });
-  map.zoomControl.setPosition('bottomright');
-  currentTile=L.tileLayer(BASEMAPS_DEF.osm.url,{attribution:BASEMAPS_DEF.osm.attr,maxZoom:19}).addTo(map);
-  basemapKey='osm';
+  map.zoomControl.setPosition('topright');
+  currentTile=L.tileLayer(BASEMAPS_DEF.gris.url,{attribution:BASEMAPS_DEF.gris.attr,maxZoom:16}).addTo(map);
+  window._grisRef=L.tileLayer(BASEMAPS_DEF.gris.ref,{maxZoom:16,pane:'overlayPane'}).addTo(map); // nombres de lugares sobre el gris
+  basemapKey='gris';
   // Fix map size after layout
   setTimeout(()=>map.invalidateSize(),200);
   }catch(e){console.error('Error inicializando mapa:',e);document.getElementById('map-leaflet').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--sbm);font-size:13px">Error al cargar el mapa. Verifica tu conexión a internet.</div>';}
 }
 
 function createPinIcon(col, hl=false, cmpNum=''){
+  // Punto redondo con borde blanco (rediseño): más limpio sobre el mapa gris
+  const d=hl?34:24;
+  return L.divIcon({className:'',html:`<div class="pin${hl?' on':''}" style="--c:${col};width:${d}px;height:${d}px">${cmpNum?`<b>${cmpNum}</b>`:''}</div>`,iconSize:[d,d],iconAnchor:[d/2,d/2],tooltipAnchor:[0,-d/2]});
   const sz=hl?44:32;
   const glow=hl?`filter:drop-shadow(0 0 8px ${col}88)`:'filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))';
   const ring=hl?`<circle cx="12" cy="8" r="11" fill="none" stroke="${col}" stroke-width="1.5" opacity=".4"/>`:'';
@@ -1415,8 +1662,9 @@ function renderMarkers(){
       const oeCount={};
       children.forEach(m=>{if(m._emraOE)oeCount[m._emraOE]=(oeCount[m._emraOE]||0)+1});
       const domOE=Object.entries(oeCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'OE 1';
-      const col=oec(domOE);
       const sz=count<10?40:count<20?46:52;
+      return L.divIcon({html:`<div class="clu" style="width:${sz}px;height:${sz}px;--c:${oec(domOE)}">${count}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+      const col=oec(domOE);
       const svg=`<svg viewBox="0 0 ${sz} ${sz}" width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg">
         <circle cx="${sz/2}" cy="${sz/2}" r="${sz/2-2}" fill="${col}" opacity=".2" stroke="${col}" stroke-width="2"/>
         <circle cx="${sz/2}" cy="${sz/2}" r="${sz/2-8}" fill="${col}" opacity=".9"/>
@@ -1453,7 +1701,9 @@ function renderMarkers(){
         </button>
       </div>`;
 
-    marker.bindPopup(popupHtml,{maxWidth:280,className:'emra-popup'});
+    // Rediseño: un clic abre la ficha lateral; al pasar el mouse se ve «ID · nombre»
+    marker.bindTooltip(`${idEmra(ini.id)?'ID '+idEmra(ini.id)+' · ':''}${ini.n}`,{className:'pin-tt',direction:'top',offset:[0,-6]});
+    marker.on('click',()=>openFicha(ini.id));
     clusterGroup.addLayer(marker);
     markersLayer.push(marker);
   });
@@ -1472,7 +1722,8 @@ function hideTooltip(){}
 function setBasemap(key,btn){
   basemapKey=key;
   if(currentTile)map.removeLayer(currentTile);
-  currentTile=L.tileLayer(BASEMAPS_DEF[key].url,{attribution:BASEMAPS_DEF[key].attr,maxZoom:19}).addTo(map);
+  currentTile=L.tileLayer(BASEMAPS_DEF[key].url,{attribution:BASEMAPS_DEF[key].attr,maxZoom:key==='gris'?16:19}).addTo(map);
+  if(window._grisRef){map.removeLayer(window._grisRef);if(key==='gris')window._grisRef.addTo(map);}
   document.querySelectorAll('.bm-opt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('bm-panel').classList.remove('on');
@@ -1530,10 +1781,17 @@ function applyFilters(){
 }
 
 function renderOEPills(){
+  const n=o=>INI.filter(i=>i.oe&&i.oe.includes(o)).length;
   document.getElementById('oe-pills').innerHTML=
-    `<button class="oe-pill ${!activeOE?'on':''}" style="${!activeOE?'background:rgba(255,255,255,.14);color:#fff;border-color:transparent':''}" onclick="setOE(null)">Todos</button>`
-    +Object.entries(OE_COLORS).map(([o,c])=>`<button class="oe-pill ${activeOE===o?'on':''}" style="${activeOE===o?`background:${c};border-color:transparent`:`color:${c};border-color:${c}44`}" onclick="setOE('${o}')">${o}</button>`).join('');
+    `<button class="chip" aria-pressed="${!activeOE}" onclick="setOE(null)">Todos <span class="n">${INI.length}</span></button>`
+    +Object.entries(OE_COLORS).filter(([o])=>n(o)).map(([o,c])=>`<button class="chip" aria-pressed="${activeOE===o}" onclick="setOE('${o}')"><span class="d" style="background:${c}"></span>${o.replace(' ','')} ${OE_LIT[o].c} <span class="n">${n(o)}</span></button>`).join('');
+  const cc=document.getElementById('city-chips');
+  if(cc){const nc=t=>INI.filter(i=>i.c===t).length;
+    cc.innerHTML=`<button class="chip" aria-pressed="${!cityFilter}" onclick="setCity('')">Todos</button>`
+      +TERRITORIOS.filter(t=>nc(t)).map(t=>`<button class="chip" aria-pressed="${cityFilter===t}" onclick="setCity('${t}')">${t} <span class="n">${nc(t)}</span></button>`).join('');}
 }
+function setCity(t){document.getElementById('city-sel').value=t;applyFilters();renderOEPills();}
+function limpiarFiltros(){activeOE=null;document.getElementById('search-q').value='';setCity('');renderMarkers();}
 function setOE(o){activeOE=o;renderOEPills();renderList();renderMarkers()}
 
 function renderList(){
@@ -1543,19 +1801,23 @@ function renderList(){
     if(searchQ&&!i.n.toLowerCase().includes(searchQ)&&!i.c.toLowerCase().includes(searchQ)&&String(idEmra(i.id))!==searchQ.trim().replace(/^id\s*/,''))return false; // también busca por ID EMRA («594» o «ID 594»)
     return true;
   });
-  document.getElementById('ini-count').textContent=`${l.length} proyectos`;
+  const filtro=!!(activeOE||cityFilter||searchQ);
+  document.getElementById('ini-count').textContent=filtro?`${l.length} de ${INI.length} iniciativas`:`Mostrando las ${INI.length}`;
+  const clr=document.getElementById('ini-clr');if(clr)clr.hidden=!filtro;
+  const h=document.getElementById('ini-h');if(h)h.textContent=`${INI.length} iniciativas de mediano plazo`;
+  const abierta=document.getElementById('ficha-wrap').classList.contains('on')?[...highlighted][0]:null;
   document.getElementById('ini-list').innerHTML=l.map(i=>{
     const isSel=selCmp.includes(i.id);
-    return`<button class="ini-card${isSel?' sel':''}" onclick="if(map)map.flyTo([${i.lat},${i.lng}],13,{duration:1});${isSel||selCmp.length<3?`toggleCmp('${i.id}')`:`openFicha('${i.id}')`}">
-      <img src="${img(i.id,300,120)}" alt="" loading="lazy" onerror="this.style.display='none'"/>
-      ${isSel?`<div class="sel-num">${selCmp.indexOf(i.id)+1}</div>`:''}
-      <div class="ini-card-body">
-        <span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span> ${idBadge(i.id)}
-        <div class="ini-card-title">${i.n}</div>
-        <div class="ini-card-loc">📍 ${i.c}</div>
-      </div>
-    </button>`;
-  }).join('');
+    return`<div class="ini-row${isSel?' sel':''}" style="--c:${oec(i.oe)}" ${abierta===i.id?'aria-current="true"':''}>
+      <button class="ini-open" onclick="openFicha('${i.id}')" onmouseenter="pinHover('${i.id}',1)" onmouseleave="pinHover('${i.id}',0)">
+        <img src="${img(i.id,300,220)}" alt="" loading="lazy" onerror="this.src=PH_IMG"/>
+        <span class="ini-txt"><span class="ini-tags"><span class="oe-badge" style="background:${oec(i.oe)}">${i.oe.replace(' ','')}</span>${idBadge(i.id)}</span>
+        <span class="ini-card-title">${i.n}</span>
+        <span class="ini-card-loc">${i.c}${i.tipo?' · '+i.tipo:''}</span></span>
+      </button>
+      <button class="ini-cmp" onclick="toggleCmp('${i.id}')" aria-pressed="${isSel}" title="${isSel?'Quitar de la comparación':'Agregar a la comparación (máx. 3)'}" ${!isSel&&selCmp.length>=3?'disabled':''}>${isSel?selCmp.indexOf(i.id)+1:'+'}</button>
+    </div>`;
+  }).join('')||'<p class="ini-empty">No hay iniciativas con esos filtros.</p>';
 }
 
 function renderStats(){
@@ -1612,44 +1874,43 @@ function openFicha(id){
   const i=INI.find(x=>x.id===id);if(!i)return;
   hideTooltip();highlighted=new Set([id]);renderMarkers();
   if(map) map.flyTo([i.lat,i.lng],13,{duration:1});
-  const rel=INI.filter(x=>x.oe===i.oe&&x.id!==id).slice(0,3);
-  // Usar galería real si existe, o generar placeholders
+  const rel=INI.filter(x=>x.id!==id&&(x.c===i.c||x.oe===i.oe)).sort((a,b)=>(b.c===i.c)-(a.c===i.c)).slice(0,3);
+  // Solo imágenes reales (sin relleno de muestra)
   const mainImg=i.imageUrl||img(id,600,300);
-  const galleryImgs=i.gallery&&i.gallery.length?i.gallery:[img(id+'b',600,300),img(id+'c',600,300),img(id+'d',600,300)];
+  const galleryImgs=i.gallery&&i.gallery.length?i.gallery:[];
   const imgs=[mainImg,...galleryImgs].slice(0,8);
+  const ok=oeKey(i.oe),lit=OE_LIT[ok];
   window._fichaImgs = imgs;
   document.getElementById('ficha').innerHTML=`
     <div class="fh">
       <img id="fi-main" src="${imgs[0]}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, 0)" onerror="this.src=PH_IMG"/>
       <div class="fh-over"></div>
       <div class="fh-info">
-        <div style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:4px">
-          <span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span>
-          ${idBadge(i.id)}
-          <span class="oe-badge" style="background:rgba(255,255,255,.12)">${i.tipo||'Proyecto'}</span>
-        </div>
-        <div class="fh-title">${i.n}</div>
       </div>
-      <button class="fh-close" onclick="closeFicha()">✕</button>
+      <button class="fh-close" onclick="closeFicha()" aria-label="Cerrar ficha">✕</button>
     </div>
     <div class="fb">
+      <div class="f-tags"><span class="oe-badge" style="background:${oec(i.oe)}">${ok.replace(' ','')}</span>${idBadge(i.id)}</div>
+      <h2 class="fh-title">${i.n}</h2>
+      ${lit?`<a class="f-obj" href="${lit.u}" target="_blank" rel="noopener" style="--c:${oec(i.oe)}"><b>Objetivo Estratégico ${ok.slice(3)}:</b> ${lit.t}</a>`:''}
       <div class="fmeta">
-        <div class="fmeta-item"><div class="fmeta-label">📍 Ciudad</div><div class="fmeta-val">${i.c}</div></div>
-        <div class="fmeta-item"><div class="fmeta-label">📅 Plazo</div><div class="fmeta-val">${i.plazo||'Por definir'}</div></div>
-        <div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">🏛 Responsable</div><div class="fmeta-val">${i.resp||'Por definir'}</div></div>
+        <div class="fmeta-item"><div class="fmeta-label">Comuna</div><div class="fmeta-val">${i.c}</div></div>
+        <div class="fmeta-item"><div class="fmeta-label">Plazo</div><div class="fmeta-val">${plazoTxt(i.plazo)}</div></div>
+        <div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Responsable</div><div class="fmeta-val">${i.resp||'Por definir'}</div></div>
+        ${i.tipo?`<div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Tipo</div><div class="fmeta-val">${i.tipo}</div></div>`:''}
       </div>
-      <div class="fsec">📄 Descripción</div>
+      <div class="fsec">Descripción</div>
       <div class="fdesc">${i.d}</div>
-      <div class="fsec" style="margin-top:12px">🖼 Galería</div>
-      <div class="fgal">${imgs.map((u,idx)=>`<img class="fgi ${idx===0?'on':''}" src="${u}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, ${idx})" onerror="this.style.display='none'"/>`).join('')}</div>
-      ${rel.length?`<div class="fsec" style="margin-top:12px">🔗 Iniciativas relacionadas (${i.oe})</div>
+      ${imgs.length>1?`<div class="fsec" style="margin-top:12px">Imágenes</div>
+      <div class="fgal">${imgs.map((u,idx)=>`<img class="fgi ${idx===0?'on':''}" src="${u}" alt="" style="cursor:zoom-in" onclick="openLightbox(window._fichaImgs, ${idx})" onerror="this.style.display='none'"/>`).join('')}</div>`:''}
+      ${rel.length?`<div class="fsec" style="margin-top:12px">Iniciativas relacionadas</div>
       ${rel.map(r=>`<div class="frel-item" onclick="openFicha('${r.id}')">
         <img class="frel-img" src="${img(r.id,120,80)}" alt="" onerror="this.style.display='none'"/>
-        <div><div class="frel-name">${r.n}</div><div class="frel-city">📍 ${r.c}</div></div>
+        <div><div class="frel-name">${r.n}</div><div class="frel-city">${idEmra(r.id)?'ID '+idEmra(r.id)+' · ':''}${r.c}</div></div>
         <span style="color:var(--sbm);font-size:16px;margin-left:auto">›</span>
       </div>`).join('')}`:''}
       <div class="fact">
-        <button class="f-btn f-btn-s" onclick="closeFicha()">← Volver al mapa</button>
+        <button class="f-btn f-btn-s" onclick="closeFicha()">Cerrar</button>
         <button class="f-btn f-btn-p" id="gorito-ficha-btn" data-ini="" onclick="presuntaGorito(this)">
           <img src="" id="gorito-ficha-btn-img" style="width:18px;height:18px;object-fit:contain;display:inline-block;vertical-align:middle" alt=""/>
           Pregúntale a Gorito ↗
@@ -1657,6 +1918,9 @@ function openFicha(id){
       </div>
     </div>`;
   document.getElementById('ficha-wrap').classList.add('on');
+  document.getElementById('app').classList.add('ficha-on');
+  document.getElementById('ficha').scrollTop=0;
+  renderList();
   // Asignar Gorito al botón de la ficha
   const gfb = document.getElementById('gorito-ficha-btn-img');
   if(gfb && window._goritoReady) gfb.src = GORITO_URL;
@@ -1664,7 +1928,10 @@ function openFicha(id){
   const gBtn = document.getElementById('gorito-ficha-btn');
   if(gBtn) gBtn.dataset.ini = i.n;
 }
-function closeFicha(){document.getElementById('ficha-wrap').classList.remove('on');highlighted=new Set();renderMarkers()}
+function closeFicha(){document.getElementById('ficha-wrap').classList.remove('on');document.getElementById('app').classList.remove('ficha-on');highlighted=new Set();renderMarkers();renderList()}
+// Resalta el punto del mapa al pasar por una fila de la lista
+function pinHover(id,on){const m=(markersLayer||[]).find(x=>x._emraId===id);const el=m&&m.getElement&&m.getElement();if(el&&el.firstChild)el.firstChild.classList.toggle('hov',!!on);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('ficha-wrap')?.classList.contains('on'))closeFicha();});
 
 // ── Lightbox / Mesa de luz ──
 let _lbImgs=[], _lbIdx=0;
@@ -6838,6 +7105,8 @@ window.addEventListener('load',async()=>{
     // Tab EMRA + bienvenida + sugerencias del chat
     renderEmraTab();
     renderChatSugs();
+    // Rediseño: el mapa parte encuadrando las iniciativas
+    setTimeout(()=>{try{const m=innerWidth<=768;if(map&&INI.length)map.fitBounds(L.latLngBounds(INI.map(i=>[i.lat,i.lng])),{paddingTopLeft:[30,30],paddingBottomRight:[30,m?Math.round(innerHeight*.46)+20:30]});}catch(e){}},300);
     const wOes=document.getElementById('welcome-oes');
     if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
