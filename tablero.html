@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<!-- Tablero de iniciativas EMRA 2023-2050 · PROTOTIPO (22-nov-2026).
+     Alternativa interactiva a la «Plataforma de gestión» (Power BI): gráficos que se filtran entre sí, mapa por comuna,
+     semáforo de avance, línea de tiempo de reportes y ficha por iniciativa.
+     Datos: emra-tablero-datos.js + emra-tablero-fichas.js (carga perezosa), generados con archivos/herramientas/gen_tablero.py
+     desde REPOSITORIO_EMRA (hoja BASE). Excluye las marcadas «ELIMINAR». Nombres de empresas privadas ocultos.
+     Embebible: avisa su alto al sitio padre (postMessage, igual que los otros widgets de mineria-embed.js). -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tablero de iniciativas EMRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="emra-tablero-datos.js"></script>
+<style>
+:root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;--bg:#fbf8f5;
+  --oe1:#FAA900;--oe2:#70AD57;--oe3:#FF5812;--oe4:#0090D4;--oe5:#00BCB6;
+  --av-term:#4f9a3a;--av-curso:#f0a500;--av-cero:#e2603a;--av-sin:#c9c0b8}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg)}
+body{font-family:'Figtree',-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:15px;line-height:1.45}
+button{font-family:inherit;cursor:pointer;color:inherit}
+.w{max-width:1240px;margin:0 auto;padding:18px 16px 28px}
+
+/* cabecera */
+.cab{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.kick{font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--cu)}
+h1{font-size:clamp(24px,3vw,34px);font-weight:800;line-height:1.1;margin:4px 0 6px}
+.cab p{color:var(--mut);max-width:720px}
+.proto{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#fff3e6;color:var(--cu2);border:1px solid #f0d3b8;border-radius:999px;padding:3px 10px;white-space:nowrap}
+
+/* filtros activos */
+.act-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:34px;margin-bottom:12px;position:sticky;top:0;z-index:500;background:var(--bg);padding:6px 0}
+.act-f .lab{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-right:4px}
+.fc{display:inline-flex;align-items:center;gap:6px;background:var(--tx);color:#fff;border:0;border-radius:999px;padding:5px 10px 5px 12px;font-size:13px;font-weight:600}
+.fc b{font-weight:800}.fc span{opacity:.7;font-size:15px;line-height:1}
+.limpiar{border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--cu2)}
+.nada{font-size:13px;color:var(--mut)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:12px 14px;text-align:left;position:relative;overflow:hidden;transition:.15s}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c,var(--cu))}
+.kpi:hover{border-color:var(--c,var(--cu))}
+.kpi[aria-pressed="true"]{background:var(--card);border-color:var(--c,var(--cu));box-shadow:inset 0 -3px 0 var(--c,var(--cu))}
+.kpi .v{display:block;font-size:30px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .l{display:block;font-size:13px;font-weight:700;margin-top:2px}
+.kpi .s{display:block;font-size:12px;color:var(--mut);margin-top:2px}
+div.kpi{cursor:default}
+
+/* tarjetas */
+.grid{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+.g2b{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:#fff;border:1.5px solid var(--bd);border-radius:10px;padding:14px 16px 16px;min-width:0}
+.card h2{font-size:15px;font-weight:800;margin-bottom:2px}
+.card .sub{font-size:12.5px;color:var(--mut);margin-bottom:10px}
+
+/* barras horizontales */
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) 46px;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:4px 6px;border-radius:6px;transition:.12s}
+.bar:hover{background:var(--card)}
+.bar[aria-pressed="true"]{background:var(--card);box-shadow:inset 3px 0 0 var(--c,var(--cu))}
+.bar .t{font-size:13.5px;line-height:1.25;font-weight:600;display:flex;justify-content:space-between;gap:8px;margin-bottom:3px}
+.bar .t em{font-style:normal;color:var(--mut);font-weight:500;white-space:nowrap}
+.bar>span:first-child{display:block;min-width:0}
+.bar .tr{display:block;height:9px;background:#f1ebe5;border-radius:5px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--c,var(--cu));border-radius:5px;transition:width .35s}
+.bar .n{font-size:15px;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.bar.cero{opacity:.45}
+.bars.dim .bar:not([aria-pressed="true"]) .tr i{opacity:.35}
+
+/* semáforo por OE (barras apiladas) */
+.stk{display:grid;gap:8px}
+.stk-r{display:grid;grid-template-columns:62px minmax(0,1fr) 40px;gap:8px;align-items:center;border:0;background:none;padding:3px 4px;border-radius:6px;text-align:left}
+.stk-r:hover{background:var(--card)}
+.stk-r .k{font-weight:800;font-size:13px;color:#fff;background:var(--c);border-radius:4px;padding:2px 0;text-align:center}
+.stk-r .tr{display:flex;height:18px;border-radius:5px;overflow:hidden;background:#f1ebe5}
+.stk-r .tr i{display:block;height:100%;transition:width .35s}
+.stk-r .n{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.ley{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.ley button{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border:1.5px solid transparent;background:none;border-radius:999px;padding:2px 8px}
+.ley button:hover{border-color:var(--bd)}
+.ley button[aria-pressed="true"]{border-color:var(--tx);background:var(--card)}
+.ley i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* columnas por mes */
+.cols{display:flex;align-items:flex-end;gap:5px;height:170px;padding-top:18px;border-bottom:1.5px solid var(--bd)}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;border:0;background:none;padding:0;position:relative}
+.col i{display:block;width:100%;max-width:34px;background:var(--cu);border-radius:4px 4px 0 0;transition:height .35s;min-height:2px}
+.col:hover i{background:var(--cu2)}
+.col[aria-pressed="true"] i{background:var(--tx)}
+.col b{position:absolute;font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;transform:translateY(-100%)}
+.cols-l{display:flex;gap:5px;margin-top:4px}
+.cols-l span{flex:1;min-width:0;text-align:center;font-size:10.5px;line-height:1.25;color:var(--mut);white-space:nowrap;overflow:hidden}
+.alerta{margin-top:10px;font-size:13px;background:#fff6ec;border:1px solid #f3dcc4;border-radius:8px;padding:8px 10px}
+.alerta button{border:0;background:none;color:var(--cu2);font-weight:800;padding:0;text-decoration:underline}
+
+/* mapa */
+#map{height:330px;border-radius:8px;border:1.5px solid var(--bd);background:#e9eef0}
+.reg{margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+.reg button{border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:4px 12px;font-weight:700;font-size:13px}
+.reg button[aria-pressed="true"]{background:var(--tx);color:#fff;border-color:var(--tx)}
+.leaflet-tooltip.tt{font-family:'Figtree',sans-serif;font-size:13px;font-weight:700;border-radius:6px;padding:4px 8px}
+
+/* tabla */
+.tbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.q{flex:1;min-width:220px;max-width:420px;border:1.5px solid var(--bd);border-radius:8px;padding:9px 12px;font:inherit;background:#fff}
+.q:focus{outline:2px solid var(--cu);outline-offset:1px}
+.cnt{font-size:14px;color:var(--mut)}.cnt b{color:var(--tx)}
+.ord{font-size:13px;color:var(--mut);display:inline-flex;gap:6px;align-items:center;margin-left:auto}
+.ord select{border:1.5px solid var(--bd);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;background:#fff}
+.tw{overflow-x:auto;border:1.5px solid var(--bd);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{background:var(--card);text-align:left;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:9px 10px;border-bottom:1.5px solid var(--bd);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #f0e8e1;vertical-align:top}
+tr.f{cursor:pointer}
+tr.f:hover td{background:#fdf9f5}
+tr.f[aria-selected="true"] td{background:var(--card)}
+td.id{font-weight:800;color:var(--cu2);white-space:nowrap;font-variant-numeric:tabular-nums}
+td.nm{font-weight:600;min-width:260px}
+.oes{display:flex;gap:3px}
+.oes i{font-style:normal;font-size:11px;font-weight:800;color:#fff;border-radius:3px;padding:1px 5px}
+.mini{display:flex;align-items:center;gap:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mini .tr{width:56px;height:7px;border-radius:4px;background:#f1ebe5;overflow:hidden}
+.mini .tr i{display:block;height:100%}
+.sd{color:var(--mut);font-size:12.5px}
+.mas{display:block;margin:12px auto 0;border:1.5px solid var(--cu);background:#fff;color:var(--cu2);border-radius:8px;padding:8px 16px;font-weight:800;font-size:13.5px}
+.mas[hidden]{display:none}
+.mas:hover{background:var(--cu);color:#fff}
+
+/* ficha lateral */
+.velo{position:fixed;inset:0;background:rgba(40,30,20,.35);z-index:1000;opacity:0;pointer-events:none;transition:opacity .2s}
+.velo.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#fff;z-index:1001;box-shadow:-10px 0 30px rgba(0,0,0,.12);transform:translateX(100%);transition:transform .25s;overflow-y:auto;padding:20px 22px 30px}
+.panel.on{transform:none}
+.panel .x{position:sticky;top:0;float:right;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;font-size:22px;line-height:1;display:grid;place-items:center;color:var(--mut)}
+.panel .x:hover{border-color:var(--cu);color:var(--cu)}
+.panel h3{font-size:20px;font-weight:800;line-height:1.25;margin:8px 0 14px}
+.panel dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin-bottom:16px}
+.panel dt{color:var(--mut);font-weight:600}
+.panel h4{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:14px 0 8px}
+.tl{list-style:none;display:grid;gap:10px}
+.tl li{border-left:3px solid var(--bd);padding-left:12px;font-size:14px}
+.tl li:first-child{border-color:var(--cu)}
+.tl .f{display:block;font-size:12.5px;font-weight:800;color:var(--cu2)}
+.big{display:flex;align-items:center;gap:10px;margin:4px 0 6px}
+.big .tr{flex:1;height:10px;border-radius:5px;background:#f1ebe5;overflow:hidden}.big .tr i{display:block;height:100%}
+.big b{font-size:22px;font-weight:800}
+
+.pie{margin-top:16px;font-size:12.5px;color:var(--mut);line-height:1.55}
+.pie a{color:var(--cu2);font-weight:700}
+
+@media (max-width:1060px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:820px){.g2,.g2b{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .v{font-size:25px}
+  .g3{grid-template-columns:minmax(0,1fr)}
+  #map{height:280px}
+  .ord{margin-left:0}
+  table thead{display:none}
+  table,tbody,tr,td{display:block;width:100%}
+  tr.f{padding:10px 12px;border-bottom:1px solid #f0e8e1;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+  tr.f td{border:0;padding:0}
+  td.nm{grid-column:1/-1;min-width:0}
+  td[data-l]:before{content:attr(data-l)": ";color:var(--mut);font-weight:600;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="cab">
+    <div>
+      <div class="kick">Plataforma de gestión · EMRA 2023–2050</div>
+      <h1>Tablero de iniciativas</h1>
+      <p id="intro">Toca cualquier barra, comuna o cifra para filtrar todo el tablero. Toca una iniciativa de la lista para ver su ficha y sus actualizaciones.</p>
+    </div>
+    <span class="proto">Prototipo</span>
+  </div>
+
+  <div class="act-f" id="actf" aria-live="polite"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid g2">
+    <section class="card"><h2>Iniciativas por objetivo estratégico</h2><p class="sub">Una iniciativa puede aportar a más de un objetivo.</p><div class="bars" id="c-oe"></div></section>
+    <section class="card"><h2>¿Dónde se ejecutan?</h2><p class="sub">Tamaño del círculo = número de iniciativas en la comuna. Toca un círculo para filtrar.</p>
+      <div id="map" role="img" aria-label="Mapa de la Región de Antofagasta con iniciativas por comuna"></div>
+      <div class="reg" id="reg"></div></section>
+  </div>
+
+  <div class="grid g2b">
+    <section class="card"><h2>Semáforo de avance por objetivo</h2><p class="sub">Último % de avance reportado (oct-2026 o, si no hay, mar-2026).</p><div class="stk" id="c-sem"></div><div class="ley" id="ley"></div></section>
+    <section class="card"><h2>Último reporte de cada iniciativa</h2><p class="sub">Mes de la actualización más reciente. Toca un mes para ver esas iniciativas.</p>
+      <div class="cols" id="c-mes"></div><div class="cols-l" id="c-mes-l"></div><div class="alerta" id="alerta"></div></section>
+  </div>
+
+  <div class="grid g3">
+    <section class="card"><h2>Plazo</h2><p class="sub">Horizonte de la iniciativa.</p><div class="bars" id="c-pl"></div></section>
+    <section class="card"><h2>¿Quién la impulsa?</h2><p class="sub">Tipo de institución.</p><div class="bars" id="c-si"></div></section>
+    <section class="card"><h2>Clasificación EMRA</h2><p class="sub">Última propuesta de clasificación.</p><div class="bars" id="c-cl"></div></section>
+    <section class="card"><h2>Sector de impacto</h2><p class="sub">Ámbito en que impacta.</p><div class="bars" id="c-se"></div></section>
+    <section class="card"><h2>Tipo de gestión</h2><p class="sub">Gestión comunitaria o desafío productivo.</p><div class="bars" id="c-ge"></div></section>
+    <section class="card"><h2>Madurez</h2><p class="sub">Proyecto definido o idea de iniciativa.</p><div class="bars" id="c-tp"></div></section>
+  </div>
+
+  <section class="card">
+    <h2>Iniciativas</h2><p class="sub">Toca una fila para abrir su ficha.</p>
+    <div class="tbar">
+      <input class="q" id="q" type="search" placeholder="Buscar por nombre, ID o comuna…" aria-label="Buscar iniciativa"/>
+      <span class="cnt" id="cnt"></span>
+      <label class="ord">Ordenar por <select id="ord"><option value="id">ID</option><option value="uf">Última actualización</option><option value="av">Mayor avance</option><option value="avm">Menor avance</option></select></label>
+    </div>
+    <div class="tw"><table><thead><tr><th>ID</th><th>Iniciativa</th><th>OE</th><th>Comuna</th><th>Plazo</th><th>Avance</th><th>Último reporte</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <button class="mas" id="mas" hidden>Ver más</button>
+  </section>
+
+  <p class="pie" id="pie"></p>
+</div>
+
+<div class="velo" id="velo"></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="p-t" aria-hidden="true"></aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const T=window.EMRA_TABLERO||{meta:{},datos:[]};
+const D=T.datos,META=T.meta;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const fecha=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${MESES[m-1]} ${a}`;};
+const mesL=k=>{const[a,m]=k.split('-');return `${MESES[m-1]} ${a.slice(2)}`;};
+const OE={1:['Calidad de vida','var(--oe1)'],2:['Minería sustentable','var(--oe2)'],3:['Empresas regionales','var(--oe3)'],4:['Institucionalidad pública','var(--oe4)'],5:['Ecosistema del conocimiento','var(--oe5)']};
+const AV={term:['Terminada (100%)','var(--av-term)'],curso:['En curso (1–99%)','var(--av-curso)'],cero:['Sin avance (0%)','var(--av-cero)'],sin:['Sin % reportado','var(--av-sin)']};
+const avCat=x=>x.av==null?'sin':x.av>=100?'term':x.av>0?'curso':'cero';
+// fecha de corte: la del Excel (dd.mm.yy) → para medir antigüedad de los reportes
+const CORTE=(()=>{const m=String(META.corte||'').match(/(\d\d)\.(\d\d)\.(\d\d)/);return m?new Date(`20${m[3]}-${m[2]}-${m[1]}`):new Date();})();
+const diasDesde=f=>f?Math.round((CORTE-new Date(f))/864e5):Infinity;
+D.forEach(x=>{x._av=avCat(x);x._mes=x.uf?x.uf.slice(0,7):'';x._viejo=diasDesde(x.uf)>150;x._q=norm([x.id,x.n,x.co.join(' '),x.se,x.cl].join(' '));});
+
+// ── estado de filtros (uno por dimensión) ──
+const F={oe:null,co:null,av:null,mes:null,pl:null,si:null,cl:null,se:null,ge:null,tp:null,viejo:null,q:''};
+const ETQ={oe:'Objetivo',co:'Comuna',av:'Avance',mes:'Último reporte',pl:'Plazo',si:'Impulsa',cl:'Clasificación',se:'Sector',ge:'Gestión',tp:'Madurez',viejo:'Sin reportar'};
+const val=(k,v)=>k==='oe'?`OE${v} · ${OE[v][0]}`:k==='av'?AV[v][0]:k==='mes'?mesL(v):k==='viejo'?'hace más de 5 meses':v;
+const pasa=(x,sin)=>{
+  const sinA=[].concat(sin);
+  for(const k in F){if(sinA.includes(k)||k==='q'||F[k]==null)continue;
+    if(k==='oe'){if(!x.oe.includes(F.oe))return false;}
+    else if(k==='co'){if(!x.co.includes(F.co))return false;}
+    else if(k==='av'){if(x._av!==F.av)return false;}
+    else if(k==='mes'){if(x._mes!==F.mes)return false;}
+    else if(k==='viejo'){if(!x._viejo)return false;}
+    else if(x[k]!==F[k])return false;}
+  return !F.q||x._q.includes(F.q);
+};
+const filas=sin=>D.filter(x=>pasa(x,sin));
+function alternar(k,v){F[k]=F[k]===v?null:v;lim=PAG;pintar();}
+
+// ── barras genéricas ──
+function barras(el,k,items,colorFn){
+  const max=Math.max(1,...items.map(i=>i.n));
+  el.classList.toggle('dim',F[k]!=null);
+  el.innerHTML=items.map(i=>`<button class="bar${i.n?'':' cero'}" data-k="${k}" data-v="${esc(i.v)}" aria-pressed="${F[k]==i.v}" style="--c:${colorFn?colorFn(i.v):'var(--cu)'}">
+      <span><span class="t">${esc(i.l)}${i.e?`<em>${esc(i.e)}</em>`:''}</span><span class="tr"><i style="width:${i.n/max*100}%"></i></span></span><span class="n">${i.n}</span></button>`).join('');
+  el.querySelectorAll('.bar').forEach(b=>b.onclick=()=>alternar(k,k==='oe'?+b.dataset.v:b.dataset.v));
+}
+const contar=(L,fn)=>{const c={};L.forEach(x=>[].concat(fn(x)).forEach(v=>c[v]=(c[v]||0)+1));return c;};
+function lista(k,orden){
+  const L=filas(k),c=contar(L,x=>x[k]);
+  const vals=orden||Object.keys(c).sort((a,b)=>c[b]-c[a]);
+  if(F[k]!=null&&!vals.includes(F[k]))vals.push(F[k]);
+  return vals.map(v=>({v,l:v,n:c[v]||0}));
+}
+
+// ── mapa ──
+let mapa=null,capa=null;
+function iniciarMapa(){
+  if(!window.L||mapa)return;
+  mapa=L.map('map',{scrollWheelZoom:false,zoomControl:true,attributionControl:true}).setView([-23.3,-69.4],7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,attribution:'© OpenStreetMap'}).addTo(mapa);
+  capa=L.layerGroup().addTo(mapa);
+  mapa.fitBounds(Object.values(META.comunas).map(c=>[c[0],c[1]]),{padding:[30,30]});
+}
+function pintarMapa(c){
+  if(!mapa)return;capa.clearLayers();
+  const max=Math.max(1,...Object.keys(META.comunas).map(k=>c[k]||0));
+  Object.entries(META.comunas).forEach(([k,[la,lo]])=>{
+    const n=c[k]||0,on=F.co===k;
+    const m=L.circleMarker([la,lo],{radius:n?8+Math.sqrt(n/max)*26:5,color:on?'#383838':'#fff',weight:on?3:2,fillColor:n?'#CC824D':'#c9c0b8',fillOpacity:on?.95:.78})
+      .bindTooltip(`${k}: ${n}`,{className:'tt',direction:'top'}).on('click',()=>alternar('co',k)).addTo(capa);
+    if(n)L.marker([la,lo],{interactive:false,icon:L.divIcon({className:'',html:`<span style="display:block;transform:translate(-50%,-50%);font:800 12px Figtree,sans-serif;color:#fff;text-shadow:0 0 3px rgba(0,0,0,.5)">${n}</span>`})}).addTo(capa);
+  });
+}
+
+// ── pintado general ──
+const PAG=25;let lim=PAG,selId=null;
+function pintar(){
+  const todo=filas(null);
+  // filtros activos
+  const act=Object.keys(ETQ).filter(k=>F[k]!=null);
+  $('#actf').innerHTML=`<span class="lab">Filtros</span>`+(act.length||F.q?act.map(k=>`<button class="fc" data-k="${k}" aria-label="Quitar filtro ${ETQ[k]}">${ETQ[k]}: <b>${esc(val(k,F[k]))}</b><span aria-hidden="true">×</span></button>`).join('')+(F.q?`<button class="fc" data-k="q">Búsqueda: <b>${esc($('#q').value)}</b><span aria-hidden="true">×</span></button>`:'')+`<button class="limpiar" id="limpiar">Limpiar todo</button>`:`<span class="nada">Ninguno. Mostrando las ${D.length} iniciativas vigentes.</span>`);
+  document.querySelectorAll('#actf .fc').forEach(b=>b.onclick=()=>{const k=b.dataset.k;if(k==='q'){F.q='';$('#q').value='';}else F[k]=null;pintar();});
+  const lb=$('#limpiar');if(lb)lb.onclick=()=>{Object.keys(F).forEach(k=>F[k]=k==='q'?'':null);$('#q').value='';pintar();};
+
+  // KPIs (avance: cuentan sin el filtro de avance para poder cambiarlo)
+  const La=filas('av'),ca=contar(La,x=>x._av),Lv=filas('viejo'),nv=Lv.filter(x=>x._viejo).length;
+  const kp=[['tot',todo.length,'Iniciativas','vigentes con estos filtros','var(--cu)'],
+    ['term',ca.term||0,'Terminadas','100% de avance',AV.term[1]],['curso',ca.curso||0,'En curso','entre 1% y 99%',AV.curso[1]],
+    ['cero',ca.cero||0,'Sin avance','reportan 0%',AV.cero[1]],['sin',ca.sin||0,'Sin % reportado','no informan avance',AV.sin[1]],
+    ['viejo',nv,'Reporte antiguo','último hace más de 5 meses','#8a6d5a']];
+  $('#kpis').innerHTML=kp.map(([k,v,l,s,c])=>k==='tot'?`<div class="kpi" style="--c:${c}"><span class="v">${v}</span><span class="l">${l}</span><span class="s">${s}</span></div>`
+    :`<button class="kpi" data-k="${k}" style="--c:${c}" aria-pressed="${k==='viejo'?!!F.viejo:F.av===k}"><span class="v">${v}</span><span class="l">${l}</span><span class="s">${s}</span></button>`).join('');
+  document.querySelectorAll('#kpis button').forEach(b=>b.onclick=()=>b.dataset.k==='viejo'?alternar('viejo',true):alternar('av',b.dataset.k));
+
+  // OE
+  const Lo=filas('oe'),co=contar(Lo,x=>x.oe);
+  barras($('#c-oe'),'oe',[1,2,3,4,5].map(k=>({v:k,l:`OE${k} · ${OE[k][0]}`,n:co[k]||0})),v=>OE[v][1]);
+  // comunas
+  const Lc=filas('co'),cc=contar(Lc,x=>x.co);
+  pintarMapa(cc);
+  $('#reg').innerHTML=`<button data-v="Regional" aria-pressed="${F.co==='Regional'}">Alcance regional · ${cc.Regional||0}</button><span>iniciativas que abarcan varias comunas o toda la región</span>`;
+  $('#reg button').onclick=()=>alternar('co','Regional');
+  // semáforo por OE
+  const Ls=filas(['av','oe']);
+  $('#c-sem').innerHTML=[1,2,3,4,5].map(k=>{
+    const g=Ls.filter(x=>x.oe.includes(k)),n=g.length,c=contar(g,x=>x._av);
+    return `<button class="stk-r" data-oe="${k}" style="--c:${OE[k][1]};${F.oe!=null&&F.oe!==k?'opacity:.4':''}" aria-pressed="${F.oe===k}" aria-label="OE${k}: ${n} iniciativas" title="OE${k} · ${OE[k][0]}">
+      <span class="k">OE${k}</span><span class="tr">${['term','curso','cero','sin'].map(a=>`<i style="width:${n?(c[a]||0)/n*100:0}%;background:${AV[a][1]}" title="${AV[a][0]}: ${c[a]||0}"></i>`).join('')}</span><span class="n">${n}</span></button>`;}).join('');
+  document.querySelectorAll('#c-sem .stk-r').forEach(b=>b.onclick=()=>alternar('oe',+b.dataset.oe));
+  $('#ley').innerHTML=Object.entries(AV).map(([k,[l,c]])=>`<button data-k="${k}" aria-pressed="${F.av===k}"><i style="background:${c}"></i>${l}</button>`).join('');
+  document.querySelectorAll('#ley button').forEach(b=>b.onclick=()=>alternar('av',b.dataset.k));
+  // meses
+  const Lm=filas('mes'),cm=contar(Lm.filter(x=>x._mes),x=>x._mes);
+  const ks=Object.keys(contar(D.filter(x=>x._mes),x=>x._mes)).sort();
+  const mm=Math.max(1,...ks.map(k=>cm[k]||0));
+  $('#c-mes').innerHTML=ks.map(k=>`<button class="col" data-v="${k}" aria-pressed="${F.mes===k}" aria-label="${mesL(k)}: ${cm[k]||0} iniciativas" title="${mesL(k)}: ${cm[k]||0}"><b style="bottom:${(cm[k]||0)/mm*100}%">${cm[k]||''}</b><i style="height:${(cm[k]||0)/mm*100}%"></i></button>`).join('');
+  $('#c-mes-l').innerHTML=ks.map((k,i)=>{const[a,m]=k.split('-');return `<span>${MESES[m-1]}<br>${i===0||ks[i-1].slice(0,4)!==a?a:'&nbsp;'}</span>`;}).join('');
+  document.querySelectorAll('#c-mes .col').forEach(b=>b.onclick=()=>alternar('mes',b.dataset.v));
+  const sinUf=Lm.filter(x=>!x._mes).length;
+  $('#alerta').innerHTML=`<b>${nv}</b> iniciativa${nv===1?'':'s'} no se actualiza${nv===1?'':'n'} hace más de 5 meses${sinUf?` (${sinUf} sin fecha de reporte)`:''}. <button id="ver-viejo">${F.viejo?'Quitar filtro':'Ver cuáles'}</button>`;
+  $('#ver-viejo').onclick=()=>alternar('viejo',true);
+  // categorías
+  barras($('#c-pl'),'pl',lista('pl',['Corto','Mediano','Largo']).map(i=>({...i,l:i.v+' plazo'})));
+  barras($('#c-si'),'si',lista('si'));
+  barras($('#c-cl'),'cl',lista('cl'));
+  barras($('#c-se'),'se',lista('se'));
+  barras($('#c-ge'),'ge',lista('ge'));
+  barras($('#c-tp'),'tp',lista('tp').map(i=>({...i,l:i.v==='Idea'?'Idea de iniciativa':'Proyecto'})));
+  tabla(todo);
+  avisarAlto();
+}
+
+// ── tabla ──
+function tabla(L){
+  const o=$('#ord').value;
+  const s=[...L].sort(o==='uf'?(a,b)=>(b.uf||'').localeCompare(a.uf||''):o==='av'?(a,b)=>(b.av??-1)-(a.av??-1):o==='avm'?(a,b)=>(a.av??999)-(b.av??999):(a,b)=>a.id-b.id);
+  $('#cnt').innerHTML=`<b>${L.length}</b> de ${D.length}`;
+  $('#tb').innerHTML=s.slice(0,lim).map(x=>`<tr class="f" tabindex="0" data-id="${x.id}" aria-selected="${selId===x.id}">
+    <td class="id">${x.id}</td><td class="nm">${esc(x.n)}</td>
+    <td data-l="OE"><span class="oes">${x.oe.map(k=>`<i style="background:${OE[k][1]}">OE${k}</i>`).join('')}</span></td>
+    <td data-l="Comuna">${esc(x.co.join(', '))}</td><td data-l="Plazo">${esc(x.pl)}</td>
+    <td data-l="Avance">${x.av==null?'<span class="sd">Sin dato</span>':`<span class="mini"><span class="tr"><i style="width:${Math.min(100,x.av)}%;background:${AV[x._av][1]}"></i></span>${x.av}%</span>`}</td>
+    <td data-l="Último reporte">${x.uf?fecha(x.uf):'<span class="sd">—</span>'}</td></tr>`).join('')||'<tr><td colspan="7" style="color:var(--mut);padding:18px">No hay iniciativas con estos filtros.</td></tr>';
+  document.querySelectorAll('#tb tr.f').forEach(tr=>{tr.onclick=()=>abrirFicha(+tr.dataset.id);tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();abrirFicha(+tr.dataset.id);}};});
+  const m=$('#mas');m.hidden=L.length<=lim;m.textContent=`Ver ${Math.min(PAG,L.length-lim)} más (quedan ${L.length-lim})`;
+}
+$('#mas').onclick=()=>{lim+=PAG;tabla(filas(null));avisarAlto();};
+$('#ord').onchange=()=>{tabla(filas(null));};
+let tq;$('#q').oninput=e=>{clearTimeout(tq);tq=setTimeout(()=>{F.q=norm(e.target.value.trim());lim=PAG;pintar();},180);};
+
+// ── ficha lateral (las actualizaciones se cargan al abrir la primera) ──
+let FICHAS=null,ultimoFoco=null;
+function cargarFichas(cb){
+  if(FICHAS)return cb();
+  const s=document.createElement('script');s.src='emra-tablero-fichas.js';
+  s.onload=()=>{FICHAS=window.EMRA_TABLERO_FICHAS||{};cb();};s.onerror=()=>{FICHAS={};cb();};document.head.appendChild(s);
+}
+function abrirFicha(id){
+  const x=D.find(d=>d.id===id);if(!x)return;
+  selId=id;ultimoFoco=document.activeElement;
+  document.querySelectorAll('#tb tr.f').forEach(t=>t.setAttribute('aria-selected',+t.dataset.id===id));
+  const p=$('#panel');
+  const pintarP=()=>{
+    const f=(FICHAS&&FICHAS[id])||{};
+    p.innerHTML=`<button class="x" id="px" aria-label="Cerrar ficha">×</button>
+      <div class="kick">ID ${x.id} · ${esc(x.cl)}</div><h3 id="p-t">${esc(x.n)}</h3>
+      <div class="big">${x.av==null?'<span class="sd">Sin % de avance reportado</span>':`<b>${x.av}%</b><span class="tr"><i style="width:${Math.min(100,x.av)}%;background:${AV[x._av][1]}"></i></span>`}</div>
+      ${x.av!=null?`<p class="sd" style="margin-bottom:12px">Avance reportado al ${fecha(x.avf)}</p>`:''}
+      <dl><dt>Objetivo</dt><dd>${x.oe.map(k=>`OE${k} · ${OE[k][0]}`).join('<br>')}</dd><dt>Comuna</dt><dd>${esc(x.co.join(', '))}</dd>
+        ${f.z?`<dt>Zona</dt><dd>${esc(f.z)}</dd>`:''}<dt>Plazo</dt><dd>${esc(x.pl)} plazo</dd><dt>Impulsa</dt><dd>${esc(x.si)}</dd>
+        <dt>Sector</dt><dd>${esc(x.se)}</dd><dt>Gestión</dt><dd>${esc(x.ge)}</dd><dt>Madurez</dt><dd>${x.tp==='Idea'?'Idea de iniciativa':'Proyecto'}</dd></dl>
+      <h4>Actualizaciones</h4>
+      ${!FICHAS?'<p class="sd">Cargando…</p>':(f.act||[]).length?`<ol class="tl">${f.act.map(a=>`<li><span class="f">${a.f?fecha(a.f):'Sin fecha'}${a.src?' · '+esc(a.src):''}</span>${esc(a.txt[0].toUpperCase()+a.txt.slice(1))}</li>`).join('')}</ol>`:'<p class="sd">Sin actualizaciones registradas.</p>'}`;
+    $('#px').onclick=cerrarFicha;
+  };
+  pintarP();p.classList.add('on');p.setAttribute('aria-hidden','false');$('#velo').classList.add('on');
+  if(parent!==window)parent.postMessage({type:'emra-mineria-scroll',y:0},'*');
+  setTimeout(()=>$('#px').focus(),50);
+  cargarFichas(()=>{if(selId===id){pintarP();$('#px').focus();}});
+}
+function cerrarFicha(){
+  $('#panel').classList.remove('on');$('#panel').setAttribute('aria-hidden','true');$('#velo').classList.remove('on');selId=null;
+  document.querySelectorAll('#tb tr.f').forEach(t=>t.setAttribute('aria-selected','false'));
+  if(ultimoFoco)ultimoFoco.focus({preventScroll:true});
+}
+$('#velo').onclick=cerrarFicha;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selId!=null)cerrarFicha();});
+
+// ── pie ──
+$('#pie').innerHTML=`Fuente: repositorio de iniciativas EMRA (hoja BASE), clasificación al ${esc(META.corte||'')}. Se muestran las ${D.length} iniciativas vigentes; se excluyen ${META.eliminadas||0} marcadas «Eliminar». `+
+  `El avance es el último % reportado (31-oct-2026 o, si no hay, 31-mar-2026). Los nombres de empresas privadas se muestran como «la empresa». Prototipo generado el ${fecha(META.generado||'')}. `+
+  `<a href="https://www.emra.cl/plataforma_gestion/" target="_top">Ver la Plataforma de gestión (Power BI) →</a>`;
+
+// ── iframe: avisar alto al sitio padre ──
+let lastH=0;
+function avisarAlto(){if(parent===window)return;const h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;parent.postMessage({type:'emra-mineria-height',h},'*');}}
+if(parent!==window)new ResizeObserver(avisarAlto).observe(document.body);
+
+iniciarMapa();
+pintar();
+</script>
+</body>
+</html>
