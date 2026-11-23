@@ -37,7 +37,6 @@ h2{font-size:clamp(24px,2.8vw,34px);font-weight:800;line-height:1.12;margin:4px 
   padding:4px 2px 10px;scrollbar-width:none;overscroll-behavior-x:contain}
 .car::-webkit-scrollbar{display:none}
 .it{scroll-snap-align:start;display:flex;flex-direction:column;background:#fff;border:1.5px solid var(--bd);border-radius:8px;overflow:hidden;text-align:left;color:var(--tx);transition:.2s;min-height:100%}
-.it:hover{border-color:var(--c);box-shadow:0 8px 22px rgba(60,40,20,.09);transform:translateY(-2px)}
 .it[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 -4px 0 var(--c)}
 .it .top{position:relative;background:var(--card);padding:16px 18px 14px;border-bottom:1.5px solid var(--bd);overflow:hidden}
 .it .top:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c)}
@@ -97,7 +96,7 @@ h2{font-size:clamp(24px,2.8vw,34px);font-weight:800;line-height:1.12;margin:4px 
     <div>
       <div class="kick">Directorio EMRA · sesiones 2025–2026</div>
       <h2>Proyectos estratégicos</h2>
-      <p>Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio. Toca uno para ver su ficha y su última actualización.</p>
+      <p>Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio, con su última actualización.</p>
     </div>
     <div class="nav"><button class="arr" id="prev" aria-label="Anteriores">‹</button><button class="arr" id="next" aria-label="Siguientes">›</button></div>
   </div>
@@ -123,7 +122,7 @@ let sel=null;
 
 $('#car').innerHTML=L.map((x,i)=>{
   const f=x.f,u=(f.act||[])[0],k=oe1(f.oe);
-  return `<button class="it" role="listitem" data-i="${i}" style="--c:${OEC[k]||'var(--cu)'}" aria-pressed="false" aria-controls="det" aria-label="Ver ficha: ${esc(x.nom)}">
+  return `<article class="it" role="listitem" data-i="${i}" style="--c:${OEC[k]||'var(--cu)'}">
     <div class="top"><span class="num" aria-hidden="true">${esc(x.id)}</span>
       <div class="tags"><span class="tag">${esc(f.oe||'OE'+k)}</span><span class="idr">ID ${esc(x.id)}</span></div>
       <h3>${esc(x.nom)}</h3></div>
@@ -131,8 +130,7 @@ $('#car').innerHTML=L.map((x,i)=>{
       <div class="meta"><span><b>Zona:</b> ${esc(corta(f.zona,48))}</span><span><b>Institución:</b> ${esc(x.inst)}</span></div>
       
       ${u?`<div class="up"><span class="f">Actualización · ${fecha(u.f)}</span><span class="t">${esc(mayus(u.txt))}</span></div>`:''}
-      <span class="ver">Ver ficha +</span>
-    </div></button>`;
+    </div></article>`;
 }).join('');
 
 // ── navegación ──
@@ -192,7 +190,7 @@ function elegir(i){
   $('#det-x').onclick=()=>{const i0=sel;elegir(sel);items[i0].focus({preventScroll:true});irA(car);};
   irA(d);
 }
-items.forEach((b,i)=>b.onclick=()=>elegir(i));
+// Sin ficha al tocar (pedido EMRA, 23-nov-2026): las tarjetas solo muestran zona, institución y última actualización.
 
 if(!L.length)$('#car').outerHTML='<p style="color:var(--mut)">No hay iniciativas para mostrar.</p>';
 else{pintarDots();arrancar();}
