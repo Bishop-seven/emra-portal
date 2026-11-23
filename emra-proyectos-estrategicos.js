@@ -31,8 +31,8 @@ window.EMRA_PROYECTOS_EST = [
       { src: 'proyectos/patios-ferroviarios-4.jpg', alt: 'Imagen objetivo nocturna de la estación con la nueva plaza' },
       { src: 'proyectos/patios-ferroviarios-5.jpg', alt: 'Imagen objetivo: andenes cubiertos convertidos en paseo con jardines' }
     ],
-    // Video presentado al Directorio (archivo «FCAB LANDSCAPE 1920X1080.mp4», 4:19). Pendiente: subirlo a YouTube y pegar aquí el ID.
-    video: { yt: '' },
+    // Video presentado al Directorio (archivo «FCAB LANDSCAPE 1920X1080.mp4», 4:19), en YouTube desde el 23-nov-2026.
+    video: { yt: 'https://youtu.be/AfXoAPInEmI' },
     videoTxt: 'Video presentado en la sesión de Directorio EMRA.'
   },
   {
