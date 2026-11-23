@@ -82,6 +82,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#060e18;overflow
 .ini-card-title{font-weight:600;font-size:11px;line-height:1.3;color:var(--sbt);margin:3px 0 2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ini-card-loc{font-size:10px;color:var(--sbm);display:flex;align-items:center;gap:3px}
 .oe-badge{color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;font-size:9px;display:inline-block}
+.id-badge{color:#fff;padding:1px 5px;border:1px solid rgba(255,255,255,.55);border-radius:4px;font-weight:700;font-size:9px;display:inline-block;background:rgba(10,20,34,.55);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .sel-num{position:absolute;top:6px;right:6px;background:var(--e);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800}
 
 /* Stats */
@@ -919,7 +920,7 @@ svg{display:block}
       <div id="pnl-l" style="display:none">
         <div class="search-wrap">
           <span class="search-ico">&#xe592;</span>
-          <input id="search-q" type="text" placeholder="Buscar iniciativas…" oninput="applyFilters()"/>
+          <input id="search-q" type="text" placeholder="Buscar iniciativa o ID…" oninput="applyFilters()"/>
         </div>
         <div class="oe-pills" id="oe-pills"></div>
         <div class="city-box">
@@ -1434,7 +1435,7 @@ function renderMarkers(){
       <div style="position:relative">
         <img src="${img(ini.id,500,200)}" alt="" style="width:100%;height:125px;object-fit:cover;display:block" onerror="this.style.display='none'"/>
         <div style="position:absolute;top:7px;left:8px">
-          <span class="oe-badge" style="background:${col}">${ini.oe}</span>
+          <span class="oe-badge" style="background:${col}">${ini.oe}</span> ${idBadge(ini.id)}
         </div>
       </div>
       <div style="padding:12px 14px">
@@ -1534,7 +1535,7 @@ function renderList(){
   let l=INI.filter(i=>{
     if(activeOE&&!i.oe.includes(activeOE))return false;
     if(cityFilter&&i.c!==cityFilter)return false;
-    if(searchQ&&!i.n.toLowerCase().includes(searchQ)&&!i.c.toLowerCase().includes(searchQ))return false;
+    if(searchQ&&!i.n.toLowerCase().includes(searchQ)&&!i.c.toLowerCase().includes(searchQ)&&String(idEmra(i.id))!==searchQ.trim().replace(/^id\s*/,''))return false; // también busca por ID EMRA («594» o «ID 594»)
     return true;
   });
   document.getElementById('ini-count').textContent=`${l.length} proyectos`;
@@ -1544,7 +1545,7 @@ function renderList(){
       <img src="${img(i.id,300,120)}" alt="" loading="lazy" onerror="this.style.display='none'"/>
       ${isSel?`<div class="sel-num">${selCmp.indexOf(i.id)+1}</div>`:''}
       <div class="ini-card-body">
-        <span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span>
+        <span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span> ${idBadge(i.id)}
         <div class="ini-card-title">${i.n}</div>
         <div class="ini-card-loc">📍 ${i.c}</div>
       </div>
@@ -1584,7 +1585,7 @@ function renderTimeline(){
     html+=`<div class="tl-item"><div class="tl-dot" style="background:${col}"></div>
       <div class="tl-year" style="color:${col}">${f} · ${its.length}</div>
       ${its.map(it=>`<div class="tl-card" style="border-left-color:${col};cursor:pointer" onclick="openFicha('${it.id}')"><div class="tl-title">${it.n}</div>
-        <div class="tl-meta"><span class="oe-badge" style="background:${oec(it.oe)}">${it.oe}</span><span class="fase-badge" style="background:${col}22;color:${col}">${f}</span><span style="font-size:9px;color:var(--sbm)">${it.c}</span></div>
+        <div class="tl-meta"><span class="oe-badge" style="background:${oec(it.oe)}">${it.oe}</span>${idBadge(it.id)}<span class="fase-badge" style="background:${col}22;color:${col}">${f}</span><span style="font-size:9px;color:var(--sbm)">${it.c}</span></div>
       </div>`).join('')}</div>`;
   });
   html+=`</div>`;
@@ -1595,7 +1596,7 @@ function renderGallery(){
   document.getElementById('pnl-g').innerHTML=`<div class="gal-grid">${INI.map(i=>`
     <button class="gal-item" onclick="openFicha('${i.id}')">
       <img src="${img(i.id,300,120)}" alt="" loading="lazy" onerror="this.style.display='none'"/>
-      <div class="gal-item-body"><span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span><div class="gal-item-title">${i.n}</div></div>
+      <div class="gal-item-body"><span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span> ${idBadge(i.id)}<div class="gal-item-title">${i.n}</div></div>
     </button>`).join('')}</div>`;
 }
 
@@ -1619,6 +1620,7 @@ function openFicha(id){
       <div class="fh-info">
         <div style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:4px">
           <span class="oe-badge" style="background:${oec(i.oe)}">${i.oe}</span>
+          ${idBadge(i.id)}
           <span class="oe-badge" style="background:rgba(255,255,255,.12)">${i.tipo||'Proyecto'}</span>
         </div>
         <div class="fh-title">${i.n}</div>
@@ -1727,7 +1729,7 @@ function openCmp(){
       <img src="${img(i.id,500,200)}" alt="" style="width:100%;height:105px;object-fit:cover;display:block"/>
       <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,20,34,.9) 0%,transparent 50%)"></div>
       <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 10px">
-        <span class="oe-badge" style="background:${oec(i.oe)};margin-bottom:4px;display:inline-block">${i.oe}</span>
+        <span class="oe-badge" style="background:${oec(i.oe)};margin-bottom:4px;display:inline-block">${i.oe}</span> ${idBadge(i.id)}
         <div style="font-size:11px;font-weight:700;color:#fff;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${i.n}</div>
       </div>
     </div>`).join('')}</div>`;
@@ -1859,6 +1861,7 @@ function buildSlides(){
       <div class="s-ini-content">
         <div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:5px">
           <span class="oe-badge" style="background:${oec(ini.oe)}">${ini.oe}</span>
+          ${idBadge(ini.id)}
           <span class="oe-badge" style="background:rgba(255,255,255,.1)">${ini.tipo}</span>
         </div>
         <div class="s-ini-title">${ini.n}</div>
@@ -1907,6 +1910,16 @@ const WORKER_BASE = _prod ? location.origin + '/api/w' : 'https://emra-ai-proxy.
 let CLAUDE_PROXY_URL = WORKER_BASE + '/v1/messages';
 
 // ── SUPABASE CONFIG ──
+// ID EMRA (N° del REPOSITORIO EMRA, hoja BASE) de las 37 iniciativas de mediano plazo del mapa (23-nov-2026).
+// Los códigos a1, c1, r1, t1… son internos del portal; el ID EMRA es el que se usa en la Plataforma de gestión.
+// r12 (Cobertura jardines infantiles) → ID 40 «100% de cobertura en educación inicial» y r11 (Centro oncológico) → ID 609: por confirmar con EMRA.
+const ID_EMRA={a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,
+  c1:608,c2:681,c3:676,c4:658,c5:699,c6:677,c7:678,
+  r1:584,r2:593,r3:595,r4:596,r5:591,r6:590,r7:13,r8:706,r9:583,r10:67,r11:609,r12:40,r13:597,r14:610,r15:711,
+  t1:708,t2:682,t3:599,t4:579,t5:568,t6:569,t7:707};
+const idEmra=id=>ID_EMRA[id]||'';
+const idBadge=id=>ID_EMRA[id]?`<span class="id-badge">ID ${ID_EMRA[id]}</span>`:'';
+
 const SB_URL = 'https://tjoveoqolrfxntvvdjwh.supabase.co';
 const SB_KEY = 'sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE';
 
@@ -2433,7 +2446,7 @@ async function sendChat(){
   const btn=document.getElementById('chat-send');btn.disabled=true;inp.value='';gorito_startTalking();
   const resp=document.getElementById('chat-resp'),txt=document.getElementById('chat-text');
   resp.classList.add('on');txt.textContent='…';
-  const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c,tipo:i.tipo}));
+  const ctx=INI.map(i=>({id:i.id,idEMRA:idEmra(i.id),nombre:i.n,oe:i.oe,ciudad:i.c,tipo:i.tipo}));
   try{
     window._CHAT_N=(window._CHAT_N||0)+1;
     const sysPrompt = goritoSystemPrompt(JSON.stringify(ctx));
@@ -4551,6 +4564,7 @@ function goritoSystemPrompt(ctxJson){
   if(window.EMRA_CONOCIMIENTO) partes.push(window.EMRA_CONOCIMIENTO); // corto y mediano plazo (emra-conocimiento.js)
   if(window.CHAT_EXTRA_CTX) partes.push(window.CHAT_EXTRA_CTX);
   partes.push(reglaConversacion());
+  partes.push('Cada iniciativa trae su idEMRA (N° del repositorio EMRA). Cuando nombres una iniciativa, indica su ID EMRA así: «ID 594». El campo id (a1, c1, r1…) es interno: úsalo solo en la línea IDS.');
   partes.push('Si hay iniciativas relevantes en tu respuesta, termina con IDS:[id1,id2,...]');
   partes.push('Iniciativas:\n'+ctxJson);
   return partes.join('\n\n');
@@ -5420,7 +5434,7 @@ async function lkEnviar(){
   const resp=document.getElementById('lk-resp');
   resp.style.display='block';resp.textContent='Gorito está pensando…';
   window._CHAT_N=(window._CHAT_N||0)+1;
-  const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c}));
+  const ctx=INI.map(i=>({id:i.id,idEMRA:idEmra(i.id),nombre:i.n,oe:i.oe,ciudad:i.c}));
   try{
     const r=await fetch(CLAUDE_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:350,system:goritoSystemPrompt(JSON.stringify(ctx)),messages:[{role:'user',content:q}]})});
@@ -5934,7 +5948,7 @@ async function testClaudePrompt(){
   const result=document.getElementById('cl-test-result');
   result.style.display='block';
   result.textContent='⏳ Consultando a Claude…';
-  const ctx=INI.map(i=>({id:i.id,nombre:i.n,oe:i.oe,ciudad:i.c}));
+  const ctx=INI.map(i=>({id:i.id,idEMRA:idEmra(i.id),nombre:i.n,oe:i.oe,ciudad:i.c}));
   const sysPrompt=goritoSystemPrompt(JSON.stringify(ctx));
   try{
     const apiEndpointTest = CLAUDE_PROXY_URL || 'https://api.anthropic.com/v1/messages';
