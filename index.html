@@ -906,7 +906,7 @@ svg{display:block}
 /* Barra superior */
 #topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:18px;padding:0 18px;z-index:650}
 .tb-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:none}
-.tb-brand .sb-logo{height:34px;width:auto}
+.tb-brand .tb-logo{height:38px;width:auto;display:block}
 .tb-brand b{display:block;font-size:15px;font-weight:800;line-height:1.1;color:var(--ink);white-space:nowrap}
 .tb-brand span{display:block;font-size:12px;color:var(--mut);white-space:nowrap}
 #topbar .tabs{display:flex;gap:2px;background:var(--card);border-radius:999px;padding:4px;border:0;margin:0}
@@ -1072,7 +1072,7 @@ svg{display:block}
 @media (max-width:768px){
   #app{--top:104px}
   #topbar{flex-wrap:wrap;height:var(--top);padding:8px 12px 0;gap:6px 10px;align-content:flex-start}
-  .tb-brand{flex:1}.tb-brand .sb-logo{height:28px}.tb-brand b{font-size:14px}
+  .tb-brand{flex:1}.tb-brand .tb-logo{height:30px}.tb-brand b{font-size:14px}
   .tb-acts .tb-btn{padding:7px 11px;font-size:13px}
   .tb-acts .tb-ig{display:none}
   #topbar .tabs{order:3;width:calc(100% + 24px);margin:0 -12px;border-radius:0;background:#fff;border-top:1px solid #efe7df;padding:4px 8px;overflow-x:auto;scrollbar-width:none}
@@ -1103,7 +1103,7 @@ svg{display:block}
 
 <!-- Loading -->
 <div id="loading">
-  <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" alt="EMRA" onerror="this.style.display='none'"/>
+  <img src="logo-emra.webp" alt="EMRA" onerror="this.style.display='none'"/>
   <p>Cargando Portal EMRA 2023–2050…</p>
 </div>
 
@@ -1115,7 +1115,7 @@ svg{display:block}
   <!-- BARRA SUPERIOR (rediseño 23-nov-2026): marca, secciones y acciones -->
   <header id="topbar">
     <div class="tb-brand">
-      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" style="cursor:pointer" title="EMRA" onclick="if(PORTADA_ACTIVA||verPortadaPrueba())showPortada()" onerror="this.style.display='none'"/>
+      <img src="logo-emra.webp" class="tb-logo" alt="EMRA 2023–2050" style="cursor:pointer" title="EMRA" onclick="if(PORTADA_ACTIVA||verPortadaPrueba())showPortada()" onerror="this.style.display='none'"/>
       <div><b>Portal EMRA 2023–2050</b><span>Estrategia Minera para el Bienestar · Región de Antofagasta</span></div>
     </div>
     <nav class="tabs" aria-label="Secciones del portal">
