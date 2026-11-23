@@ -1826,11 +1826,11 @@ function renderStats(){
   INI.forEach(i=>{const f=i.fase||'Iniciativa';byF[f]=(byF[f]||0)+1});
   const mO=Math.max(...Object.values(byOE)),mC=Math.max(...Object.values(byC));
   document.getElementById('pnl-d').innerHTML=`
-    <div class="stat-hero"><div class="stat-big">${INI.length}</div><div class="stat-lbl">Iniciativas EMRA · 2023–2050</div></div>
+    <div class="stat-hero"><div class="stat-big">${INI.length}</div><div class="stat-lbl">Iniciativas de mediano plazo · al 2035</div></div>
     <div class="sec-title">Por objetivo estratégico</div>
     ${Object.entries(OE_COLORS).map(([o,c])=>{const n=byOE[o]||0;return`<div class="bar-row"><div class="bar-head"><span style="color:${c}">${o}</span><span style="color:var(--sbm)">${n}</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mO*100)}%;background:${c}"></div></div></div>`}).join('')}
     <div class="sec-title" style="margin-top:12px">Por ciudad (clic para filtrar)</div>
-    <div class="stat-grid">${Object.entries(byC).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat-mini" onclick="document.getElementById('city-sel').value='${c}';applyFilters();switchTab('l')"><div class="stat-mini-num">${n}</div><div class="stat-mini-lbl">${c}</div></div>`).join('')}</div>
+    <div class="stat-grid">${Object.entries(byC).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="stat-mini" onclick="setCity('${c}');switchTab('l')"><div class="stat-mini-num">${n}</div><div class="stat-mini-lbl">${c}</div></div>`).join('')}</div>
     <div class="sec-title" style="margin-top:12px">Por etapa</div>
     ${Object.entries(FASE_COLORS).map(([f,c])=>{const n=byF[f]||0;return`<div class="bar-row"><div class="bar-head"><span style="color:${c};display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block"></span>${f}</span><span style="color:var(--sbm)">${n}</span></div><div class="bar-track"><div class="bar-fill" style="width:${INI.length?Math.round(n/INI.length*100):0}%;background:${c}"></div></div></div>`}).join('')}`;
 }
