@@ -1537,7 +1537,7 @@ const INI=[
   {id:'a3',n:'Red de Aguas Grises Antofagasta',oe:'OE 1',c:'Antofagasta',lat:-23.56,lng:-70.38,tipo:'Infraestructura hídrica',plazo:'Mediano plazo 2026-2030',resp:'MOP · SISS · Municipio',d:'Captación, tratamiento y reutilización de aguas grises domiciliarias contribuyendo al uso eficiente del agua en contexto desértico.'},
   {id:'a4',n:'Marina Pública Playa La Chimba',oe:'OE 1',c:'Antofagasta',lat:-23.55,lng:-70.40,tipo:'Infraestructura costera',plazo:'Mediano plazo 2026-2030',resp:'MOP · Municipio',d:'Marina pública y circuito ferry para potenciar el turismo costero, la conectividad marítima y el uso recreativo del borde mar.'},
   {id:'a5',n:'FUC Humedal de la Chimba',oe:'OE 1',c:'Antofagasta',lat:-23.54,lng:-70.39,tipo:'Recuperación ambiental',plazo:'Corto plazo 2023-2026',resp:'Municipio · MMA',d:'Formulación de uso de suelo condicionado en el humedal La Chimba para habilitar desarrollo turístico sustentable.'},
-  {id:'a6',n:'FUC Estanques Codelco-Petrobras',oe:'OE 1',c:'Antofagasta',lat:-23.62,lng:-70.40,tipo:'Recuperación urbana',plazo:'Corto plazo 2023-2026',resp:'Municipio · MINVU',d:'Reconversión de predios industriales de Codelco y Petrobras en espacios públicos de calidad integrados a la trama urbana.'},
+  {id:'a6',n:'FUC Estanques Codelco-Petrobras',oe:'OE 1',c:'Antofagasta',lat:-23.6230,lng:-70.3900,tipo:'Recuperación urbana',plazo:'Corto plazo 2023-2026',resp:'Municipio · MINVU',d:'Reconversión de predios industriales de Codelco y Petrobras en espacios públicos de calidad integrados a la trama urbana.'},
   {id:'a7',n:'FUC Sector Vertedero Antofagasta',oe:'OE 1',c:'Antofagasta',lat:-23.54,lng:-70.38,tipo:'Recuperación ambiental',plazo:'Corto plazo 2023-2026',resp:'Municipio · MINVU',d:'Planificación del uso futuro del vertedero de Antofagasta orientado a recuperación ambiental y espacio urbano público.'},
   {id:'a8',n:'Recuperación Edificio Balneario Puntilla',oe:'OE 1',c:'Antofagasta',lat:-23.68,lng:-70.41,tipo:'Patrimonio y espacio público',plazo:'Corto plazo 2023-2026',resp:'Municipio · Consejo de Monumentos',d:'Recuperación del histórico Edificio Balneario y su entorno en La Puntilla como espacio público emblemático.'},
   {id:'t1',n:'Extensión Calle Matta Tocopilla',oe:'OE 1',c:'Tocopilla',lat:-22.10,lng:-70.20,tipo:'Vialidad estructural',plazo:'Corto plazo 2023-2026',resp:'MOP · Municipio Tocopilla',d:'Extensión de calle Matta como eje vial estructurante de Tocopilla, mejorando la conectividad interna.'},
@@ -1680,7 +1680,7 @@ function renderMarkers(){
     const isCmp=selCmp.includes(ini.id);
     const cmpNum=isCmp?String(selCmp.indexOf(ini.id)+1):'';
     const icon=createPinIcon(col,hl||isCmp,cmpNum);
-    const marker=L.marker([ini.lat,ini.lng],{icon,title:ini.n});
+    const marker=L.marker([ini.lat,ini.lng],{icon,alt:ini.n}); // sin title: evita la etiqueta gris duplicada
     marker._emraOE=ini.oe;
     marker._emraId=ini.id;
 
@@ -2190,6 +2190,8 @@ const ID_EMRA={a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,
   r1:584,r2:593,r3:595,r4:596,r5:591,r6:590,r7:13,r8:706,r9:583,r10:67,r11:609,r12:40,r13:597,r14:610,r15:711,
   t1:708,t2:682,t3:599,t4:579,t5:568,t6:569,t7:707};
 const idEmra=id=>ID_EMRA[id]||'';
+// a6 · ex-estanques Codelco/Petrobras: sector «Las Petroleras», entre Mejillones, Ovalle, Elqui y Av. Iquique (23-nov-2026).
+const COORD_FIX={a6:[-23.6230,-70.3900]};
 const idBadge=id=>ID_EMRA[id]?`<span class="id-badge">ID ${ID_EMRA[id]}</span>`:'';
 
 const SB_URL = 'https://tjoveoqolrfxntvvdjwh.supabase.co';
@@ -2335,6 +2337,8 @@ async function loadFromSupabase(){
         imageUrl: r.image_url||null,
         gallery: (r.gallery && r.gallery.length) ? r.gallery : null
       }));
+      // Coordenadas corregidas (Supabase las tiene redondeadas a 2 decimales y algunas caen en el mar).
+      mapped.forEach(i=>{const c=COORD_FIX[i.id];if(c){i.lat=c[0];i.lng=c[1];}});
       INI.length = 0;
       mapped.forEach(i => INI.push(i));
       ADMIN_INI.length = 0;
