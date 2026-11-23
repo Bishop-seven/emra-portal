@@ -1015,6 +1015,10 @@ svg{display:block}
 .ini-cmp-sp{flex:none;width:38px}
 .cp-tag{font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--ink);background:#fff;border:1.5px dashed #b9ab9d;border-radius:4px;padding:0 6px}
 #ficha .f-tags .cp-tag{font-size:13px;padding:3px 9px;border-radius:6px}
+.clu-cp{display:grid;place-items:center;border-radius:10px;background:#2E5AAC;color:#fff;font:800 14px/1 'Figtree',sans-serif;border:3px solid #fff;box-shadow:0 0 0 2px #2E5AAC,0 3px 10px rgba(0,0,0,.25)}
+.capa .lg{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px}
+.capa .lg-mp{border-radius:50%;background:#1f1a16;box-shadow:0 0 0 2px #FAA900}
+.capa .lg-cp{border-radius:3px;background:#2E5AAC}
 .pin-cp{border-radius:7px;background:var(--c);border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .15s;cursor:pointer}
 .pin-cp svg{width:62%;height:62%}
 .pin-cp.aprox{outline:2px dashed var(--c);outline-offset:2px}
@@ -1667,11 +1671,13 @@ function createPinIcon(col, hl=false, cmpNum=''){
   return L.divIcon({className:'',html:svg,iconSize:[sz,sz],iconAnchor:[sz/2,sz],popupAnchor:[0,-sz]});
 }
 
-let clusterGroup=null;
+let clusterGroup=null,clusterCP=null;
+const CP_COLOR='#2E5AAC'; // color de la capa corto plazo (agrupaciones y leyenda), distinto al de mediano plazo
 
 function renderMarkers(){
   // Remover cluster group anterior
   if(clusterGroup){map.removeLayer(clusterGroup);clusterGroup=null;}
+  if(clusterCP){map.removeLayer(clusterCP);clusterCP=null;}
   markersLayer=[];
 
   const visible=INI.filter(i=>{
@@ -1742,15 +1748,19 @@ function renderMarkers(){
     markersLayer.push(marker);
   });
   // Capa corto plazo OE1: íconos cuadrados por tipo (salud, agua, educación)
+  // Corto plazo en su propio grupo: agrupaciones cuadradas azules, distintas a las redondas de mediano plazo
+  clusterCP=L.markerClusterGroup({maxClusterRadius:50,showCoverageOnHover:false,spiderfyOnMaxZoom:true,disableClusteringAtZoom:14,
+    iconCreateFunction:c=>{const n=c.getChildCount(),sz=n<10?38:44;return L.divIcon({html:`<div class="clu-cp" style="width:${sz}px;height:${sz}px">${n}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});}});
   CP.filter(cpVisible).forEach(i=>{
     const m=L.marker([i.lat,i.lng],{icon:cpIcon(i,highlighted.has(i.id)),alt:i.n});
     m._emraOE='OE 1';m._emraId=i.id;
     m.bindTooltip(`ID ${i.idE} · ${i.n}`,{className:'pin-tt',direction:'top',offset:[0,-8]});
     m.on('click',()=>openFicha(i.id));
-    clusterGroup.addLayer(m);markersLayer.push(m);
+    clusterCP.addLayer(m);markersLayer.push(m);
   });
 
   map.addLayer(clusterGroup);
+  map.addLayer(clusterCP);
 }
 
 let cmpMode=false;
@@ -1826,8 +1836,8 @@ function applyFilters(){
 function renderOEPills(){
   const n=o=>INI.filter(i=>i.oe&&i.oe.includes(o)).length;
   const cap=document.getElementById('capas');
-  if(cap)cap.innerHTML=`<button class="capa" aria-pressed="${CAPAS.mp}" onclick="setCapa('mp')"><span class="ck"></span><span><b>Mediano plazo</b><small>${INI.length} iniciativas · al 2035</small></span></button>
-    <button class="capa" aria-pressed="${CAPAS.cp}" onclick="setCapa('cp')"><span class="ck"></span><span><b>Corto plazo OE1</b><small>${CP.length} proyectos · salud, agua y educación</small></span></button>`;
+  if(cap)cap.innerHTML=`<button class="capa" aria-pressed="${CAPAS.mp}" onclick="setCapa('mp')"><span class="ck"></span><span><b><i class="lg lg-mp"></i>Mediano plazo</b><small>${INI.length} iniciativas · al 2035</small></span></button>
+    <button class="capa" aria-pressed="${CAPAS.cp}" onclick="setCapa('cp')"><span class="ck"></span><span><b><i class="lg lg-cp"></i>Corto plazo OE1</b><small>${CP.length} proyectos · salud, agua y educación</small></span></button>`;
   const sp=document.getElementById('sector-pills'),sl=document.getElementById('sector-lbl');
   if(sp){sp.hidden=sl.hidden=!CAPAS.cp;const ns=x=>CP.filter(i=>i.sector===x).length;
     sp.innerHTML=`<button class="chip" aria-pressed="${!sectorFilter}" onclick="setSector(null)">Todos <span class="n">${CP.length}</span></button>`
