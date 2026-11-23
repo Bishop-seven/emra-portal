@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!-- Iniciativas estratégicas presentadas al Directorio EMRA · carrusel para el home de emra.cl (iframe).
+     Se inserta con mineria-embed.js:  <div id="emra-estrategicas-home"></div>
+     Datos: emra-estrategicas.js (generado con archivos/herramientas/gen_fichas.py desde el Excel de EMRA + REPOSITORIO).
+     Nombres de empresas privadas ocultos («Empresa privada»), pedido del cliente.
+     Avisa su alto al sitio padre (postMessage) para el auto-alto de mineria-embed.js. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Iniciativas estratégicas EMRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="emra-estrategicas.js"></script>
+<style>
+:root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;
+  --oe1:#FAA900;--oe2:#70AD57;--oe3:#FF5812;--oe4:#0090D4;--oe5:#00BCB6}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:transparent}
+body{font-family:'Figtree',-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:16px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+.w{max-width:1200px;margin:0 auto;padding:4px 16px 12px}
+
+/* cabecera */
+.cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.kick{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cu)}
+h2{font-size:clamp(24px,2.8vw,34px);font-weight:800;line-height:1.12;margin:4px 0 6px}
+.cab p{color:var(--mut);max-width:640px}
+.nav{display:flex;gap:8px}
+.arr{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;color:var(--cu);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;transition:.15s}
+.arr:hover:not(:disabled){border-color:var(--cu);background:var(--cu);color:#fff}
+.arr:disabled{opacity:.35;cursor:default}
+
+/* carrusel */
+.car{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  padding:4px 2px 10px;scrollbar-width:none;overscroll-behavior-x:contain}
+.car::-webkit-scrollbar{display:none}
+.it{scroll-snap-align:start;display:flex;flex-direction:column;background:#fff;border:1.5px solid var(--bd);border-radius:8px;overflow:hidden;text-align:left;color:var(--tx);transition:.2s;min-height:100%}
+.it:hover{border-color:var(--c);box-shadow:0 8px 22px rgba(60,40,20,.09);transform:translateY(-2px)}
+.it[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 -4px 0 var(--c)}
+.it .top{position:relative;background:var(--card);padding:16px 18px 14px;border-bottom:1.5px solid var(--bd);overflow:hidden}
+.it .top:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c)}
+.it .top .num{position:absolute;right:12px;top:-8px;font-size:64px;font-weight:800;line-height:1;color:var(--c);opacity:.16;font-variant-numeric:tabular-nums}
+.tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;position:relative}
+.tag{font-size:11.5px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--c);border-radius:3px;padding:2px 8px}
+.idr{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--mut);border:1px solid currentColor;border-radius:3px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.it h3{position:relative;font-size:17.5px;font-weight:800;line-height:1.25;margin-top:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.25em*3)}
+.it .bd{padding:14px 18px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.meta{font-size:13.5px;color:var(--mut);display:grid;gap:2px}
+.meta b{color:var(--tx);font-weight:700}
+.av{font-size:13px;color:var(--mut)}
+.av .bar{height:7px;border-radius:4px;background:#ece3da;overflow:hidden;margin-top:4px}
+.av .bar i{display:block;height:100%;background:var(--c)}
+.up{font-size:14px;line-height:1.45;border-top:1px dashed var(--bd);padding-top:10px}
+.up .f{display:block;font-size:12px;font-weight:800;color:var(--cu2);margin-bottom:3px}
+.up span.t{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ver{margin-top:auto;font-size:13px;font-weight:800;color:var(--cu2);letter-spacing:.03em}
+
+.dots{display:flex;justify-content:center;gap:8px;margin-top:8px}
+.dots button{width:10px;height:10px;border-radius:50%;border:0;background:var(--bd);padding:0}
+.dots button.on{background:var(--cu);width:24px;border-radius:5px}
+
+/* ficha abierta */
+.det{margin-top:16px;background:var(--card);border-left:6px solid var(--c);border-radius:6px;padding:18px 20px 20px;position:relative}
+.det[hidden]{display:none}
+.det .x{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;color:var(--mut);font-size:20px;line-height:1;display:grid;place-items:center}
+.det .x:hover{border-color:var(--cu);color:var(--cu)}
+.det h4{font-size:20px;font-weight:800;line-height:1.25;margin:8px 48px 12px 0}
+.fcp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px;font-size:14.5px}
+.fcp h5{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.fcp dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px}
+.fcp dt{color:var(--mut);font-weight:600}.fcp dd{margin:0}
+.fcp .act{background:#fff;border:1.5px solid var(--bd);border-radius:6px;padding:12px 14px}
+.fcp .act .f{font-size:12.5px;font-weight:800;color:var(--cu2)}
+.fcp .act p{margin-top:4px;line-height:1.5}
+.fcp details{margin-top:10px}.fcp summary{cursor:pointer;font-weight:700;color:var(--cu2);font-size:13.5px}
+.fcp details ol{list-style:none;margin-top:8px;display:grid;gap:8px}
+.fcp details li{border-left:3px solid var(--bd);padding-left:10px;font-size:13.5px;line-height:1.45}
+.pie{margin-top:12px;font-size:12.5px;color:var(--mut)}
+.pie a,.cta a{color:var(--cu2);font-weight:700}
+.cta{margin-top:14px;text-align:right;font-size:15px}
+
+@media (max-width:980px){.car{grid-auto-columns:calc((100% - 16px)/2)}}
+@media (max-width:640px){
+  .car{grid-auto-columns:86%;gap:12px}
+  .nav{display:none}
+  .fcp{grid-template-columns:1fr}
+  .cta{text-align:left}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="cab">
+    <div>
+      <div class="kick">Directorio EMRA · sesiones 2025–2026</div>
+      <h2>Iniciativas estratégicas</h2>
+      <p>Iniciativas de la Estrategia Minera 2023–2050 presentadas en las sesiones de Directorio. Toca una para ver su ficha y su última actualización.</p>
+    </div>
+    <div class="nav"><button class="arr" id="prev" aria-label="Anteriores">‹</button><button class="arr" id="next" aria-label="Siguientes">›</button></div>
+  </div>
+  <div class="car" id="car" role="list" aria-label="Iniciativas estratégicas"></div>
+  <div class="dots" id="dots"></div>
+  <section class="det" id="det" hidden aria-live="polite"></section>
+  <p class="cta">Seguimiento completo en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
+</div>
+<script>
+// La parte 2 (3ª sesión 2026) espera el visto bueno de EMRA: cambiar a true para mostrarla (igual que EST_PARTE2 en videos-home.html).
+const PARTE2=false;
+const D=window.EMRA_ESTRATEGICAS||{lista:[],fichas:{}};
+const OEC={1:'var(--oe1)',2:'var(--oe2)',3:'var(--oe3)',4:'var(--oe4)',5:'var(--oe5)'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fecha=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]} ${a}`;};
+const mayus=t=>t?t[0].toUpperCase()+t.slice(1):t;
+const oe1=t=>+((String(t).match(/\d/)||[1])[0]);
+const corta=(t,n)=>t&&t.length>n?t.slice(0,n-1).replace(/[\s,;(]+\S*$/,'')+'…':t||'';
+
+const L=D.lista.filter(x=>PARTE2||x.parte===1).map(x=>({...x,f:D.fichas[x.id]||{}}));
+let sel=null;
+
+$('#car').innerHTML=L.map((x,i)=>{
+  const f=x.f,u=(f.act||[])[0],k=oe1(f.oe);
+  return `<button class="it" role="listitem" data-i="${i}" style="--c:${OEC[k]||'var(--cu)'}" aria-pressed="false" aria-controls="det" aria-label="Ver ficha: ${esc(x.nom)}">
+    <div class="top"><span class="num" aria-hidden="true">${esc(x.id)}</span>
+      <div class="tags"><span class="tag">${esc(f.oe||'OE'+k)}</span><span class="idr">ID ${esc(x.id)}</span></div>
+      <h3>${esc(x.nom)}</h3></div>
+    <div class="bd">
+      <div class="meta"><span><b>Zona:</b> ${esc(corta(f.zona,48))}</span><span><b>Institución:</b> ${esc(x.inst)}</span></div>
+      ${f.av!=null?`<div class="av"><b style="color:var(--tx)">${f.av}%</b> de avance · al ${fecha(f.avf)}<div class="bar"><i style="width:${Math.min(100,Math.max(0,f.av))}%"></i></div></div>`:''}
+      ${u?`<div class="up"><span class="f">Actualización · ${fecha(u.f)}</span><span class="t">${esc(mayus(u.txt))}</span></div>`:''}
+      <span class="ver">Ver ficha +</span>
+    </div></button>`;
+}).join('');
+
+// ── navegación ──
+const car=$('#car'),items=[...car.children];
+const paso=()=>items.length>1?items[1].offsetLeft-items[0].offsetLeft:car.clientWidth; // ancho de tarjeta + espacio
+const porVista=()=>Math.max(1,Math.round(car.clientWidth/paso()));
+const nPag=()=>Math.max(1,Math.ceil(items.length/porVista()));
+function irPag(p){const n=nPag();p=(p+n)%n;car.scrollTo({left:p*porVista()*paso(),behavior:'smooth'});}
+function pintarDots(){
+  const n=nPag(),fin=car.scrollLeft+car.clientWidth>=car.scrollWidth-4,p=fin?n-1:Math.min(n-1,Math.round(car.scrollLeft/(porVista()*paso())));
+  if($('#dots').children.length!==n)$('#dots').innerHTML=Array.from({length:n},(_,i)=>`<button aria-label="Grupo ${i+1} de ${n}"></button>`).join('');
+  [...$('#dots').children].forEach((b,i)=>{b.classList.toggle('on',i===p);b.onclick=()=>{parar();irPag(i);};});
+  $('#prev').disabled=car.scrollLeft<4;$('#next').disabled=fin;
+  return p;
+}
+car.addEventListener('scroll',()=>{clearTimeout(car._t);car._t=setTimeout(pintarDots,60);},{passive:true});
+window.addEventListener('resize',pintarDots);
+$('#prev').onclick=()=>{parar();irPag(pintarDots()-1);};
+$('#next').onclick=()=>{parar();irPag(pintarDots()+1);};
+
+// avance automático suave (se detiene al interactuar y con movimiento reducido)
+let auto=null;
+const quieto=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function parar(){clearInterval(auto);auto=null;}
+function arrancar(){if(quieto||auto||sel!==null)return;auto=setInterval(()=>{if(!document.hidden)irPag(pintarDots()+1);},6500);}
+car.addEventListener('pointerenter',parar);car.addEventListener('pointerleave',arrancar);
+car.addEventListener('focusin',parar);car.addEventListener('touchstart',parar,{passive:true});
+
+// ── ficha ──
+function ficha(x){
+  const f=x.f,[u,...hist]=f.act||[];
+  const fila=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
+  return `<button class="x" id="det-x" aria-label="Cerrar ficha">×</button>
+    <div class="tags"><span class="tag">${esc(f.oe||'')}</span><span class="idr">ID ${esc(x.id)}</span></div>
+    <h4>${esc(x.nom)}</h4>
+    <div class="fcp">
+      <div><h5>Ficha de la iniciativa</h5><dl>${fila('Institución',x.inst)}${fila('Responsable',f.resp)}${fila('Plazo',f.plazo)}${fila('Tipo',f.tipo)}${fila('Zona',f.zona)}${fila('Objetivo',f.oe)}
+        ${f.av!=null?`<dt>Avance</dt><dd><b>${f.av}%</b> <span style="color:var(--mut)">al ${fecha(f.avf)}</span></dd>`:''}</dl></div>
+      <div><h5>Última actualización</h5>
+        ${u?`<div class="act"><span class="f">${fecha(u.f)}${u.src?' · '+esc(u.src):''}</span><p>${esc(mayus(u.txt))}</p></div>`:'<p>Sin actualizaciones registradas.</p>'}
+        ${hist.length?`<details><summary>Ver ${hist.length} actualización${hist.length>1?'es':''} anterior${hist.length>1?'es':''}</summary><ol>${hist.map(h=>`<li><b>${fecha(h.f)}${h.src?' · '+esc(h.src):''}</b><br>${esc(mayus(h.txt))}</li>`).join('')}</ol></details>`:''}
+        <p class="pie">Fuente: repositorio de iniciativas EMRA (Plataforma de gestión).</p></div>
+    </div>`;
+}
+function irA(el){
+  const y=el.getBoundingClientRect().top+window.pageYOffset;
+  if(parent!==window)parent.postMessage({type:'emra-mineria-scroll',y},'*');else window.scrollTo({top:y-20,behavior:'smooth'});
+}
+function elegir(i){
+  sel=sel===i?null:i;
+  items.forEach((b,j)=>b.setAttribute('aria-pressed',j===sel));
+  const d=$('#det');
+  if(sel===null){d.hidden=true;arrancar();return;}
+  parar();const x=L[sel];
+  d.style.setProperty('--c',OEC[oe1(x.f.oe)]||'var(--cu)');
+  d.innerHTML=ficha(x);d.hidden=false;
+  $('#det-x').onclick=()=>{const i0=sel;elegir(sel);items[i0].focus({preventScroll:true});irA(car);};
+  irA(d);
+}
+items.forEach((b,i)=>b.onclick=()=>elegir(i));
+
+if(!L.length)$('#car').outerHTML='<p style="color:var(--mut)">No hay iniciativas para mostrar.</p>';
+else{pintarDots();arrancar();}
+
+// ── iframe: avisar alto al sitio padre ──
+if(parent!==window){
+  let lastH=0;
+  const send=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;parent.postMessage({type:'emra-mineria-height',h},'*');}};
+  new ResizeObserver(send).observe(document.body);send();
+}
+</script>
+</body>
+</html>
