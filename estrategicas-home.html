@@ -120,7 +120,9 @@ const corta=(t,n)=>t&&t.length>n?t.slice(0,n-1).replace(/[\s,;(]+\S*$/,'')+'…'
 // Proyectos que EMRA pidió no mostrar en este carrusel (23-nov-2026): Instituto Nacional del Litio (69),
 // Corredor Bioceánico · Puerto de Tocopilla (73), Instituto de Tecnologías Limpias (76) y Mecanismos para generación de iniciativas (447).
 const OCULTOS=new Set(['69','73','76','447']);
-const L0=D.lista.filter(x=>(PARTE2||x.parte===1)&&!OCULTOS.has(String(x.id))).map(x=>({...x,f:D.fichas[x.id]||{}}));
+// Avisos administrativos de la Secretaría («se considera 'Sin reporte'») no son avance del proyecto: no se muestran (pedido 23-nov-2026).
+const SIN_REPORTE=/sin reporte/i;
+const L0=D.lista.filter(x=>(PARTE2||x.parte===1)&&!OCULTOS.has(String(x.id))).map(x=>{const f=D.fichas[x.id]||{};return {...x,f:{...f,act:(f.act||[]).filter(a=>!SIN_REPORTE.test(a.txt||''))}};});
 // Proyectos que se muestran juntos en una sola tarjeta (pedido EMRA, 23-nov-2026): ID 1 + ID 2 = Patios Ferroviarios.
 // La tarjeta muestra los dos ID y la actualización más reciente de ambos.
 const UNIR=[{ids:['1','2'],nom:'Plan de Reconversión de Patios Ferroviarios'}];

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<!-- «Proyectos Estratégicos» · subpágina de Actualidad en emra.cl (iframe), versión extendida del carrusel estrategicas-home.html.
+     Se inserta con mineria-embed.js:  <div id="emra-proyectos-estrategicos"></div>
+     Datos: emra-estrategicas.js (ficha y actualizaciones por ID) + emra-proyectos-estrategicos.js (descripción, fotos y video).
+     Nombres de empresas privadas ocultos («Empresa privada»), pedido del cliente.
+     Avisa su alto al sitio padre (postMessage) para el auto-alto de mineria-embed.js. También funciona sola en portal.emra.cl/proyectos-estrategicos -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Proyectos Estratégicos · EMRA</title>
+<meta name="description" content="Proyectos de la Estrategia Minera para el Bienestar de la Región de Antofagasta presentados en las sesiones de Directorio EMRA."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="emra-estrategicas.js"></script>
+<script src="emra-proyectos-estrategicos.js"></script>
+<style>
+:root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;
+  --oe1:#FAA900;--oe2:#70AD57;--oe3:#FF5812;--oe4:#0090D4;--oe5:#00BCB6}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:transparent}
+body{background:transparent;font-family:'Figtree',-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:16px;line-height:1.55}
+body.sola{background:#fff}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--cu2)}
+.w{max-width:1200px;margin:0 auto;padding:8px 16px 24px}
+body.sola .w{padding-top:40px}
+
+/* cabecera */
+.kick{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cu)}
+h1{font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.08;margin:6px 0 10px;letter-spacing:-.01em}
+.intro{color:var(--mut);max-width:720px;font-size:17px}
+
+/* índice */
+.ind{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 8px;padding:0;list-style:none}
+.ind button{display:flex;align-items:center;gap:8px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font-size:14px;font-weight:600;color:var(--tx);transition:.15s;text-align:left}
+.ind button:hover{border-color:var(--c);box-shadow:0 4px 12px rgba(60,40,20,.08)}
+.ind .n{background:var(--c);color:#fff;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* proyecto */
+.pr{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:32px;padding:36px 0;border-top:1.5px solid var(--bd);scroll-margin-top:16px}
+.pr:first-of-type{margin-top:22px}
+
+.media{min-width:0;display:flex;flex-direction:column;gap:10px;align-self:start;position:sticky;top:16px}
+.marco{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:var(--card);box-shadow:0 10px 30px rgba(60,40,20,.10)}
+.marco img,.marco iframe,.marco video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;display:block}
+.marco video{background:#000;object-fit:contain}
+.play{position:absolute;inset:0;border:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.55));display:flex;align-items:flex-end;justify-content:flex-start;padding:16px;color:#fff}
+.play .b{position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:var(--c);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.3);transition:transform .2s}
+.play .b:after{content:"";border-left:24px solid #fff;border-top:15px solid transparent;border-bottom:15px solid transparent;margin-left:6px}
+.play:hover .b,.play:focus-visible .b{transform:scale(1.08)}
+.play .l{font-weight:800;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.vtxt{font-size:13px;color:var(--mut)}
+/* sin fotos: portada tipográfica con el color del objetivo */
+.sinfoto{position:absolute;inset:0;background:var(--card);display:flex;flex-direction:column;justify-content:flex-end;padding:22px 24px;overflow:hidden}
+.sinfoto:before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
+.sinfoto .big{position:absolute;right:18px;top:-6px;font-size:clamp(90px,12vw,150px);font-weight:800;line-height:1;color:var(--c);opacity:.18;font-variant-numeric:tabular-nums}
+.sinfoto .z{position:relative;font-size:14px;color:var(--mut)}
+.sinfoto .z b{display:block;font-size:20px;color:var(--tx);line-height:1.2;margin-bottom:2px}
+.thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.thumbs button{flex:0 0 auto;width:92px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--card);position:relative;opacity:.75;transition:.15s}
+.thumbs button:hover{opacity:1}
+.thumbs button[aria-pressed="true"]{border-color:var(--c);opacity:1}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .tv{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);color:#fff;font-size:12px;font-weight:800}
+
+.info{min-width:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tag{font-size:12px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--c);border-radius:3px;padding:2px 9px}
+.idr{font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--mut);border:1px solid currentColor;border-radius:3px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.info h2{font-size:clamp(23px,2.4vw,30px);font-weight:800;line-height:1.15;margin:12px 0 10px}
+.oe{display:block;font-size:14px;line-height:1.45;color:var(--mut);border-left:4px solid var(--c);padding:2px 0 2px 12px;margin-bottom:18px;text-decoration:none}
+.oe:hover{color:var(--tx)}
+.oe b{color:var(--tx)}
+h3{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 8px}
+.desc p{margin-bottom:10px}
+.desc ul{margin:4px 0 12px 0;padding:0;list-style:none;display:grid;gap:6px}
+.desc li{position:relative;padding-left:18px;font-size:15px}
+.desc li:before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--c)}
+.desc.cerrada{max-height:13.5em;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}
+.mas{border:0;background:none;color:var(--cu2);font-weight:800;font-size:14px;padding:2px 0;margin-bottom:6px}
+dl.fi{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:14.5px;margin:16px 0;padding:14px 16px;background:var(--card);border-radius:8px}
+dl.fi dt{color:var(--mut);font-weight:600}dl.fi dd{margin:0}
+.act{border:1.5px solid var(--bd);border-radius:8px;padding:14px 16px;background:#fff}
+.act .f{font-size:12.5px;font-weight:800;color:var(--cu2)}
+.act p{margin-top:4px;font-size:15px}
+.act details{margin-top:10px}.act summary{cursor:pointer;font-weight:700;color:var(--cu2);font-size:13.5px}
+.act ol{list-style:none;margin-top:8px;display:grid;gap:8px}
+.act li{border-left:3px solid var(--bd);padding-left:10px;font-size:13.5px;line-height:1.45}
+
+.pie{margin-top:28px;padding-top:18px;border-top:1.5px solid var(--bd);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mut)}
+.pie a{font-weight:700}
+
+@media (max-width:880px){
+  .pr{grid-template-columns:1fr;gap:20px;padding:28px 0}
+  .media{position:static}
+}
+@media (max-width:520px){
+  .ind button{font-size:13px}
+  .play .b{width:64px;height:64px;margin:-32px 0 0 -32px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="w">
+  <header>
+    <div class="kick">Actualidad · Directorio EMRA · sesiones 2025–2026</div>
+    <h1>Proyectos Estratégicos</h1>
+    <p class="intro">Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio: qué buscan, a qué objetivo estratégico aportan, en qué están hoy y el material que se mostró en cada sesión.</p>
+  </header>
+  <nav aria-label="Proyectos de esta página"><ul class="ind" id="ind"></ul></nav>
+  <main id="lista"></main>
+  <footer class="pie">
+    <span>Fuente: repositorio de iniciativas EMRA (Plataforma de gestión) y presentaciones al Directorio.</span>
+    <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Seguimiento completo en la Plataforma de gestión – EMRA 2023-2050 →</a>
+  </footer>
+</div>
+<script>
+const D=window.EMRA_ESTRATEGICAS||{lista:[],fichas:{}};
+const P=window.EMRA_PROYECTOS_EST||[];
+const EMBED=parent!==window;
+if(!EMBED)document.body.classList.add('sola');
+
+// Textos literales de emra.cl («Objetivos Estratégicos · Pilares de la EMRA 2023-2050»), igual que en rutas-gorito.html.
+const OBJ={
+  1:{url:'https://www.emra.cl/web/oe1-mejorar-la-calidad-de-vida/',t:'Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.'},
+  2:{url:'https://www.emra.cl/web/oe2-mineria-sustentable/',t:'Minería sustentable, que contemple la rehabilitación y preservación del patrimonio natural y cultural.'},
+  3:{url:'https://www.emra.cl/web/oe3-fortalecer-las-empresas-regionales/',t:'Incentivar la creación y fortalecer las empresas regionales para aumentar su participación en la cadena de valor de la minería, con una perspectiva descentralizada.'},
+  4:{url:'https://www.emra.cl/web/oe4-mejorar-la-institucionalidad-publica/',t:'Mejorar la institucionalidad pública y la gobernanza para un sector minero más competitivo y sostenible.'},
+  5:{url:'https://www.emra.cl/web/oe5_reforzar_ecosistema_del_conocimiento/',t:'Reforzar el ecosistema del conocimiento. y la innovación en la cadena del valor minero.'}
+};
+const OEC={1:'var(--oe1)',2:'var(--oe2)',3:'var(--oe3)',4:'var(--oe4)',5:'var(--oe5)'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fecha=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]} ${a}`;};
+const mayus=t=>t?t[0].toUpperCase()+t.slice(1):t;
+const oeN=t=>+((String(t).match(/\d/)||[1])[0]);
+const corta=(t,n)=>t&&t.length>n?t.slice(0,n-1).replace(/[\s,;(]+\S*$/,'')+'…':t||'';
+const ytId=v=>{const m=String(v||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/);return m?m[1]:(/^[\w-]{11}$/.test(v||'')?v:'');};
+
+// Avisos administrativos de la Secretaría («se considera 'Sin reporte'») no son avance del proyecto: no se muestran (pedido 23-nov-2026).
+const SIN_REPORTE=/sin reporte/i;
+// Une el contenido curado con la ficha del repositorio (por ID).
+const L=P.map(p=>{
+  const fs=p.ids.map(i=>D.fichas[i]).filter(Boolean), f=fs[0]||{};
+  const li=D.lista.find(x=>String(x.id)===p.ids[0])||{};
+  const act=fs.flatMap(x=>x.act||[]).sort((a,b)=>String(b.f||'').localeCompare(String(a.f||'')))
+    .filter((a,i,arr)=>arr.findIndex(b=>b.f===a.f&&b.txt===a.txt)===i)
+    .filter(a=>!SIN_REPORTE.test(a.txt||''));
+  const yt=ytId(p.video&&p.video.yt), mp4=p.video&&p.video.mp4||'';
+  return {...p,nom:p.nom||li.nom||f.nom||'',inst:li.inst||f.inst||'',f,act,k:oeN(f.oe),yt,mp4,ancla:'p-'+p.ids.join('-')};
+}).filter(x=>x.nom);
+
+function media(x){
+  const fotos=x.fotos||[], hayVideo=!!(x.yt||x.mp4);
+  if(!hayVideo&&!fotos.length){
+    return `<div class="marco"><div class="sinfoto" role="img" aria-label="${esc(x.nom)}"><span class="big" aria-hidden="true">${esc(x.ids.join('·'))}</span>
+      <span class="z"><b>${esc(corta(x.f.zona,40))}</b>${esc(x.inst)}</span></div></div>`;
+  }
+  const thumbs=[];
+  if(hayVideo)thumbs.push(`<button data-v="1" aria-pressed="true" aria-label="Ver video"><img src="${esc(fotos[0]?fotos[0].src:`https://i.ytimg.com/vi/${x.yt}/hqdefault.jpg`)}" alt="" loading="lazy"><span class="tv">▶ Video</span></button>`);
+  fotos.forEach((ph,i)=>thumbs.push(`<button data-f="${i}" aria-pressed="${!hayVideo&&i===0}" aria-label="Ver foto ${i+1}: ${esc(ph.alt||'')}"><img src="${esc(ph.src)}" alt="" loading="lazy"></button>`));
+  return `<div class="marco" data-marco></div>
+    ${thumbs.length>1?`<div class="thumbs" role="group" aria-label="Video y fotos del proyecto">${thumbs.join('')}</div>`:''}
+    ${hayVideo&&x.videoTxt?`<p class="vtxt">${esc(x.videoTxt)}</p>`:''}`;
+}
+
+function info(x){
+  const o=OBJ[x.k], [u,...hist]=x.act;
+  const fila=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
+  const largo=(x.desc||[]).join(' ').length+(x.puntos||[]).join(' ').length>620;
+  return `<div class="tags"><span class="tag">${esc(x.f.oe||'OE'+x.k)}</span>${x.ids.map(i=>`<span class="idr">ID ${esc(i)}</span>`).join('')}</div>
+    <h2>${esc(x.nom)}</h2>
+    ${o?`<a class="oe" href="${o.url}" target="_top"><b>Objetivo Estratégico ${x.k}:</b> ${esc(o.t)}</a>`:''}
+    <h3>Descripción</h3>
+    <div class="desc${largo?' cerrada':''}">${(x.desc||[]).map(p=>`<p>${esc(p)}</p>`).join('')}
+      ${x.puntos&&x.puntos.length?`<ul>${x.puntos.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>`:''}</div>
+    ${largo?'<button class="mas" aria-expanded="false">Leer más +</button>':''}
+    <dl class="fi">${fila('Institución',x.inst)}${fila('Zona',corta(x.f.zona,90))}${fila('Plazo',x.f.plazo)}</dl>
+    <h3>Última actualización</h3>
+    <div class="act">${u?`<span class="f">${fecha(u.f)}${u.src?' · '+esc(u.src):''}</span><p>${esc(mayus(u.txt))}</p>`:'<p>Sin actualizaciones registradas.</p>'}
+      ${hist.length?`<details><summary>Ver ${hist.length>1?hist.length+' actualizaciones anteriores':'1 actualización anterior'}</summary><ol>${hist.map(h=>`<li><b>${fecha(h.f)}${h.src?' · '+esc(h.src):''}</b><br>${esc(mayus(h.txt))}</li>`).join('')}</ol></details>`:''}
+    </div>`;
+}
+
+$('#ind').innerHTML=L.map(x=>`<li><button data-a="${x.ancla}" style="--c:${OEC[x.k]}"><span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,46))}</button></li>`).join('');
+$('#lista').innerHTML=L.map(x=>`<article class="pr" id="${x.ancla}" style="--c:${OEC[x.k]}" aria-labelledby="${x.ancla}-t">
+  <div class="media">${media(x)}</div><div class="info">${info(x).replace('<h2>',`<h2 id="${x.ancla}-t">`)}</div></article>`).join('')
+  ||'<p style="color:var(--mut);margin-top:24px">No hay proyectos para mostrar.</p>';
+
+// ── video y fotos ──
+function mostrar(art,x,que,autoplay){
+  const m=art.querySelector('[data-marco]');if(!m)return;
+  art.querySelectorAll('.thumbs button').forEach(b=>b.setAttribute('aria-pressed',que==='v'?b.dataset.v==='1':b.dataset.f===String(que)));
+  if(que==='v'){
+    if(autoplay){
+      // youtube-nocookie: no deja cookies de seguimiento hasta que se reproduce
+      m.innerHTML=x.yt?`<iframe src="https://www.youtube-nocookie.com/embed/${x.yt}?autoplay=1&rel=0&modestbranding=1" title="Video: ${esc(x.nom)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+        :`<video src="${esc(x.mp4)}" controls autoplay playsinline ${x.fotos[0]?`poster="${esc(x.fotos[0].src)}"`:''}></video>`;
+      return;
+    }
+    const poster=x.fotos[0]?x.fotos[0].src:`https://i.ytimg.com/vi/${x.yt}/maxresdefault.jpg`;
+    m.innerHTML=`<img src="${esc(poster)}" alt="" ${art.id===L[0].ancla?'':'loading="lazy"'}><button class="play" aria-label="Reproducir video: ${esc(x.nom)}"><span class="b"></span><span class="l">Ver video del proyecto</span></button>`;
+    m.querySelector('.play').onclick=()=>mostrar(art,x,'v',true);
+  }else{
+    const ph=x.fotos[que];
+    m.innerHTML=`<img src="${esc(ph.src)}" alt="${esc(ph.alt||'')}" ${art.id===L[0].ancla?'':'loading="lazy"'}>`;
+  }
+}
+L.forEach(x=>{
+  const art=document.getElementById(x.ancla);
+  if(art.querySelector('[data-marco]'))mostrar(art,x,(x.yt||x.mp4)?'v':0,false);
+  art.querySelectorAll('.thumbs button').forEach(b=>b.onclick=()=>mostrar(art,x,b.dataset.v?'v':+b.dataset.f,!!b.dataset.v));
+  const mas=art.querySelector('.mas');
+  if(mas)mas.onclick=()=>{const d=art.querySelector('.desc'),ab=d.classList.toggle('cerrada');mas.setAttribute('aria-expanded',!ab);mas.textContent=ab?'Leer más +':'Leer menos –';if(ab)irA(art);};
+});
+
+// ── índice: ir al proyecto (dentro del iframe se pide el scroll al sitio padre) ──
+function irA(el){
+  if(EMBED){const y=el.getBoundingClientRect().top+window.pageYOffset;parent.postMessage({type:'emra-mineria-scroll',y},'*');}
+  else el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.querySelectorAll('#ind button').forEach(b=>b.onclick=()=>irA(document.getElementById(b.dataset.a)));
+
+// ── iframe: avisar alto al sitio padre ──
+if(EMBED){
+  let lastH=0;
+  const send=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;parent.postMessage({type:'emra-mineria-height',h},'*');}};
+  new ResizeObserver(send).observe(document.body);send();
+}
+</script>
+</body>
+</html>
