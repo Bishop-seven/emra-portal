@@ -32,6 +32,33 @@ h1{font-size:clamp(24px,3vw,34px);font-weight:800;line-height:1.1;margin:4px 0 6
 .cab p{color:var(--mut);max-width:720px}
 .proto{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#fff3e6;color:var(--cu2);border:1px solid #f0d3b8;border-radius:999px;padding:3px 10px;white-space:nowrap}
 
+/* asistente IA */
+.ia{background:#fff;border:1.5px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 2px 0 rgba(204,130,77,.12)}
+.ia-h{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ia-h h2{font-size:16px;font-weight:800}
+.ia-h .b{font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--cu);border-radius:999px;padding:2px 8px}
+.ia-h .s{font-size:12.5px;color:var(--mut);margin-left:auto}
+.ia-f{display:flex;gap:8px}
+.ia-f input{flex:1;min-width:0;border:1.5px solid var(--bd);border-radius:10px;padding:11px 14px;font:inherit;font-size:15px;background:#fff}
+.ia-f input:focus{outline:2px solid var(--cu);outline-offset:1px}
+.ia-f button{border:0;background:var(--cu);color:#fff;border-radius:10px;padding:0 18px;font-weight:800;font-size:14px}
+.ia-f button:disabled{opacity:.5;cursor:default}
+.sug{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sug button{border:1.5px solid var(--bd);background:var(--bg);border-radius:999px;padding:4px 11px;font-size:13px;font-weight:600;color:var(--tx)}
+.sug button:hover{border-color:var(--cu);color:var(--cu2)}
+.log{display:grid;gap:8px;margin-top:10px}
+.log:empty{display:none}
+.msg{font-size:14.5px;line-height:1.5;border-radius:10px;padding:9px 12px;max-width:100%}
+.msg.u{justify-self:end;background:var(--tx);color:#fff;max-width:85%}
+.msg.a{background:var(--card);border-left:4px solid var(--cu)}
+.msg.a .ap{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px;font-size:12.5px;color:var(--mut)}
+.msg.a .ap b{color:var(--tx)}
+.msg.a .ap button{border:0;background:none;color:var(--cu2);font-weight:800;padding:0;text-decoration:underline;font-size:12.5px}
+.msg.a.err{border-left-color:var(--av-cero)}
+.pensando i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--cu);margin-right:3px;animation:pt 1s infinite}
+.pensando i:nth-child(2){animation-delay:.15s}.pensando i:nth-child(3){animation-delay:.3s}
+@keyframes pt{0%,100%{opacity:.25}50%{opacity:1}}
+
 /* filtros activos */
 .act-f{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:34px;margin-bottom:12px;position:sticky;top:0;z-index:500;background:var(--bg);padding:6px 0}
 .act-f .lab{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-right:4px}
@@ -183,6 +210,13 @@ td.nm{font-weight:600;min-width:260px}
     <span class="proto">Prototipo</span>
   </div>
 
+  <section class="ia" aria-labelledby="ia-t">
+    <div class="ia-h"><h2 id="ia-t">Pregúntale al tablero</h2><span class="b">IA</span><span class="s">Responde con los datos del repositorio y ajusta los gráficos</span></div>
+    <form class="ia-f" id="ia-f"><input id="ia-q" type="text" autocomplete="off" placeholder="Ej.: ¿qué iniciativas de salud hay en Calama y cómo van?" aria-label="Pregunta para el asistente"/><button id="ia-b">Preguntar</button></form>
+    <div class="sug" id="sug"></div>
+    <div class="log" id="log" aria-live="polite"></div>
+  </section>
+
   <div class="act-f" id="actf" aria-live="polite"></div>
 
   <div class="kpis" id="kpis"></div>
@@ -245,9 +279,9 @@ const diasDesde=f=>f?Math.round((CORTE-new Date(f))/864e5):Infinity;
 D.forEach(x=>{x._av=avCat(x);x._mes=x.uf?x.uf.slice(0,7):'';x._viejo=diasDesde(x.uf)>150;x._q=norm([x.id,x.n,x.co.join(' '),x.se,x.cl].join(' '));});
 
 // ── estado de filtros (uno por dimensión) ──
-const F={oe:null,co:null,av:null,mes:null,pl:null,si:null,cl:null,se:null,ge:null,tp:null,viejo:null,q:''};
-const ETQ={oe:'Objetivo',co:'Comuna',av:'Avance',mes:'Último reporte',pl:'Plazo',si:'Impulsa',cl:'Clasificación',se:'Sector',ge:'Gestión',tp:'Madurez',viejo:'Sin reportar'};
-const val=(k,v)=>k==='oe'?`OE${v} · ${OE[v][0]}`:k==='av'?AV[v][0]:k==='mes'?mesL(v):k==='viejo'?'hace más de 5 meses':v;
+const F={oe:null,co:null,av:null,mes:null,pl:null,si:null,cl:null,se:null,ge:null,tp:null,viejo:null,ids:null,q:''};
+const ETQ={ids:'Selección de la IA',oe:'Objetivo',co:'Comuna',av:'Avance',mes:'Último reporte',pl:'Plazo',si:'Impulsa',cl:'Clasificación',se:'Sector',ge:'Gestión',tp:'Madurez',viejo:'Sin reportar'};
+const val=(k,v)=>k==='ids'?`${v.size} iniciativa${v.size===1?'':'s'}`:k==='oe'?`OE${v} · ${OE[v][0]}`:k==='av'?AV[v][0]:k==='mes'?mesL(v):k==='viejo'?'hace más de 5 meses':v;
 const pasa=(x,sin)=>{
   const sinA=[].concat(sin);
   for(const k in F){if(sinA.includes(k)||k==='q'||F[k]==null)continue;
@@ -256,6 +290,7 @@ const pasa=(x,sin)=>{
     else if(k==='av'){if(x._av!==F.av)return false;}
     else if(k==='mes'){if(x._mes!==F.mes)return false;}
     else if(k==='viejo'){if(!x._viejo)return false;}
+    else if(k==='ids'){if(!F.ids.has(x.id))return false;}
     else if(x[k]!==F[k])return false;}
   return !F.q||x._q.includes(F.q);
 };
@@ -411,6 +446,95 @@ function cerrarFicha(){
 }
 $('#velo').onclick=cerrarFicha;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selId!=null)cerrarFicha();});
+
+// ── asistente IA: responde y aplica filtros (respuesta JSON estructurada vía el proxy de Gorito) ──
+const _prod=location.protocol.startsWith('http')&&!['localhost','127.0.0.1'].includes(location.hostname);
+const PROXY=_prod?location.origin+'/api/w/v1/messages':'https://emra-ai-proxy.emraportal.workers.dev/v1/messages';
+const uniq=k=>[...new Set(D.map(x=>x[k]))].filter(Boolean).sort();
+const ENUMS={co:[...Object.keys(META.comunas||{}),'Regional'],av:Object.keys(AV),pl:uniq('pl'),si:uniq('si'),cl:uniq('cl'),se:uniq('se'),ge:uniq('ge'),tp:uniq('tp'),
+  mes:[...new Set(D.map(x=>x._mes).filter(Boolean))].sort()};
+const nulo=e=>({anyOf:[{type:'string',enum:e},{type:'null'}]});
+const ESQUEMA={type:'object',additionalProperties:false,required:['respuesta','accion','filtros','ids'],properties:{
+  respuesta:{type:'string',description:'Respuesta breve en español (2 a 5 oraciones), basada sólo en los datos.'},
+  accion:{type:'string',enum:['aplicar','mantener','limpiar'],description:'aplicar = reemplazar los filtros del tablero por «filtros»; mantener = no tocar el tablero; limpiar = quitar todos los filtros.'},
+  filtros:{type:'object',additionalProperties:false,required:['oe','co','av','pl','si','cl','se','ge','tp','mes','viejo','q'],properties:{
+    oe:{anyOf:[{type:'integer',enum:[1,2,3,4,5]},{type:'null'}]},co:nulo(ENUMS.co),av:nulo(ENUMS.av),pl:nulo(ENUMS.pl),si:nulo(ENUMS.si),cl:nulo(ENUMS.cl),
+    se:nulo(ENUMS.se),ge:nulo(ENUMS.ge),tp:nulo(ENUMS.tp),mes:nulo(ENUMS.mes),viejo:{type:'boolean'},
+    q:{anyOf:[{type:'string'},{type:'null'}],description:'Texto a buscar en el nombre (una palabra clave, p. ej. «agua»), o null.'}}},
+  ids:{type:'array',items:{type:'integer'},description:'IDs concretos a mostrar cuando la pregunta apunta a iniciativas específicas que los filtros no logran aislar; si no, lista vacía.'}}};
+// contexto: una línea por iniciativa (se arma una vez; el proxy reenvía cache_control para abaratar preguntas seguidas)
+const CTX=D.map(x=>[x.id,x.n,x.oe.map(k=>'OE'+k).join('+'),x.co.join('+'),x.pl,x.av==null?'sin%':x.av+'%',x.uf||'-',x.se,x.si,x.cl,x.tp,x.ge].join(' | ')).join('\n');
+const SISTEMA=`Eres el asistente del «Tablero de iniciativas» de la EMRA 2023-2050 (Estrategia Minera para el Bienestar de la Región de Antofagasta, Chile).
+Objetivos estratégicos (texto oficial de emra.cl):
+OE1: Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.
+OE2: Minería sustentable, que contemple la rehabilitación y preservación del patrimonio natural y cultural.
+OE3: Incentivar la creación y fortalecer las empresas regionales para aumentar su participación en la cadena de valor de la minería, con una perspectiva descentralizada.
+OE4: Mejorar la institucionalidad pública y la gobernanza para un sector minero más competitivo y sostenible.
+OE5: Reforzar el ecosistema del conocimiento y la innovación en la cadena del valor minero.
+
+Respondes preguntas sobre las ${D.length} iniciativas vigentes del repositorio y, en la misma respuesta, ajustas los filtros del tablero para que muestre lo que estás explicando.
+
+Reglas:
+- Usa sólo los datos de abajo. Si algo no está en los datos (montos, nombres de empresas, fechas futuras), dilo con franqueza. No inventes cifras.
+- Los nombres de empresas privadas están ocultos a propósito («la empresa»); nunca intentes deducirlos ni nombrarlos.
+- Responde en español de Chile, claro y breve (2 a 5 oraciones), sin markdown ni viñetas. Cuando des un número, que sea el conteo de las filas que calzan.
+- accion «aplicar»: llena «filtros» con el conjunto que mejor muestra la respuesta (deja en null lo que no aplica, viejo=false salvo que pregunten por reportes antiguos). Usa «q» sólo para un tema que no tenga categoría (p. ej. «agua», «jardín», «posta»). Usa «ids» sólo si la pregunta apunta a iniciativas puntuales.
+- accion «mantener» si la pregunta no requiere cambiar el tablero (saludos, definiciones, preguntas sobre la EMRA). «limpiar» si piden ver todo de nuevo.
+- Significados: avance term=100%, curso=1-99%, cero=0%, sin=sin % reportado. «viejo» = último reporte hace más de 5 meses (corte ${esc(META.corte||'')}). Comuna «Regional» = abarca varias comunas o toda la región. mes = mes del último reporte (AAAA-MM).
+
+Datos (id | nombre | objetivos | comunas | plazo | avance | último reporte | sector | quién impulsa | clasificación | madurez | gestión):
+${CTX}`;
+const HIST=[];
+const SUG=['¿Qué iniciativas de salud hay en Calama y cómo van?','¿Cuáles están terminadas en Tocopilla?','Muéstrame las de agua sin avance','¿Qué iniciativas de San Pedro llevan meses sin reportar?','¿Cómo va el OE2 de minería sustentable?'];
+$('#sug').innerHTML=SUG.map(t=>`<button type="button">${esc(t)}</button>`).join('');
+document.querySelectorAll('#sug button').forEach(b=>b.onclick=()=>{$('#ia-q').value=b.textContent;preguntar();});
+$('#ia-f').onsubmit=e=>{e.preventDefault();preguntar();};
+function msg(cls,html){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;$('#log').appendChild(d);
+  while($('#log').children.length>6)$('#log').firstElementChild.remove();avisarAlto();return d;}
+const copiaF=()=>Object.fromEntries(Object.entries(F).map(([k,v])=>[k,v instanceof Set?new Set(v):v]));
+function ponerF(o){Object.keys(F).forEach(k=>F[k]=o[k]===undefined?(k==='q'?'':null):o[k]);$('#q').value=F.q?(o._qtxt||F.q):'';lim=PAG;pintar();}
+async function preguntar(){
+  const q=$('#ia-q').value.trim();if(!q)return;
+  $('#ia-q').value='';$('#ia-b').disabled=true;
+  msg('u',esc(q));
+  const carga=msg('a pensando','<i></i><i></i><i></i> Revisando las iniciativas…');
+  const estado=Object.keys(ETQ).filter(k=>F[k]!=null).map(k=>`${ETQ[k]}: ${val(k,F[k])}`).join('; ')||'ninguno';
+  HIST.push({role:'user',content:`${q}\n\n(Filtros activos ahora en el tablero: ${estado}${F.q?'; búsqueda: '+$('#q').value:''})`});
+  try{
+    const res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-opus-5-5',max_tokens:4000,
+      output_config:{effort:'low',format:{type:'json_schema',schema:ESQUEMA}},
+      system:[{type:'text',text:SISTEMA,cache_control:{type:'ephemeral'}}],
+      messages:HIST.slice(-8)})});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error?.message||res.status);
+    if(data.stop_reason==='refusal')throw new Error('rechazo');
+    const txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const r=JSON.parse(txt);
+    HIST.push({role:'assistant',content:txt});
+    const antes=copiaF();
+    let ap='';
+    if(r.accion==='limpiar'){ponerF({});ap='Quité todos los filtros.';}
+    else if(r.accion==='aplicar'){
+      const f=r.filtros||{},n={};
+      ['oe','co','av','pl','si','cl','se','ge','tp','mes'].forEach(k=>{if(f[k]!=null)n[k]=f[k];});
+      if(f.viejo)n.viejo=true;
+      const ids=(r.ids||[]).filter(i=>D.some(x=>x.id===i));
+      if(ids.length)n.ids=new Set(ids);
+      if(f.q){n.q=norm(f.q);n._qtxt=f.q;}
+      ponerF(n);
+      const tot=filas(null).length;
+      ap=`Tablero filtrado: <b>${tot}</b> iniciativa${tot===1?'':'s'}.`;
+    }
+    carga.remove();
+    const m=msg('a',esc(r.respuesta)+(ap?`<div class="ap">${ap} ${r.accion!=='mantener'?'<button type="button">Deshacer</button>':''}</div>`:''));
+    const bu=m.querySelector('.ap button');if(bu)bu.onclick=()=>{ponerF(antes);bu.parentNode.innerHTML='Volví a los filtros anteriores.';};
+  }catch(e){
+    HIST.pop();carga.remove();
+    msg('a err','No pude responder en este momento. Inténtalo de nuevo en unos segundos o usa los filtros del tablero.');
+  }
+  $('#ia-b').disabled=false;$('#ia-q').focus({preventScroll:true});
+}
 
 // ── pie ──
 $('#pie').innerHTML=`Fuente: repositorio de iniciativas EMRA (hoja BASE), clasificación al ${esc(META.corte||'')}. Se muestran las ${D.length} iniciativas vigentes; se excluyen ${META.eliminadas||0} marcadas «Eliminar». `+
