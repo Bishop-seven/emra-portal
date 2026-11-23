@@ -197,6 +197,26 @@ button.link{border:0}
 .tb td[data-l]{white-space:nowrap}
 .tb .pj{font-weight:700}.tb .pj small{display:block;font-weight:500;color:var(--mut);font-size:12.5px;margin-top:2px}
 .disp{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.04em;color:#2e6b1d;background:#e8f3e2;border:1px solid #cfe5c4;border-radius:3px;padding:2px 7px;white-space:nowrap}
+.tb tr.fila{cursor:pointer}
+.tb tr.fila:hover td{background:#fdf9f5}
+.tb tr.fila[aria-expanded="true"] td{background:#fbf5ef;border-bottom-color:transparent}
+.tb .vf{display:inline-block;margin-top:4px;font-size:12.5px;font-weight:700;color:var(--cu2);background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
+.tb tr.cpdet td{background:#fbf5ef;padding:4px 16px 18px;border-left:5px solid var(--oe2)}
+.fcp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:18px;font-size:14px}
+.fcp h5{margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.fcp .nomr{font-weight:700;margin:0 0 10px;line-height:1.35}
+.fcp dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin:0}
+.fcp dt{color:var(--mut);font-weight:600}.fcp dd{margin:0}
+.fcp .bar-av{height:8px;border-radius:4px;background:#ece3da;overflow:hidden;margin-top:5px;max-width:220px}
+.fcp .bar-av i{display:block;height:100%;background:var(--oe2)}
+.fcp .act{background:#fff;border:1.5px solid var(--bd);border-radius:6px;padding:12px 14px}
+.fcp .act .f{font-size:12.5px;font-weight:800;color:var(--oe2)}
+.fcp .act p{margin:4px 0 0;line-height:1.45}
+.fcp details{margin-top:10px}.fcp summary{cursor:pointer;font-weight:700;color:var(--cu2);font-size:13.5px}
+.fcp details ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.fcp details li{border-left:3px solid var(--bd);padding-left:10px;font-size:13.5px;line-height:1.4}
+.fcp .pie{margin-top:10px;font-size:12.5px;color:var(--mut)}
+@media (max-width:700px){.fcp{grid-template-columns:1fr}.tb tr.cpdet{display:block!important;padding:0!important}.tb tr.cpdet td{padding:4px 12px 16px!important}}
 .cp-nota{margin-top:14px;background:var(--card);border-left:5px solid var(--oe2);border-radius:4px;padding:14px 16px;font-size:15px}
 .cp-nota a{color:var(--cu2);font-weight:700}
 @media (max-width:700px){
@@ -315,7 +335,7 @@ button.link{border:0}
       <thead><tr><th>N°</th><th>ID EMRA</th><th>Proyecto</th><th>Localidad</th><th>Comuna</th><th>Encargado del diseño</th></tr></thead>
       <tbody id="cp-tb"></tbody>
     </table></div>
-    <p class="cp-nota">Para consultar el avance de cada proyecto, revisa su <b>ID EMRA</b> en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
+    <p class="cp-nota">Toca un proyecto para ver su ficha y su última actualización. La información completa está en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
   </section>
 </div>
 
@@ -612,7 +632,7 @@ function encuadrar(){
 // Datos en emra-conocimiento.js (fuente única, también la usa Gorito).
 const CARTERA=window.EMRA_CARTERA_CP||[];
 const SECTORES=[['Salud','Salud'],['Agua','Agua potable y alcantarillado'],['Educación','Educación']];
-const CP={s:'',c:'',q:''};
+const CP={s:'',c:'',q:'',ab:null};
 function abrirCartera(){
   const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;
   if(cp.hidden){
@@ -620,6 +640,7 @@ function abrirCartera(){
     const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
     $('#cp-c').innerHTML=`<option value="">Todas</option>`+comunas.map(c=>`<option>${esc(c)}</option>`).join('');
     pintarCartera();
+    cargarFichasCP();
   }
   irA(cp);
 }
@@ -636,11 +657,40 @@ function pintarCartera(){
   if(!L.length){$('#cp-tb').innerHTML=`<tr><td colspan="6" class="vacio">No hay proyectos con esos filtros.</td></tr>`;return;}
   $('#cp-tb').innerHTML=SECTORES.map(([k,t])=>{
     const g=L.filter(x=>x.s===k);if(!g.length)return '';
-    return `<tr class="sec"><td colspan="6">${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i></td></tr>`+g.map(x=>`<tr>
+    return `<tr class="sec"><td colspan="6">${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i></td></tr>`+g.map(x=>{const ab=CP.ab===x.n,fis=FICHAS_CP?String(x.id).split('/').map(i=>FICHAS_CP[i]).filter(Boolean):[],fi=fis.length;return `<tr class="fila" data-n="${x.n}" aria-expanded="${ab}">
       <td class="n">${x.n}</td><td class="idc">ID ${esc(x.id)}</td>
-      <td class="pj">${esc(x.p)}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
-      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`).join('');
+      <td class="pj">${esc(x.p)}${FICHAS_CP===null||fi?`<br><button class="vf" aria-expanded="${ab}" aria-controls="det-${x.n}">${ab?'Cerrar ficha −':'Ver ficha +'}</button>`:''}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
+      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`+(ab?`<tr class="cpdet" id="det-${x.n}"><td colspan="6">${fi?fis.map((f,i)=>(fis.length>1?`<h5 style="margin:${i?'18px':'6px'} 0 6px;color:var(--oe2)">ID ${esc(String(x.id).split('/')[i])}</h5>`:'')+fichaCP(f)).join(''):'<p>Cargando ficha…</p>'}</td></tr>`:'');}).join('');
   }).join('');
+  document.querySelectorAll('#cp-tb tr.fila').forEach(tr=>tr.onclick=e=>{
+    if(e.target.closest('a'))return;
+    const n=+tr.dataset.n;CP.ab=CP.ab===n?null:n;pintarCartera();
+    const b=document.querySelector(`#cp-tb tr.fila[data-n="${n}"] .vf`);if(b)b.focus({preventScroll:true});
+  });
+}
+// ── ficha por ID (mismos datos que la Plataforma de gestión / Power BI; empresas privadas anonimizadas) ──
+var FICHAS_CP=null; // null = cargando · {} = no disponible
+function cargarFichasCP(){
+  if(FICHAS_CP!==null||window.EMRA_CARTERA_FICHAS){FICHAS_CP=window.EMRA_CARTERA_FICHAS||FICHAS_CP;return;}
+  const sc=document.createElement('script');sc.src='emra-cartera-fichas.js';
+  sc.onload=()=>{FICHAS_CP=window.EMRA_CARTERA_FICHAS||{};pintarCartera();};
+  sc.onerror=()=>{FICHAS_CP={};pintarCartera();};
+  document.head.appendChild(sc);
+}
+const fechaCP=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]} ${a}`;};
+const mayus=t=>t?t[0].toUpperCase()+t.slice(1):t;
+function fichaCP(f){
+  const [u,...hist]=f.act;
+  const fila=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
+  return `<div class="fcp">
+    <div><h5>Ficha de la iniciativa</h5><p class="nomr">${esc(f.nom)}</p>
+      <dl>${fila('Institución',f.inst)}${fila('Responsable',f.resp)}${fila('Plazo',f.plazo)}${fila('Tipo',f.tipo)}${fila('Zona',f.zona)}${fila('Objetivo',f.oe)}
+      ${f.av!=null?`<dt>Avance</dt><dd><b>${f.av}%</b> <span style="color:var(--mut)">al ${fechaCP(f.avf)}</span><div class="bar-av"><i style="width:${Math.min(100,Math.max(0,f.av))}%"></i></div></dd>`:''}</dl></div>
+    <div><h5>Última actualización</h5>
+      ${u?`<div class="act">${u.f?`<span class="f">${fechaCP(u.f)}${u.src?' · '+esc(u.src):''}</span>`:''}<p>${esc(mayus(u.txt))}</p></div>`:'<p>Sin actualizaciones registradas.</p>'}
+      ${hist.length?`<details><summary>Ver ${hist.length} actualización${hist.length>1?'es':''} anterior${hist.length>1?'es':''}</summary><ol>${hist.map(h=>`<li><b>${fechaCP(h.f)}${h.src?' · '+esc(h.src):''}</b><br>${esc(mayus(h.txt))}</li>`).join('')}</ol></details>`:''}
+      <p class="pie">Fuente: repositorio de iniciativas EMRA (Plataforma de gestión), corte 31-oct-2026.</p>
+    </div></div>`;
 }
 
 // ══ LOS 5 OBJETIVOS ESTRATÉGICOS (video 1) ══
