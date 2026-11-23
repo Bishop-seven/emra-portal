@@ -1017,7 +1017,7 @@ svg{display:block}
 #ficha .f-tags .cp-tag{font-size:13px;padding:3px 9px;border-radius:6px}
 .pin-cp{border-radius:7px;background:var(--c);border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .15s;cursor:pointer}
 .pin-cp svg{width:62%;height:62%}
-.pin-cp.aprox{border-style:dashed}
+.pin-cp.aprox{outline:2px dashed var(--c);outline-offset:2px}
 .pin-cp.on{box-shadow:0 0 0 6px rgba(31,26,22,.2),0 2px 8px rgba(0,0,0,.3)}
 .pin-cp.hov{transform:scale(1.35)}
 #ficha .cp-cover{aspect-ratio:16/9;background:var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-weight:800;font-size:17px}
@@ -1027,6 +1027,7 @@ svg{display:block}
 
 /* Mapa */
 #map-area{background:#e9e9e7}
+.bm-suave img.leaflet-tile,img.leaflet-tile.bm-suave{filter:grayscale(.55) saturate(.85) brightness(1.04) contrast(.95)}
 .pin{border-radius:50%;background:var(--c);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .15s;cursor:pointer}
 .pin b{font-size:12px;font-weight:800;color:#1f1a16}
 .pin.on{box-shadow:0 0 0 6px rgba(31,26,22,.2),0 2px 8px rgba(0,0,0,.3)}
@@ -1279,25 +1280,21 @@ svg{display:block}
     <!-- Basemap panel -->
     <div class="basemap-panel" id="bm-panel">
       <div class="bm-title">Tipo de mapa <button onclick="toggleBasemapPanel()" style="background:none;border:none;color:var(--sbm);cursor:pointer;font-size:13px">&#xe5cd;</button></div>
-      <button class="bm-opt on" data-bm="gris" onclick="setBasemap('gris',this)">
+      <button class="bm-opt on" data-bm="relieve" onclick="setBasemap('relieve',this)">
+        <div class="bm-thumb" style="background:linear-gradient(135deg,#f2efe4,#dfe8cf)"></div>
+        <div><div class="bm-name">Relieve</div><div class="bm-desc">Recomendado · calles y cerros</div></div>
+      </button>
+      <button class="bm-opt" data-bm="calles" onclick="setBasemap('calles',this)">
+        <div class="bm-thumb" style="background:#efeae2"></div>
+        <div><div class="bm-name">Calles</div><div class="bm-desc">Todos los pueblos y calles</div></div>
+      </button>
+      <button class="bm-opt" data-bm="sat" onclick="setBasemap('sat',this)">
+        <div class="bm-thumb" style="background:#7a5a3c"></div>
+        <div><div class="bm-name">Satélite</div><div class="bm-desc">Fotografía aérea con nombres</div></div>
+      </button>
+      <button class="bm-opt" data-bm="gris" onclick="setBasemap('gris',this)">
         <div class="bm-thumb" style="background:#e5e5e3"></div>
-        <div><div class="bm-name">Gris claro</div><div class="bm-desc">Recomendado: destaca los puntos</div></div>
-      </button>
-      <button class="bm-opt" data-bm="light" onclick="setBasemap('light',this)">
-        <div class="bm-thumb" style="background:#f4f3f0"></div>
-        <div><div class="bm-name">Calle</div><div class="bm-desc">Estilo claro</div></div>
-      </button>
-      <button class="bm-opt" data-bm="satellite" onclick="setBasemap('satellite',this)">
-        <div class="bm-thumb" style="background:#0e3a1d"></div>
-        <div><div class="bm-name">Satélite</div><div class="bm-desc">Fotografía aérea</div></div>
-      </button>
-      <button class="bm-opt" data-bm="dark" onclick="setBasemap('dark',this)">
-        <div class="bm-thumb" style="background:#111213"></div>
-        <div><div class="bm-name">Oscuro</div><div class="bm-desc">Contraste nocturno</div></div>
-      </button>
-      <button class="bm-opt" data-bm="topo" onclick="setBasemap('topo',this)">
-        <div class="bm-thumb" style="background:#8b7355"></div>
-        <div><div class="bm-name">Topográfico</div><div class="bm-desc">Relieve y curvas nivel</div></div>
+        <div><div class="bm-name">Gris claro</div><div class="bm-desc">Sobrio, con menos detalle</div></div>
       </button>
     </div>
     <!-- Leaflet Map -->
@@ -1624,6 +1621,10 @@ let ADMIN_INI=[...INI], ADMIN_TL=[...TIMELINE];
 let map, markersLayer=[], routeLines=[], currentTile;
 
 const BASEMAPS_DEF={
+  // Mapas base sin clave (CARTO ahora exige clave de pago). Relieve = por defecto (23-nov-2026): calles con nombres en ciudades y relieve en el desierto.
+  relieve:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri',max:19},
+  calles:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',max:19,cls:'bm-suave'},
+  sat:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',ref:'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri',max:18},
   gris:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',ref:'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',attr:'Tiles &copy; Esri'},
   osm:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> contributors'},
   light:{url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',attr:'&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com">CARTO</a>'},
@@ -1641,9 +1642,9 @@ function initMap(){
     preferCanvas:true,
   });
   map.zoomControl.setPosition('topright');
-  currentTile=L.tileLayer(BASEMAPS_DEF.gris.url,{attribution:BASEMAPS_DEF.gris.attr,maxZoom:16}).addTo(map);
-  window._grisRef=L.tileLayer(BASEMAPS_DEF.gris.ref,{maxZoom:16,pane:'overlayPane'}).addTo(map); // nombres de lugares sobre el gris
-  basemapKey='gris';
+  basemapKey='relieve';
+  currentTile=L.tileLayer(BASEMAPS_DEF.relieve.url,{attribution:BASEMAPS_DEF.relieve.attr,maxZoom:19}).addTo(map);
+  map.setMaxZoom(19);
   // Fix map size after layout
   setTimeout(()=>map.invalidateSize(),200);
   }catch(e){console.error('Error inicializando mapa:',e);document.getElementById('map-leaflet').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--sbm);font-size:13px">Error al cargar el mapa. Verifica tu conexión a internet.</div>';}
@@ -1761,10 +1762,12 @@ function showTooltip(){}
 function hideTooltip(){}
 
 function setBasemap(key,btn){
-  basemapKey=key;
+  basemapKey=key;const B=BASEMAPS_DEF[key],mx=B.max||(key==='gris'?16:19);
   if(currentTile)map.removeLayer(currentTile);
-  currentTile=L.tileLayer(BASEMAPS_DEF[key].url,{attribution:BASEMAPS_DEF[key].attr,maxZoom:key==='gris'?16:19}).addTo(map);
-  if(window._grisRef){map.removeLayer(window._grisRef);if(key==='gris')window._grisRef.addTo(map);}
+  if(window._refTile){map.removeLayer(window._refTile);window._refTile=null;}
+  currentTile=L.tileLayer(B.url,{attribution:B.attr,maxZoom:mx,className:B.cls||''}).addTo(map);
+  if(B.ref)window._refTile=L.tileLayer(B.ref,{maxZoom:mx,pane:'overlayPane'}).addTo(map); // nombres sobre la imagen
+  map.setMaxZoom(mx); // sin zoom más allá de lo que tiene el mapa: evita zonas «sin mapa"
   document.querySelectorAll('.bm-opt').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('bm-panel').classList.remove('on');
@@ -2303,7 +2306,7 @@ const COORD_FIX={a6:[-23.6230,-70.3900]};
 // En ciudades (Antofagasta, Calama, San Pedro de Atacama) se reparten cerca del centro y se marcan «ubicación aproximada».
 const LOC_CP={'Socaire':[-23.5902,-67.8903],'Camar':[-23.4072,-67.9612],'Talabre':[-23.3156,-67.8903],'Río Grande':[-22.6512,-68.1673],
   'Caspana':[-22.3347,-68.2129],'Ayquina':[-22.2792,-68.3221],'Ayquina y Turi':[-22.2792,-68.3221],'Baquedano':[-23.3338,-69.8435],'Chiu-Chiu':[-22.3429,-68.6500],
-  'Ollagüe':[-21.2242,-68.2535],'Quillagua':[-21.6600,-69.5350],'Antofagasta':[-23.6464,-70.3980],'María Elena':[-22.3451,-69.6618],'Sierra Gorda':[-22.8917,-69.3200],
+  'Ollagüe':[-21.2242,-68.2535],'Quillagua':[-21.6600,-69.5350],'Antofagasta':[-23.6380,-70.3920],'María Elena':[-22.3451,-69.6618],'Sierra Gorda':[-22.8917,-69.3200],
   'San Pedro de Atacama':[-22.9108,-68.2001],'Toconao':[-23.1905,-68.0070],'Paposo':[-25.0094,-70.4653],'Ayllú de Solor':[-22.9462,-68.1857],'Peine':[-23.6836,-68.0617],
   'Lasana':[-22.2693,-68.6316],'Calama':[-22.4624,-68.9272],'Taltal':[-25.4078,-70.4858],'Toconce':[-22.2646,-68.1663]};
 const CIUDAD_CP=new Set(['Antofagasta','Calama','San Pedro de Atacama']);
@@ -2322,7 +2325,10 @@ function buildCP(){
     const r=aprox?0.007*Math.sqrt(i+1):(i?0.0015*Math.sqrt(i):0), a=i*2.39996;
     const base=String(x.p||'').split(' · ')[0];
     return {id:'cp'+x.id,idE:+x.id,cp:true,oe:'OE 1',sector:x.s,p:x.p,loc:x.loc,c:x.com,enc:x.enc,
-      n:base+(base.includes(x.loc)?'':' · '+x.loc),lat:b[0]+r*Math.cos(a),lng:b[1]+r*Math.sin(a)*1.1,aprox};
+      // Antofagasta es costera y alargada: se reparten de norte a sur dentro de la ciudad, nunca hacia el mar ni los cerros
+      n:base+(base.includes(x.loc)?'':' · '+x.loc),
+      lat:x.loc==='Antofagasta'?b[0]+(i-5.5)*0.0085:b[0]+r*Math.cos(a),
+      lng:x.loc==='Antofagasta'?b[1]+(i%2?0.005:0):b[1]+r*Math.sin(a)*1.1,aprox};
   });
 }
 function cpVisible(i){
