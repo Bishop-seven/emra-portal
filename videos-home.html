@@ -106,6 +106,7 @@ button.link{border:0}
 .it.sel .more{display:block}
 .dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px;margin-top:8px}
 .dl dt{color:var(--mut);font-weight:600}
+.idr{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--mut);border:1px solid currentColor;border-radius:3px;padding:1px 6px;font-variant-numeric:tabular-nums}
 .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--c);border-radius:3px;padding:2px 7px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
@@ -244,7 +245,7 @@ button.link{border:0}
     <div class="exp-h">
       <div>
         <div class="kick" style="--c:var(--oe3)">Mediano plazo · al 2035</div>
-        <h3 id="exp-t">Explora las 37 iniciativas</h3>
+        <h3 id="exp-t">Explora las 41 iniciativas</h3>
         <p>Filtra por ciudad o por objetivo estratégico (OE). Toca un punto del mapa o una iniciativa de la lista para ver su ficha.</p>
       </div>
       <button class="x" id="exp-x" aria-label="Cerrar el explorador de iniciativas">×</button>
@@ -255,7 +256,7 @@ button.link{border:0}
     </div>
     <div class="bar">
       <div class="bar-l">
-        <input class="q" id="q" type="search" placeholder="Buscar: tren, agua, parque…" aria-label="Buscar iniciativa por nombre"/>
+        <input class="q" id="q" type="search" placeholder="Buscar: tren, agua, ID 593…" aria-label="Buscar iniciativa por nombre o ID"/>
         <span class="cnt" id="cnt" aria-live="polite"></span>
       </div>
       <div class="seg" role="group" aria-label="Forma de ver las iniciativas">
@@ -339,10 +340,10 @@ const VIDEOS=[
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
    texto:'Diseño de mediano plazo al 2035: la EMRA busca dar un salto en el desarrollo urbano de nuestras capitales provinciales. En este ámbito, 30 son las iniciativas en que nos hemos puesto de acuerdo como región y queremos construir juntos, y 7 son las iniciativas estratégicas de responsabilidad del Gobierno, donde la región asume el compromiso de apoyar iniciativas regionales estratégicas que dependen del nivel central.',
    lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
-   cta:['Explora las 37 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
+   cta:['Explora las 41 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
 ];
 
-// Las 37 iniciativas: copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
+// Las 41 iniciativas (37 + 4 alianzas MP del Excel): copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
 // Al abrir el explorador se recargan en vivo desde Supabase (fotos y textos editados en el admin del portal).
 // Todas son de mediano plazo (al 2035); aún no hay iniciativas de corto plazo en el mapa.
 // oe: número de objetivo · c: ciudad ("Regional" = abarca varias comunas) · lat/lng para el mapa.
@@ -383,11 +384,21 @@ const INICIATIVAS=[
   {"id": "c4", "n": "Parque Los Yacimientos Calama", "oe": 1, "c": "Calama", "lat": -22.44, "lng": -68.91, "tipo": "Espacio público temático", "resp": "Municipio · GORE", "d": "Gran parque urbano temático en Calama que rinde homenaje a la tradición minera regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367003/emra/j8pakb1o2rr36xaluwyd.webp", "gal": []},
   {"id": "c5", "n": "Centro Recreacional Ojo de Opache", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -69.0, "tipo": "Turismo y recreación", "resp": "Municipio · GORE · SERNATUR", "d": "Centro recreacional en el oasis Ojo de Opache, aprovechando el ecosistema natural para crear un destino turístico regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366495/emra/xtnwsjgzvf5cfx1h5pj3.webp", "gal": []},
   {"id": "c6", "n": "ARENAS Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.92, "tipo": "Equipamiento deportivo-cultural", "resp": "Municipio · GORE · Privados", "d": "Recinto multiuso tipo arena en Calama para eventos deportivos, culturales y de entretenimiento de escala regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366193/emra/lowhdpqvaqdpsxoxvcsf.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782422465/emra/gii4u0j0lkmt1sgkctev.webp"]},
-  {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367093/emra/twrk0dtr2r95g38wnzfh.webp", "gal": []}
+  {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367093/emra/twrk0dtr2r95g38wnzfh.webp", "gal": []},
+  {"id": "c8", "n": "Avenida FFCC – Circunvalación Calama", "oe": 1, "c": "Calama", "lat": -22.465, "lng": -68.915, "tipo": "Vialidad estructural", "resp": "MINVU · SERVIU", "d": "Vialidad estructurante de Calama con ingeniería de detalle terminada por SERVIU: la Avenida FFCC, que se extiende entre Avenida Balmaceda y Avenida Circunvalación.", "img": "", "gal": []},
+  {"id": "c9", "n": "Centro de Atención del Cáncer Calama", "oe": 1, "c": "Calama", "lat": -22.457, "lng": -68.928, "tipo": "Infraestructura de salud", "resp": "GORE · Municipio Calama · SSA", "d": "Centro de atención del cáncer acreditado internacionalmente en Calama, con convenios entre el centro y las mineras para atender a sus trabajadores y un fondo para la atención de la población en general.", "img": "", "gal": []},
+  {"id": "r16", "n": "Estudio doble calzada Tocopilla – Jama", "oe": 1, "c": "Regional", "lat": -22.6, "lng": -68.55, "tipo": "Vialidad regional", "resp": "MOP · Vialidad · GORE", "d": "Estudio de prefactibilidad de una doble calzada entre Tocopilla y Paso Jama, pasando por María Elena, Calama y San Pedro de Atacama. Parte del Convenio de Programación GORE–MOP 2025-2035.", "img": "", "gal": []},
+  {"id": "r17", "n": "Áreas de servicio Corredor Bioceánico Capricornio", "oe": 3, "c": "Regional", "lat": -22.27, "lng": -69.56, "tipo": "Infraestructura logística", "resp": "MOP · Vialidad · GORE", "d": "Cuatro áreas de descanso para camioneros del Corredor Bioceánico: Crucero (Tocopilla, cruce Ruta 24 y Ruta 5), San Pedro de Atacama (Ruta 23 CH), Ollagüe (Ruta 21 CH) y Mejillones (Ruta 1). Parte del Convenio de Programación GORE–MOP 2025-2035.", "img": "", "gal": []}
 ];
 const OES={1:['Calidad de vida','var(--oe1)'],2:['Minería sustentable','var(--oe2)'],3:['Empresas regionales','var(--oe3)'],4:['Institucionalidad pública','var(--oe4)'],5:['Ecosistema del conocimiento','var(--oe5)']};
 const OE_HEX={1:'#FAA900',2:'#70AD57',3:'#FF5812',4:'#0090D4',5:'#00BCB6'};
 const CIUDADES=['Antofagasta','Calama','Tocopilla','Regional'];
+// ID (columna «N°») de cada iniciativa en el REPOSITORIO_EMRA (Excel, hoja BASE, clasificación «ALIANZA ESTRATÉGICA MP») · 22-nov-2026.
+// Se aplica al pintar, así sobrevive a la recarga en vivo desde Supabase. r12 (jardines) no tiene fila propia en el Excel.
+// c8, c9, r16 y r17 se sumaron el 22-nov-2026 desde el Excel; aún no están en Supabase (ver cargarVivo).
+const ID_REPO={r1:584,r2:593,r3:595,r4:596,r5:591,r6:590,r7:13,r8:706,r9:583,r10:67,r11:609,r13:597,r14:610,r15:711,
+  a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,t1:708,t2:682,t3:599,t4:579,t5:568,t6:569,t7:707,
+  c1:608,c2:681,c3:676,c4:658,c5:699,c6:677,c7:678,c8:580,c9:729,r16:585,r17:586};
 
 // ══ LÓGICA ══
 const $=s=>document.querySelector(s);
@@ -465,6 +476,9 @@ function cargarVivo(){
       tipo:r.tipo||'',resp:r.responsable||'',d:r.descripcion||'',img:r.image_url||'',gal:Array.isArray(r.gallery)?r.gallery:[]}))
       .filter(x=>x.n&&isFinite(x.lat)&&isFinite(x.lng))
       .sort((a,b)=>{const i=orden.indexOf(a.id),j=orden.indexOf(b.id);return (i<0?999:i)-(j<0?999:j);});
+    // las iniciativas locales que aún no existen en Supabase (las 4 sumadas desde el Excel) se conservan
+    const enVivo=new Set(nuevos.map(x=>x.id));
+    INICIATIVAS.filter(x=>!enVivo.has(x.id)).forEach(x=>nuevos.push(x));
     INICIATIVAS.splice(0,INICIATIVAS.length,...nuevos);
     pintarFiltros();pintar(true);
   }).catch(()=>{});
@@ -489,13 +503,13 @@ function vista(v){
   $('#mv').hidden=v!=='map';$('#grid').hidden=v!=='fic';
   if(v==='map'){iniciarMapa();if(mapa)setTimeout(()=>{mapa.invalidateSize();encuadrar();},0);}
 }
-const visibles=()=>INICIATIVAS.filter(x=>(!F.c||x.c===F.c)&&(!F.oe||x.oe===F.oe)&&(!F.q||norm(x.n+' '+x.tipo+' '+x.d).includes(F.q)));
+const visibles=()=>INICIATIVAS.filter(x=>(!F.c||x.c===F.c)&&(!F.oe||x.oe===F.oe)&&(!F.q||norm(x.n+' '+x.tipo+' '+x.d+' '+(ID_REPO[x.id]||'')).includes(F.q)));
 
 function ficha(x){
-  return `<dl class="dl"><dt>Tipo</dt><dd>${esc(x.tipo)}</dd><dt>Horizonte</dt><dd>Mediano plazo · al 2035</dd><dt>Responsables</dt><dd>${esc(x.resp)}</dd></dl>`;
+  return `<dl class="dl"><dt>Tipo</dt><dd>${esc(x.tipo)}</dd>${ID_REPO[x.id]?`<dt>ID repositorio</dt><dd>N° ${ID_REPO[x.id]}</dd>`:''}<dt>Horizonte</dt><dd>Mediano plazo · al 2035</dd><dt>Responsables</dt><dd>${esc(x.resp)}</dd></dl>`;
 }
 function meta(x){
-  return `<span class="meta"><span class="tag">OE${x.oe}</span>${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</span>`;
+  return `<span class="meta"><span class="tag">OE${x.oe}</span>${ID_REPO[x.id]?`<span class="idr" title="ID en el repositorio EMRA">ID ${ID_REPO[x.id]}</span>`:''}${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</span>`;
 }
 function pintar(reencuadrar){
   const L=visibles();
