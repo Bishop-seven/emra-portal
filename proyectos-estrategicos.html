@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<!-- «Proyectos Estratégicos» · subpágina de Actualidad en emra.cl (iframe), versión extendida del carrusel estrategicas-home.html.
+<!-- Sin sección «Última actualización» (pedido 23-nov-2026; el avance se sigue en la Plataforma de gestión).
+     «Proyectos Estratégicos» · subpágina de Actualidad en emra.cl (iframe), versión extendida del carrusel estrategicas-home.html.
      Se inserta con mineria-embed.js:  <div id="emra-proyectos-estrategicos"></div>
      Datos: emra-estrategicas.js (ficha y actualizaciones por ID) + emra-proyectos-estrategicos.js (descripción, fotos y video).
      Nombres de empresas privadas ocultos («Empresa privada»), pedido del cliente.
@@ -108,7 +109,7 @@ dl.fi dt{color:var(--mut);font-weight:600}dl.fi dd{margin:0}
   <header>
     <div class="kick">Actualidad · Directorio EMRA · sesiones 2025–2026</div>
     <h1>Proyectos Estratégicos</h1>
-    <p class="intro">Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio: qué buscan, a qué objetivo estratégico aportan, en qué están hoy y el material que se mostró en cada sesión.</p>
+    <p class="intro">Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio: qué buscan, a qué objetivo estratégico aportan y el material que se mostró en cada sesión.</p>
   </header>
   <nav aria-label="Proyectos de esta página"><ul class="ind" id="ind"></ul></nav>
   <main id="lista"></main>
@@ -168,7 +169,7 @@ function media(x){
 }
 
 function info(x){
-  const o=OBJ[x.k], [u,...hist]=x.act;
+  const o=OBJ[x.k];
   const fila=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
   const largo=(x.desc||[]).join(' ').length+(x.puntos||[]).join(' ').length>620;
   return `<div class="tags"><span class="tag">${esc(x.f.oe||'OE'+x.k)}</span>${x.ids.map(i=>`<span class="idr">ID ${esc(i)}</span>`).join('')}</div>
@@ -178,11 +179,7 @@ function info(x){
     <div class="desc${largo?' cerrada':''}">${(x.desc||[]).map(p=>`<p>${esc(p)}</p>`).join('')}
       ${x.puntos&&x.puntos.length?`<ul>${x.puntos.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>`:''}</div>
     ${largo?'<button class="mas" aria-expanded="false">Leer más +</button>':''}
-    <dl class="fi">${fila('Institución',x.inst)}${fila('Zona',corta(x.f.zona,90))}${fila('Plazo',x.f.plazo)}</dl>
-    <h3>Última actualización</h3>
-    <div class="act">${u?`<span class="f">${fecha(u.f)}${u.src?' · '+esc(u.src):''}</span><p>${esc(mayus(u.txt))}</p>`:'<p>Sin actualizaciones registradas.</p>'}
-      ${hist.length?`<details><summary>Ver ${hist.length>1?hist.length+' actualizaciones anteriores':'1 actualización anterior'}</summary><ol>${hist.map(h=>`<li><b>${fecha(h.f)}${h.src?' · '+esc(h.src):''}</b><br>${esc(mayus(h.txt))}</li>`).join('')}</ol></details>`:''}
-    </div>`;
+    <dl class="fi">${fila('Institución',x.inst)}${fila('Zona',corta(x.f.zona,90))}${fila('Plazo',x.f.plazo)}</dl>`;
 }
 
 $('#ind').innerHTML=L.map(x=>`<li><button data-a="${x.ancla}" style="--c:${OEC[x.k]}"><span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,46))}</button></li>`).join('');
