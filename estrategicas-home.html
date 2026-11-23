@@ -129,7 +129,7 @@ $('#car').innerHTML=L.map((x,i)=>{
       <h3>${esc(x.nom)}</h3></div>
     <div class="bd">
       <div class="meta"><span><b>Zona:</b> ${esc(corta(f.zona,48))}</span><span><b>Institución:</b> ${esc(x.inst)}</span></div>
-      ${f.av!=null?`<div class="av"><b style="color:var(--tx)">${f.av}%</b> de avance · al ${fecha(f.avf)}<div class="bar"><i style="width:${Math.min(100,Math.max(0,f.av))}%"></i></div></div>`:''}
+      
       ${u?`<div class="up"><span class="f">Actualización · ${fecha(u.f)}</span><span class="t">${esc(mayus(u.txt))}</span></div>`:''}
       <span class="ver">Ver ficha +</span>
     </div></button>`;
@@ -170,7 +170,7 @@ function ficha(x){
     <h4>${esc(x.nom)}</h4>
     <div class="fcp">
       <div><h5>Ficha de la iniciativa</h5><dl>${fila('Institución',x.inst)}${fila('Responsable',f.resp)}${fila('Plazo',f.plazo)}${fila('Tipo',f.tipo)}${fila('Zona',f.zona)}${fila('Objetivo',f.oe)}
-        ${f.av!=null?`<dt>Avance</dt><dd><b>${f.av}%</b> <span style="color:var(--mut)">al ${fecha(f.avf)}</span></dd>`:''}</dl></div>
+        </dl></div>
       <div><h5>Última actualización</h5>
         ${u?`<div class="act"><span class="f">${fecha(u.f)}${u.src?' · '+esc(u.src):''}</span><p>${esc(mayus(u.txt))}</p></div>`:'<p>Sin actualizaciones registradas.</p>'}
         ${hist.length?`<details><summary>Ver ${hist.length} actualización${hist.length>1?'es':''} anterior${hist.length>1?'es':''}</summary><ol>${hist.map(h=>`<li><b>${fecha(h.f)}${h.src?' · '+esc(h.src):''}</b><br>${esc(mayus(h.txt))}</li>`).join('')}</ol></details>`:''}
