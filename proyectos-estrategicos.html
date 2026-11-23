@@ -53,6 +53,17 @@ h1{font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.08;margin:6px 0 
 .play:hover .b,.play:focus-visible .b{transform:scale(1.08)}
 .play .l{font-weight:800;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
 .vtxt{font-size:13px;color:var(--mut)}
+/* espacio de video sin video todavía */
+.vpend{position:absolute;inset:0;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;overflow:hidden}
+.vpend:before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c);z-index:1}
+.vpend.conf{background:#1d1a17}
+.vpend.conf img{opacity:.35;filter:grayscale(.3)}
+.vpend .big{position:absolute;right:18px;top:-6px;font-size:clamp(90px,12vw,150px);font-weight:800;line-height:1;color:var(--c);opacity:.16;font-variant-numeric:tabular-nums}
+.vpend .ic{position:relative;width:68px;height:68px;border-radius:50%;border:3px solid var(--c);display:grid;place-items:center;opacity:.85}
+.vpend .ic:after{content:"";border-left:20px solid var(--c);border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:6px}
+.vpend .tx{position:relative;font-size:14px;color:var(--mut);letter-spacing:.04em}
+.vpend .tx b{display:block;font-size:18px;color:var(--tx);letter-spacing:0}
+.vpend.conf .tx,.vpend.conf .tx b{color:#fff}
 /* sin fotos: portada tipográfica con el color del objetivo */
 .sinfoto{position:absolute;inset:0;background:var(--card);display:flex;flex-direction:column;justify-content:flex-end;padding:22px 24px;overflow:hidden}
 .sinfoto:before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
@@ -155,14 +166,11 @@ const L=P.map(p=>{
 }).filter(x=>x.nom);
 
 function media(x){
+  // El espacio del video está siempre (pedido 23-nov-2026): si aún no hay video, se muestra «Video próximamente».
   const fotos=x.fotos||[], hayVideo=!!(x.yt||x.mp4);
-  if(!hayVideo&&!fotos.length){
-    return `<div class="marco"><div class="sinfoto" role="img" aria-label="${esc(x.nom)}"><span class="big" aria-hidden="true">${esc(x.ids.join('·'))}</span>
-      <span class="z"><b>${esc(corta(x.f.zona,40))}</b>${esc(x.inst)}</span></div></div>`;
-  }
   const thumbs=[];
-  if(hayVideo)thumbs.push(`<button data-v="1" aria-pressed="true" aria-label="Ver video"><img src="${esc(fotos[0]?fotos[0].src:`https://i.ytimg.com/vi/${x.yt}/hqdefault.jpg`)}" alt="" loading="lazy"><span class="tv">▶ Video</span></button>`);
-  fotos.forEach((ph,i)=>thumbs.push(`<button data-f="${i}" aria-pressed="${!hayVideo&&i===0}" aria-label="Ver foto ${i+1}: ${esc(ph.alt||'')}"><img src="${esc(ph.src)}" alt="" loading="lazy"></button>`));
+  if(fotos.length)thumbs.push(`<button data-v="1" aria-pressed="true" aria-label="Ver video"><img src="${esc(fotos[0].src)}" alt="" loading="lazy"><span class="tv">▶ Video</span></button>`);
+  fotos.forEach((ph,i)=>thumbs.push(`<button data-f="${i}" aria-pressed="false" aria-label="Ver foto ${i+1}: ${esc(ph.alt||'')}"><img src="${esc(ph.src)}" alt="" loading="lazy"></button>`));
   return `<div class="marco" data-marco></div>
     ${thumbs.length>1?`<div class="thumbs" role="group" aria-label="Video y fotos del proyecto">${thumbs.join('')}</div>`:''}
     ${hayVideo&&x.videoTxt?`<p class="vtxt">${esc(x.videoTxt)}</p>`:''}`;
@@ -192,6 +200,12 @@ function mostrar(art,x,que,autoplay){
   const m=art.querySelector('[data-marco]');if(!m)return;
   art.querySelectorAll('.thumbs button').forEach(b=>b.setAttribute('aria-pressed',que==='v'?b.dataset.v==='1':b.dataset.f===String(que)));
   if(que==='v'){
+    if(!x.yt&&!x.mp4){
+      m.innerHTML=`<div class="vpend${x.fotos[0]?' conf':''}" role="img" aria-label="Video del proyecto: próximamente">
+        ${x.fotos[0]?`<img src="${esc(x.fotos[0].src)}" alt="" ${art.id===L[0].ancla?'':'loading="lazy"'}>`:`<span class="big" aria-hidden="true">${esc(x.ids.join('·'))}</span>`}
+        <span class="ic" aria-hidden="true"></span><span class="tx"><b>Video del proyecto</b>Próximamente</span></div>`;
+      return;
+    }
     if(autoplay){
       // youtube-nocookie: no deja cookies de seguimiento hasta que se reproduce
       m.innerHTML=x.yt?`<iframe src="https://www.youtube-nocookie.com/embed/${x.yt}?autoplay=1&rel=0&modestbranding=1" title="Video: ${esc(x.nom)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
@@ -208,7 +222,7 @@ function mostrar(art,x,que,autoplay){
 }
 L.forEach(x=>{
   const art=document.getElementById(x.ancla);
-  if(art.querySelector('[data-marco]'))mostrar(art,x,(x.yt||x.mp4)?'v':0,false);
+  mostrar(art,x,'v',false);
   art.querySelectorAll('.thumbs button').forEach(b=>b.onclick=()=>mostrar(art,x,b.dataset.v?'v':+b.dataset.f,!!b.dataset.v));
   const mas=art.querySelector('.mas');
   if(mas)mas.onclick=()=>{const d=art.querySelector('.desc'),ab=d.classList.toggle('cerrada');mas.setAttribute('aria-expanded',!ab);mas.textContent=ab?'Leer más +':'Leer menos –';if(ab)irA(art);};
