@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rutas de Gorito · EMRA</title>
+<meta name="description" content="Gorito recorre la Región de Antofagasta siguiendo el viaje del cobre y del litio, con las iniciativas de la EMRA en el mapa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Mono:wght@600&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#121a33; --gris:#5a6178;
+  --oe1:#FAA900; --oe2:#70AD57; --oe3:#FF5812; --oe4:#0090D4; --oe5:#00BCB6;
+  --cobre:#c8743d; --litio:#38b6c9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#8fcdef;font-family:'Nunito',system-ui,sans-serif;color:var(--tinta);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:var(--tinta)}
+
+/* Cielo (día y noche) */
+#cielo{position:fixed;inset:0;background:linear-gradient(#4aa6de 0%,#8ccbee 50%,#cbe9f7 100%);overflow:hidden}
+#cielo::before{content:"";position:absolute;inset:0;background:linear-gradient(#081127 0%,#16234a 55%,#2b3b6e 100%);opacity:var(--noche,0)}
+#cielo::after{content:"";position:absolute;inset:0;opacity:var(--noche,0);
+  background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 28% 8%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 44% 22%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 63% 12%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 78% 26%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 88% 6%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 6% 34%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 53% 33%,#fff 50%,transparent 51%),
+  radial-gradient(1.5px 1.5px at 37% 40%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 94% 38%,#fff 50%,transparent 51%)}
+.sol{position:absolute;right:7%;top:7%;width:64px;height:64px;border-radius:50%;background:#fff3c4;box-shadow:0 0 0 10px rgba(255,243,196,.3);z-index:1;transition:background .8s,box-shadow .8s}
+body.noche .sol{background:#eef1ff;box-shadow:inset -14px -6px 0 #c9d0ea,0 0 0 10px rgba(238,241,255,.08)}
+.nube{position:absolute;width:12px;height:12px;opacity:calc(.95 - var(--noche,0)*.75);animation:nube linear infinite;z-index:1}
+.nube::before{content:"";position:absolute;width:12px;height:12px;background:#fff;
+  box-shadow:12px 0 #fff,24px 0 #fff,36px 0 #fff,48px 0 #fff,12px -12px #fff,24px -12px #fff,36px -12px #fff,24px -24px #fff,60px 0 #fff,-12px 0 #fff}
+.n1{top:24%;left:-120px;animation-duration:70s}
+.n2{top:14%;left:-120px;animation-duration:95s;animation-delay:-40s;transform:scale(.7)}
+.n3{top:32%;left:-120px;animation-duration:120s;animation-delay:-90s;transform:scale(1.2)}
+@keyframes nube{to{left:110%}}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+
+/* Arriba: cartel + barra de rutas y filtros */
+#arriba{position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(640px,calc(100% - 32px));z-index:3;pointer-events:none}
+#arriba > *{pointer-events:auto}
+#cartel{background:var(--tinta);border-top:6px solid var(--oe3);color:#fff;text-align:center;padding:12px 16px 10px;box-shadow:0 6px 0 rgba(18,26,51,.25)}
+#cartel h1{font-family:'Silkscreen',monospace;font-weight:700;font-size:clamp(20px,5vw,34px);letter-spacing:.06em;margin:0;line-height:1.05}
+#cartel p{font-family:'IBM Plex Mono',monospace;color:var(--oe1);margin:5px 0 0;font-size:clamp(12px,3.2vw,16px)}
+#cartel.cambia{animation:cartel .45s ease}
+@keyframes cartel{0%{transform:translateY(-10px)}100%{transform:none}}
+#barra{display:flex;gap:8px;align-items:center;margin-top:8px}
+.seg{display:flex;flex:none;background:#fff;border:2px solid var(--tinta);border-radius:10px;overflow:hidden;box-shadow:0 3px 0 var(--tinta)}
+.seg button{border:0;background:none;font-weight:900;font-size:13px;padding:6px 10px;cursor:pointer;white-space:nowrap}
+.seg button + button{border-left:2px solid var(--tinta)}
+.seg button.on{background:var(--tinta);color:#fff}
+#chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;padding:2px 2px 6px;margin-bottom:-4px}
+#chips::-webkit-scrollbar{display:none}
+.cf{flex:none;display:flex;gap:5px;align-items:center;border:2px solid var(--tinta);border-radius:999px;background:#fff;font-weight:800;font-size:12px;padding:4px 9px 4px 6px;cursor:pointer;box-shadow:0 2px 0 var(--tinta);white-space:nowrap}
+.cf i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.cf.on{background:var(--c,var(--tinta));color:var(--tinta)}
+.cf[data-oe="0"].on{background:var(--tinta);color:#fff}
+.cf:disabled{opacity:.4;cursor:default}
+.boton{flex:none;width:34px;height:34px;border:2px solid var(--tinta);border-radius:10px;background:#fff;font-size:16px;line-height:1;cursor:pointer;box-shadow:0 3px 0 var(--tinta);display:grid;place-items:center}
+#oeTxt{margin-top:8px;background:rgba(255,255,255,.95);border:2px solid var(--tinta);border-left:8px solid var(--c);border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px;line-height:1.35}
+#oeTxt[hidden]{display:none}
+
+/* Diálogo de Gorito (abajo) */
+#dialogo{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;
+  width:min(680px,calc(100% - 32px));background:#fff;border:3px solid var(--tinta);box-shadow:0 6px 0 var(--tinta);border-radius:16px;
+  display:grid;grid-template-columns:86px 1fr;gap:6px 14px;padding:12px 14px 12px 10px}
+#dialogo img{width:86px;height:auto;grid-row:1 / span 2;align-self:end;margin-bottom:-4px;transform-origin:50% 100%}
+.habla{animation:habla .35s ease-in-out infinite alternate}
+@keyframes habla{to{transform:translateY(-3px) rotate(-2deg)}}
+.dtxt{min-height:72px;cursor:pointer;padding-right:36px}
+#dNombre{font-weight:900;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--oe4);margin:2px 0 2px}
+#dTexto{margin:0;font-size:clamp(15px,3.8vw,18px);line-height:1.38;font-weight:700}
+#dFuente{margin:6px 0 0;font-size:12px;color:var(--gris);font-weight:600}
+#dFuente:empty{display:none}
+#dPin{margin-top:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid var(--tinta);background:#f5f7fb;border-radius:999px;
+  padding:5px 12px 5px 8px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 3px 0 var(--tinta)}
+#dPin[hidden]{display:none}
+#dPin:hover{background:#fff}
+#dPin i{width:12px;height:12px;border-radius:3px;background:var(--c)}
+#sonido{position:absolute;top:8px;right:10px}
+#sonido[aria-pressed="false"]{opacity:.55}
+nav{grid-column:2;display:flex;align-items:center;gap:10px;justify-content:space-between}
+nav button{font-weight:900;font-size:14px;border:2px solid var(--tinta);border-radius:10px;background:#fff;padding:7px 12px;cursor:pointer;box-shadow:0 3px 0 var(--tinta);white-space:nowrap}
+nav button:active,.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--tinta)}
+nav button:disabled{opacity:.35;cursor:default}
+#sig{background:var(--oe1)}
+#puntos{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+#puntos button{width:10px;height:10px;padding:0;border-radius:3px;box-shadow:none;background:#d7dbe6;border:0}
+#puntos button.on{background:var(--oe3)}
+#cuenta{display:none;font-weight:900;font-size:13px;color:var(--gris)}
+
+/* Pines HTML sobre el mapa */
+#pines{position:fixed;inset:0;pointer-events:none;z-index:2}
+.pin{position:absolute;left:0;top:0;pointer-events:auto;display:flex;align-items:center;gap:6px;white-space:nowrap;
+  background:#fff;border:2px solid var(--tinta);border-radius:999px;padding:3px 9px 3px 5px;font-weight:800;font-size:12px;
+  cursor:pointer;box-shadow:0 3px 0 var(--tinta);transform:translate(-50%,-100%)}
+.pin i{width:12px;height:12px;border-radius:3px;background:var(--c);flex:none}
+.pin b{font-weight:900;background:var(--tinta);color:#fff;border-radius:999px;padding:0 6px;font-size:11px;line-height:16px}
+.pin.chico span{display:none}
+.pin.chico{padding:3px 4px 3px 5px}
+.pin.activo{animation:salta .9s ease-in-out infinite;z-index:1}
+.pin[hidden]{display:none}
+@keyframes salta{50%{margin-top:-6px}}
+
+/* Ventanas (lista, ficha, desafío, sello) */
+.capa{position:fixed;inset:0;background:rgba(18,26,51,.5);display:grid;place-items:center;padding:16px;z-index:6}
+.capa[hidden]{display:none}
+.tarjeta{position:relative;width:min(460px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border:3px solid var(--tinta);border-radius:16px;box-shadow:0 6px 0 var(--tinta);padding:18px 18px 16px;border-top:10px solid var(--c,var(--tinta))}
+.cerrar{position:absolute;top:8px;right:10px;border:0;background:none;font:900 26px/1 'Nunito';cursor:pointer}
+.chip{display:inline-block;font-weight:900;font-size:12px;letter-spacing:.04em;color:var(--tinta);background:var(--c);border-radius:6px;padding:3px 8px;margin-right:4px}
+.chip.gris{background:#e6e9f1}
+.tarjeta h2{margin:10px 0 2px;font-size:21px;line-height:1.2;font-weight:900;padding-right:24px}
+.tarjeta .sub{margin:0 0 12px;color:var(--gris);font-weight:700}
+.barra{height:12px;background:#e6e9f1;border-radius:6px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--c);width:0;transition:width .8s ease}
+.avtxt{display:flex;justify-content:space-between;font-weight:800;font-size:13px;margin:6px 0 12px}
+.dato{font-size:14px;margin:0 0 10px;line-height:1.4}
+.dato b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris)}
+.foto{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:2px solid var(--tinta);margin:4px 0 12px;background:#eef1f6}
+.btn{display:inline-flex;align-items:center;gap:6px;font-weight:900;font-size:14px;background:var(--oe1);border:2px solid var(--tinta);border-radius:10px;padding:8px 12px;text-decoration:none;box-shadow:0 3px 0 var(--tinta);cursor:pointer;color:var(--tinta)}
+.btn.blanco{background:#fff}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.nota{font-size:11px;color:#8a90a3;margin:12px 0 0}
+.gline{display:flex;gap:10px;align-items:center;background:#f5f7fb;border-radius:12px;padding:8px 10px;margin:8px 0 12px;font-weight:800;font-size:14px;line-height:1.3}
+.gline img{width:46px;flex:none}
+.lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.lista button{width:100%;text-align:left;background:#fff;border:2px solid var(--tinta);border-radius:12px;padding:8px 10px;cursor:pointer;box-shadow:0 2px 0 var(--tinta);display:grid;gap:4px}
+.lista button:hover{background:#fafbfe}
+.lista .nom{font-weight:900;font-size:14px;line-height:1.25}
+.lista .meta{font-size:12px;color:var(--gris);font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lista .mini{height:6px;background:#e6e9f1;border-radius:3px;overflow:hidden}
+.lista .mini i{display:block;height:100%;background:var(--c)}
+.grupo{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);margin:12px 0 6px}
+/* Desafío */
+.pregunta{font-size:18px;font-weight:900;line-height:1.3;margin:10px 0 14px}
+.opciones{display:grid;gap:8px}
+.opciones button{text-align:left;font-weight:800;font-size:15px;background:#fff;border:2px solid var(--tinta);border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:0 3px 0 var(--tinta)}
+.opciones button.bien{background:#c9f0d2}
+.opciones button.mal{background:#ffd3c8}
+.opciones button:disabled{cursor:default}
+.explica{margin:12px 0 0;font-size:13.5px;font-weight:700;line-height:1.4}
+.explica small{display:block;color:var(--gris);font-weight:600;margin-top:4px}
+/* Sello */
+.sello{width:150px;height:150px;margin:6px auto 10px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 35% 30%,#fff6,transparent 45%),var(--c);border:6px solid var(--tinta);box-shadow:0 6px 0 var(--tinta),inset 0 0 0 8px #fff5;animation:sello .7s cubic-bezier(.2,1.6,.4,1)}
+.sello img{width:96px;margin-top:-6px}
+.sello span{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);background:var(--tinta);color:#fff;font:700 12px 'Silkscreen',monospace;padding:4px 10px;border-radius:6px;white-space:nowrap}
+@keyframes sello{0%{transform:scale(.2) rotate(-30deg)}100%{transform:none}}
+.centro{text-align:center}
+#aviso{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--tinta);color:#fff;font-weight:800;padding:10px 16px;border-radius:10px;z-index:9;opacity:0;transition:opacity .3s;pointer-events:none}
+#aviso.ver{opacity:1}
+
+#cargando{position:fixed;inset:0;display:grid;place-items:center;font:700 16px 'Silkscreen',monospace;color:#fff;letter-spacing:.1em}
+
+@media (max-width:560px){
+  #dialogo{grid-template-columns:62px 1fr;padding:10px 10px 10px 8px;gap:4px 10px}
+  #dialogo img{width:62px}
+  nav button{padding:6px 9px;font-size:13px}
+  #puntos{display:none}
+  #cuenta{display:block}
+  .seg button{padding:6px 8px;font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  .nube,.pin.activo,.habla,.sello{animation:none}
+}
+</style>
+<script src="rutas-gorito/ruta-datos.js"></script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="cielo" aria-hidden="true"><div class="sol"></div><div class="nube n1"></div><div class="nube n2"></div><div class="nube n3"></div></div>
+<div id="cargando">CARGANDO…</div>
+<canvas id="c" aria-label="Mapa voxel de la Región de Antofagasta con las rutas del cobre y del litio"></canvas>
+<div id="pines"></div>
+
+<div id="arriba">
+  <header id="cartel"><h1 id="cTit">RUTA DEL COBRE</h1><p id="cSub">Región de Antofagasta · Chile</p></header>
+  <div id="barra">
+    <div class="seg" role="tablist" aria-label="Ruta">
+      <button id="rCobre" role="tab">Cobre</button><button id="rLitio" role="tab">Litio</button>
+    </div>
+    <div id="chips" aria-label="Filtrar iniciativas por objetivo estratégico"></div>
+    <button class="boton" id="bNoche" aria-label="Ver de noche" title="Ver de noche">🌙</button>
+  </div>
+  <p id="oeTxt" hidden></p>
+</div>
+
+<section id="dialogo" aria-live="polite">
+  <button class="boton" id="sonido" aria-pressed="true" aria-label="Silenciar a Gorito" title="Silenciar a Gorito">🔊</button>
+  <img id="dGorito" src="gorito.webp" alt="Gorito">
+  <div class="dtxt" id="dTxt" title="Toca para ver todo el texto">
+    <p id="dNombre">Gorito</p>
+    <p id="dTexto"></p>
+    <p id="dFuente"></p>
+    <button id="dPin" hidden></button>
+  </div>
+  <nav>
+    <button id="ant" aria-label="Parada anterior">◀</button>
+    <div id="puntos" aria-label="Paradas"></div><span id="cuenta" aria-hidden="true"></span>
+    <button id="sig">Siguiente ▶</button>
+  </nav>
+</section>
+
+<div class="capa" id="vLista" hidden role="dialog" aria-modal="true" aria-labelledby="lTit">
+  <div class="tarjeta" id="lCard">
+    <button class="cerrar" data-cierra aria-label="Cerrar">×</button>
+    <h2 id="lTit"></h2>
+    <div class="gline"><img src="gorito.webp" alt=""><span id="lGor"></span></div>
+    <div id="lCuerpo"></div>
+    <p class="nota">Ubicación aproximada por territorio. Corto plazo: cartera de la Plataforma de gestión. Mediano plazo: iniciativas del Portal EMRA.</p>
+  </div>
+</div>
+
+<div class="capa" id="vFicha" hidden role="dialog" aria-modal="true" aria-labelledby="fNom">
+  <div class="tarjeta" id="fCard">
+    <button class="cerrar" data-cierra aria-label="Cerrar">×</button>
+    <div id="fChips"></div>
+    <h2 id="fNom"></h2>
+    <p class="sub" id="fZona"></p>
+    <div id="fCuerpo"></div>
+    <div class="acciones" id="fAcc"></div>
+  </div>
+</div>
+
+<div class="capa" id="vQuiz" hidden role="dialog" aria-modal="true" aria-labelledby="qTit">
+  <div class="tarjeta" id="qCard">
+    <button class="cerrar" data-cierra aria-label="Cerrar">×</button>
+    <span class="chip" id="qNum"></span>
+    <h2 id="qTit">Desafío Gorito</h2>
+    <p class="pregunta" id="qPre"></p>
+    <div class="opciones" id="qOps"></div>
+    <p class="explica" id="qExp" hidden></p>
+    <div class="acciones"><button class="btn" id="qSig" hidden>Siguiente pregunta ▶</button></div>
+  </div>
+</div>
+
+<div class="capa" id="vSello" hidden role="dialog" aria-modal="true" aria-labelledby="sTit">
+  <div class="tarjeta centro" id="sCard">
+    <button class="cerrar" data-cierra aria-label="Cerrar">×</button>
+    <div class="sello"><img src="gorito.webp" alt=""><span id="sNom"></span></div>
+    <h2 id="sTit" style="padding:0;margin-top:22px"></h2>
+    <p class="sub" id="sPts"></p>
+    <div class="acciones" style="justify-content:center">
+      <button class="btn" id="sCompartir">Compartir</button>
+      <button class="btn blanco" id="sOtra"></button>
+      <button class="btn blanco" data-cierra>Ver el mapa</button>
+    </div>
+  </div>
+</div>
+<div id="aviso" role="status"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ═════════ Datos ═════════ */
+const OEC = {1:'#FAA900',2:'#70AD57',3:'#FF5812',4:'#0090D4',5:'#00BCB6'};
+// Textos literales de emra.cl («Objetivos Estratégicos · Pilares de la EMRA 2023-2050»), igual que en videos-home.html.
+const OBJ = {
+  1:{corto:'Mejorar la calidad de vida', url:'https://www.emra.cl/web/oe1-mejorar-la-calidad-de-vida/',
+     t:'OE1: Mejorar la calidad de vida de todas las comunidades y pueblos indígenas de la Región de Antofagasta.'},
+  2:{corto:'Minería sustentable', url:'https://www.emra.cl/web/oe2-mineria-sustentable/',
+     t:'OE2: Minería sustentable, que contemple la rehabilitación y preservación del patrimonio natural y cultural.'},
+  3:{corto:'Fortalecer las empresas regionales', url:'https://www.emra.cl/web/oe3-fortalecer-las-empresas-regionales/',
+     t:'OE3: Incentivar la creación y fortalecer las empresas regionales para aumentar su participación en la cadena de valor de la minería, con una perspectiva descentralizada.'},
+  4:{corto:'Mejorar la institucionalidad pública', url:'https://www.emra.cl/web/oe4-mejorar-la-institucionalidad-publica/',
+     t:'OE4: Mejorar la institucionalidad pública y la gobernanza para un sector minero más competitivo y sostenible.'},
+  5:{corto:'Reforzar el ecosistema del conocimiento', url:'https://www.emra.cl/web/oe5_reforzar_ecosistema_del_conocimiento/',
+     t:'OE5: Reforzar el ecosistema del conocimiento. y la innovación en la cadena del valor minero.'},
+};
+const DATOS = window.RUTA_DATOS || {corto:[], mediano:[]};
+const todas = () => [...DATOS.corto.map(x=>({...x,plazo:'corto'})), ...DATOS.mediano.map(x=>({...x,plazo:'mediano'}))];
+let INI = todas();
+
+// Territorios: un pin por territorio (lat/lng de referencia; «Toda la región» va al centro del mapa).
+const TERR = [
+  {k:'antofagasta',  n:'Antofagasta',          lat:-23.64, lng:-70.37},
+  {k:'tocopilla',    n:'Tocopilla',            lat:-22.09, lng:-70.19},
+  {k:'maria-elena',  n:'María Elena',          lat:-22.35, lng:-69.66},
+  {k:'quillagua',    n:'Quillagua',            lat:-21.65, lng:-69.54},
+  {k:'calama',       n:'Calama',               lat:-22.46, lng:-68.93},
+  {k:'sierra-gorda', n:'Sierra Gorda',         lat:-22.89, lng:-69.32},
+  {k:'alto-loa',     n:'Alto Loa',             lat:-22.30, lng:-68.40},
+  {k:'ollague',      n:'Ollagüe',              lat:-21.22, lng:-68.25},
+  {k:'san-pedro',    n:'San Pedro de Atacama', lat:-22.91, lng:-68.20},
+  {k:'toconao',      n:'Toconao',              lat:-23.19, lng:-68.01},
+  {k:'salar-sur',    n:'Pueblos del salar',    lat:-23.45, lng:-67.95, det:'Socaire, Camar, Talabre y Peine'},
+  {k:'taltal',       n:'Taltal',               fijo:[17.6,55]},
+  {k:'regional',     n:'Toda la región',       fijo:[37.5,32]},
+];
+const TN = Object.fromEntries(TERR.map(t=>[t.k,t]));
+
+// Paradas. Cifras de «Minería en Números» (Consejo Minero) con su fuente original. «a» = audio de Gorito.
+const RUTAS = {
+  cobre:{ nombre:'Ruta del cobre', color:'#c8743d', sello:'COBRE', paradas:[
+    {a:'c-intro', t:'RUTA DEL COBRE', s:'Región de Antofagasta · Chile', g:0, cam:[40,0,24], w:100, h:74,
+     txt:'¡Hola! Soy Gorito. Acompáñame a seguir el viaje del cobre por nuestra región: de la mina hasta el barco.'},
+    {a:'c-mina', t:'LA MINA', s:'Chuquicamata · Calama', g:0, cam:[56.5,-0.5,4], w:20, h:14,
+     txt:'Aquí empieza todo. El 88% del cobre de Chile se saca de minas a rajo abierto, como esta.', f:'Cochilco'},
+    {a:'c-personas', t:'LAS PERSONAS', s:'Chuquicamata · Calama', g:0, cam:[54,0,1.5], w:15, h:11,
+     txt:'Aquí trabajan muchas personas: 7 de cada 10 que trabajan en minería viven en la misma región donde trabajan.', f:'CCM-Eleva'},
+    {a:'c-conc', t:'LA CONCENTRADORA', s:'Calama · Chile', g:1, cam:[49.5,1,8.5], w:20, h:14,
+     txt:'La roca trae poquito cobre: en 2023, solo 5,8 kg por cada tonelada. Por eso se muele y se concentra.', f:'Cochilco'},
+    {a:'c-energia', t:'LA ENERGÍA', s:'Desierto de Atacama', g:2, cam:[44,1,12], w:20, h:14,
+     txt:'Las minas necesitan mucha energía. Se proyecta que al 2030 el 90% de la electricidad de la minería venga de fuentes renovables, como este parque solar.', f:'Política Nacional Minera 2050'},
+    {a:'c-tren', t:'EL TREN', s:'Sierra Gorda · Chile', g:4, cam:[46,1,19], w:24, h:17,
+     txt:'El mineral viaja en tren hasta la costa. ¡La primera locomotora a hidrógeno de Sudamérica es del Ferrocarril de Antofagasta!', f:'Antofagasta Minerals', pin:['sierra-gorda']},
+    {a:'c-agua', t:'EL AGUA', s:'Costa de Antofagasta', g:9, cam:[18.8,1,24.6], w:20, h:14,
+     txt:'Para cuidar el agua del desierto, la minería usa cada vez más agua de mar: hoy es el 36% y al 2034 alcanzará el 70%. Esta tubería la sube hasta la mina.', f:'Cochilco'},
+    {a:'c-puerto', t:'EL PUERTO', s:'Antofagasta · Chile', g:11, cam:[15,1,33], w:22, h:16,
+     txt:'La minería aporta el 52% del PIB de la Región de Antofagasta.', f:'Banco Central', pin:['antofagasta']},
+    {a:'c-muelle', t:'MUELLE HISTÓRICO', s:'Antofagasta · Chile', g:13, cam:[9,1,33], w:24, h:17,
+     txt:'Desde aquí el cobre sale al mundo. Chile produce el 24% del cobre del planeta: ¡somos el primer productor!', f:'Cochilco'},
+    {a:'c-vida', t:'EL COBRE EN TU VIDA', s:'Antofagasta · Chile', g:15, cam:[21.5,1,39.5], w:18, h:13,
+     txt:'Y el cobre llega a tu vida: en cables, autos eléctricos y paneles solares. ¡1 MW de energía solar usa en promedio 5 toneladas de cobre!', f:'MITEI'},
+    {a:'c-cierre', t:'¿Y QUÉ QUEDA ACÁ?', s:'Iniciativas EMRA', g:15, cam:[40,0,24], w:100, h:74,
+     txt:'Lo que genera la minería también puede quedarse en la región. Toca los pines para ver iniciativas de la EMRA en cada comuna.', pin:'todos'},
+  ]},
+  litio:{ nombre:'Ruta del litio', color:'#38b6c9', sello:'LITIO', paradas:[
+    {a:'l-intro', t:'RUTA DEL LITIO', s:'Salar de Atacama · Chile', g:0, cam:[62,0,30], w:56, h:40,
+     txt:'¡Ahora vamos por el litio! Acompáñame desde el Salar de Atacama hasta la costa.'},
+    {a:'l-salar', t:'EL SALAR', s:'Salar de Atacama · Chile', g:0, cam:[71,0,28], w:24, h:17,
+     txt:'Este es el Salar de Atacama. Chile tiene el 31% de las reservas de litio del mundo y produce el 20% del litio del planeta.', f:'USGS 2024', pin:['san-pedro','toconao']},
+    {a:'l-piscinas', t:'LAS PISCINAS', s:'Salar de Atacama · Chile', g:1, cam:[70,0,37.5], w:20, h:14,
+     txt:'El litio viene disuelto en una salmuera bajo el salar. Se bombea a estas piscinas y el sol del desierto evapora el agua, concentrando el litio.', pin:['salar-sur']},
+    {a:'l-camino', t:'LA PLANTA QUÍMICA', s:'Antofagasta · Chile', g:7, cam:[27,1,37.5], w:22, h:16,
+     txt:'El litio concentrado viaja en camiones hasta plantas químicas cerca de Antofagasta, donde se transforma en carbonato e hidróxido de litio.'},
+    {a:'l-usos', t:'¿PARA QUÉ SIRVE?', s:'Antofagasta · Chile', g:8, cam:[21.5,1,39.5], w:18, h:13,
+     txt:'¿Y para qué sirve? El 62% del litio se usa en vehículos eléctricos.', f:'Consejo Minero, con datos de USGS, Sernageomin y Cochilco'},
+    {a:'l-cierre', t:'¿Y QUÉ QUEDA ACÁ?', s:'Iniciativas EMRA', g:8, cam:[70,0,24], w:40, h:30,
+     txt:'En San Pedro de Atacama, Toconao y los pueblos del salar también hay iniciativas de la EMRA. ¡Toca los pines para conocerlas!', pin:['san-pedro','toconao','salar-sur']},
+  ]},
+};
+
+// Desafío: preguntas con su fuente (las respuestas incorrectas son distractores, no datos).
+const PREGUNTAS = {
+  cobre:[
+    {p:'¿Qué parte del cobre de Chile se saca de minas a rajo abierto?', r:'88%', o:['35%','60%'], f:'Cochilco'},
+    {p:'¿Qué parte del cobre del mundo produce Chile?', r:'24%', o:['5%','50%'], f:'Cochilco'},
+    {p:'¿Cuánto aporta la minería al PIB de la Región de Antofagasta?', r:'52%', o:['12%','30%'], f:'Banco Central'},
+    {p:'¿Cuántas de cada 10 personas que trabajan en minería viven en la región donde trabajan?', r:'7', o:['3','5'], f:'CCM-Eleva'},
+    {p:'¿Cuánto cobre usa en promedio 1 MW de energía solar?', r:'5 toneladas', o:['1 tonelada','50 toneladas'], f:'MITEI'},
+    {p:'Al 2034, ¿qué parte del agua de la minería vendrá del mar?', r:'70%', o:['10%','40%'], f:'Cochilco'},
+  ],
+  litio:[
+    {p:'¿Qué parte de las reservas de litio del mundo tiene Chile?', r:'31%', o:['5%','60%'], f:'USGS 2024'},
+    {p:'¿Qué parte del litio del mundo produce Chile?', r:'20%', o:['2%','70%'], f:'USGS 2024'},
+    {p:'¿En qué se usa más el litio?', r:'Vehículos eléctricos (62%)', o:['Joyas','Monedas'], f:'Consejo Minero, con datos de USGS, Sernageomin y Cochilco'},
+    {p:'En las piscinas del salar, ¿qué evapora el agua de la salmuera?', r:'El sol del desierto', o:['Un horno a gas','El viento del mar'], f:''},
+  ],
+};
+
+/* ═════════ Geografía ═════════ */
+// Grilla del diorama. El núcleo (lat -22.1..-23.9, lng -71..-68.7) mantiene la escala de la primera versión;
+// el norte, el sur y la precordillera se comprimen para que quepan Ollagüe, Taltal y el Salar de Atacama.
+const W = 80, ZMIN = -9, ZMAX = 58, D = ZMAX - ZMIN;
+const gx = lng => lng <= -68.7 ? (lng+71)*27.826 : 64 + (lng+68.7)*18;
+const gz = lat => lat > -22.1 ? -(lat+22.1)*9 : (lat >= -23.9 ? (-22.1-lat)*24.444 : 44 + (-23.9-lat)*8);
+const PIT = {x:58.5, z:3.5, r:4};
+const SEPARA = PIT.r + 9; // ningún pueblo ni pin a menos de esto del centro del rajo (no mostrar casas junto a una faena)
+function geo(lat,lng){
+  const p = {x:gx(lng), z:gz(lat)}, dx=p.x-PIT.x, dz=p.z-PIT.z, d=Math.hypot(dx,dz)||1;
+  if (d < SEPARA) { p.x = PIT.x+dx/d*SEPARA; p.z = PIT.z+dz/d*SEPARA; }
+  return p;
+}
+
+function hash(x,z){const h=Math.sin(x*127.1+z*311.7)*43758.5453;return h-Math.floor(h);}
+function vn(x,z){const xi=Math.floor(x),zi=Math.floor(z),xf=x-xi,zf=z-zi,s=t=>t*t*(3-2*t);
+  const a=hash(xi,zi),b=hash(xi+1,zi),c=hash(xi,zi+1),d=hash(xi+1,zi+1),u=s(xf),v=s(zf);
+  return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+const coastX = z => 15.5 + (vn(3.1,z*0.35)-0.5)*2.4 - 6*Math.exp(-(((z-19.5)/2.6)**2)) + (z<8 ? (8-z)*0.55 : 0);
+
+function distSeg(px,pz,a,b){const dx=b[0]-a[0],dz=b[1]-a[1];
+  const t=Math.max(0,Math.min(1,((px-a[0])*dx+(pz-a[1])*dz)/(dx*dx+dz*dz)));
+  return Math.hypot(px-a[0]-t*dx,pz-a[1]-t*dz);}
+function distPoly(px,pz,P){let m=1e9;for(let i=0;i<P.length-1;i++)m=Math.min(m,distSeg(px,pz,P[i],P[i+1]));return m;}
+function mkPath(P){const cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));return{P,cum,L:cum[cum.length-1]};}
+function pathAt(pa,s){s=Math.max(0,Math.min(pa.L,s));let i=0;while(i<pa.P.length-2&&pa.cum[i+1]<s)i++;
+  const a=pa.P[i],b=pa.P[i+1],l=pa.cum[i+1]-pa.cum[i],t=l?(s-pa.cum[i])/l:0,dx=b[0]-a[0],dz=b[1]-a[1];
+  return{x:a[0]+dx*t,z:a[1]+dz*t,yaw:Math.atan2(dx,dz)};}
+
+const RAIL  = [[54,12],[50,13.5],[47,17],[44,20.5],[38,23],[31,26],[24,29.5],[18,31.5]];
+const PIPE  = [[18.8,24.4],[23,26.6],[26,28],[31,24.8],[38,21.8],[44,19.2],[46.5,15.8],[49.5,12.2],[51,9.3]];
+const LROAD = [[72.8,43.2],[66.5,42.8],[63,42.3],[55,40.2],[45,37.8],[36,36.8],[28,37.3]];
+const GP = {
+  cobre:[[52.8,3.2],[50,10.5],[47.2,12.8],[49.5,16.2],[47.5,19.5],[41,23.5],[34,26.5],[27,29.5],[22.5,30.8],[21.6,26.4],[21,32],[17.5,34],[16.5,36.8],[9,36.8],[16.5,37.3],[20.3,39.3]],
+  litio:[[70.5,27.5],[70,35],[67,40.6],[63,41.4],[55,39.3],[45,36.9],[36,35.9],[28.2,38.6],[20.3,39.3]],
+};
+const SALAR = {x:70.8, z:33, rx:4.4, rz:10};
+const enSalar = (X,Z) => ((X-SALAR.x)/SALAR.rx)**2 + ((Z-SALAR.z)/SALAR.rz)**2 < 1;
+const enPiscinas = (X,Z) => X>67.2 && X<73 && Z>36 && Z<41.5;
+const rail = mkPath(RAIL), lroad = mkPath(LROAD), gpaths = {cobre:mkPath(GP.cobre), litio:mkPath(GP.litio)};
+
+// Zonas planas (pueblos, plantas, faenas)
+const PLANO = [[0,28,27.5,45.5],[44,5,53.5,12],[50,12,62,20.5],[42,18,50,26],[38,8,47,16],[15,21.5,22,26.5],[10,16.5,17,22],[28,26,35,32],[15,20.5,21.5,26],
+  [19,-4,25.5,3.5],[34,3,41,9.5],[38,-6.5,43.5,-1.5],[69.5,16.5,76.5,23.5],[74,23.5,79.5,28.5],[68.5,1.5,75.5,8.5],[75,29.5,79.8,36],
+  [68.5,-9,74.5,-4.5],[14,50.5,21,58],[35,29.5,40,34.5],[50,-3,57,3],[21,38,26,43],[23.5,33.8,28.5,39.5]];
+const enPlano = (X,Z) => PLANO.some(([a,b,c,d]) => X>a && X<c && Z>b && Z<d);
+const VOLCANES = [[60.5,31,6.5,1.25],[78.6,16.5,4.2,1.9],[77.2,-6,3.6,1.7],[78.2,50,4,1.6]];
+
+/* ═════════ Escena ═════════ */
+const canvas = $('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+
+const CENTRO = new THREE.Vector3(40,0,24);
+const camera = new THREE.OrthographicCamera(-1,1,1,-1,0.1,800);
+const OFFSET = new THREE.Vector3(-1, 1.15, 1.25).normalize().multiplyScalar(200);
+camera.position.copy(CENTRO).add(OFFSET);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(CENTRO);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minPolarAngle = 0.55; controls.maxPolarAngle = 1.2;
+controls.minZoom = 0.5; controls.maxZoom = 10;
+controls.screenSpacePanning = true;
+
+const hemi = new THREE.HemisphereLight(0xe8f6ff, 0xc9996a, 1.5); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.4);
+sun.position.set(CENTRO.x-50, 60, CENTRO.z+12); sun.target.position.copy(CENTRO);
+sun.castShadow = true; { const m = innerWidth < 700 ? 2048 : 4096; sun.shadow.mapSize.set(m,m); }
+Object.assign(sun.shadow.camera,{left:-64,right:64,top:64,bottom:-64,near:1,far:260});
+sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.03;
+scene.add(sun, sun.target);
+const SOL_DIA = new THREE.Color(0xfff1dc), SOL_NOCHE = new THREE.Color(0x9fb3ff);
+
+/* Vóxeles estáticos: B = escenario, L = luces (ventanas y faroles que se encienden de noche) */
+const B = [], L = []; // [cx,cy,cz,w,h,d,yaw,color,pitch]
+const box  = (x,y,z,w,h,d,c,yaw=0,pitch=0) => B.push([x+w/2,y+h/2,z+d/2,w,h,d,yaw,c,pitch]);
+const boxC = (cx,cy,cz,w,h,d,c,yaw=0,pitch=0) => B.push([cx,cy,cz,w,h,d,yaw,c,pitch]);
+const luz  = (x,y,z,w,h,d,c='#5c7a99') => L.push([x+w/2,y+h/2,z+d/2,w,h,d,0,c,0]);
+const ocupado = new Set(); const oc = (x,z)=>ocupado.add(Math.floor(x)+','+Math.floor(z)); const esOc=(x,z)=>ocupado.has(Math.floor(x)+','+Math.floor(z));
+
+const DESIERTO = ['#e4b07a','#dba56c','#d29a60','#e9bb88','#dfa978'];
+const COSTRA = ['#efe9dc','#e7dfcd','#f4f0e6','#e2d8c3'];
+const H = new Float32Array(W*D);
+const idx = (x,z) => (Math.max(ZMIN,Math.min(ZMAX-1,Math.floor(z)))-ZMIN)*W + Math.max(0,Math.min(W-1,Math.floor(x)));
+const alto = (x,z) => H[idx(x,z)];
+const esMar = (x,z) => x < coastX(z);
+const RUTAS_PLANAS = [RAIL, GP.cobre, GP.litio, LROAD, PIPE];
+
+for (let z=ZMIN; z<ZMAX; z++) for (let x=0; x<W; x++) {
+  const X=x+.5, Z=z+.5, cx=coastX(Z);
+  if (X < cx) { // mar
+    const bajo = cx - X < 2.2;
+    box(x,-3,z,1,2.3,1, hash(x,z)>.5?'#1b6a8f':'#1a6488');
+    box(x,-0.7,z,1,1,1, bajo ? (hash(x+3,z)>.5?'#4fd0cf':'#46c7c8') : (hash(x,z+7)>.5?'#25aebb':'#22a6b5'));
+    H[idx(x,z)] = 0.3; continue;
+  }
+  let h = 1, col = DESIERTO[Math.floor(hash(x,z)*DESIERTO.length)];
+  const cercaRuta = RUTAS_PLANAS.some(P => distPoly(X,Z,P) < 1.9);
+  const dp = Math.hypot(X-PIT.x, Z-PIT.z);
+  if (dp < PIT.r) {
+    const dep = Math.min(3, Math.ceil((PIT.r-dp)/1.2)); h = 1-dep;
+    col = dep>=3 ? '#5f8f88' : (dep%2 ? '#bb9670' : '#8c6c52');
+  } else if (enSalar(X,Z)) {
+    col = COSTRA[Math.floor(hash(x,z)*COSTRA.length)];
+  } else if (!cercaRuta && !enPlano(X,Z)) {
+    let e = 0;
+    const cresta = Math.max(0, 1-Math.abs(X-(cx+7.5))/3.5); if (Z<28 || Z>45) e += cresta*(1.2+3.2*vn(X*.25,Z*.25));
+    const dom = Math.max(0, 1-Math.abs(X-62.5)/3.5); if (Z>17 && Z<47) e += dom*(1.4+3*vn(X*.22,Z*.22)); // Cordillera Domeyko
+    if (X>77.2) e += (X-77.2)/2.6*(1.5+2.5*vn(X*.2,Z*.2));                                              // Andes
+    if (Z<-2 && X>58) e += 1+2*vn(X*.3,Z*.3);                                                             // altiplano
+    for (const [vx,vz,vr,vk] of VOLCANES) { const dv=Math.hypot(X-vx,Z-vz); if (dv<vr) e = Math.max(e,(vr-dv)*vk); }
+    if (vn(X*.4+50,Z*.4) > .86) e += 1;
+    e = Math.floor(e); h = 1+e;
+    if (e>=1) col = e>=6 ? '#f4f0e8' : (e>=3 ? (hash(x,z)>.5?'#a9693f':'#9e623b') : (hash(x,z)>.5?'#c28150':'#b97a4a'));
+  }
+  if (dp >= PIT.r && h===1 && distPoly(X,Z,RAIL)<1.1) col = hash(x,z)>.5?'#c9b196':'#bfa78c';
+  H[idx(x,z)] = h;
+  if (h-1 > -3) box(x,-3,z,1,h-1+3,1, hash(z,x)>.5?'#8a5a3b':'#82543a');
+  box(x,h-1,z,1,1,1,col);
+}
+
+/* Riel */
+for (let i=0;i<RAIL.length-1;i++){
+  const a=RAIL[i], b=RAIL[i+1], dx=b[0]-a[0], dz=b[1]-a[1], Ln=Math.hypot(dx,dz), yaw=Math.atan2(dx,dz), px=dz/Ln, pz=-dx/Ln;
+  for (let s=0.3; s<Ln; s+=0.8) boxC(a[0]+dx*s/Ln, 1.06, a[1]+dz*s/Ln, 1.3,0.12,0.28,'#5b4030',yaw);
+  for (const o of [-0.4,0.4]) boxC((a[0]+b[0])/2+px*o, 1.2, (a[1]+b[1])/2+pz*o, 0.12,0.14,Ln+0.1,'#3d4250',yaw);
+}
+/* Camino del litio */
+for (let i=0;i<LROAD.length-1;i++){
+  const a=LROAD[i], b=LROAD[i+1], dx=b[0]-a[0], dz=b[1]-a[1], Ln=Math.hypot(dx,dz), yaw=Math.atan2(dx,dz);
+  boxC((a[0]+b[0])/2, 1.03, (a[1]+b[1])/2, 1.2,0.06,Ln+0.6,'#4a4e5a',yaw);
+  for (let s=0.6; s<Ln; s+=1.4) boxC(a[0]+dx*s/Ln, 1.07, a[1]+dz*s/Ln, 0.12,0.03,0.6,'#f3efe2',yaw);
+}
+/* Acueducto: agua de mar desde la desaladora hasta la concentradora */
+for (let i=0;i<PIPE.length-1;i++){
+  const a=PIPE[i], b=PIPE[i+1], dx=b[0]-a[0], dz=b[1]-a[1], Ln=Math.hypot(dx,dz), yaw=Math.atan2(dx,dz);
+  boxC((a[0]+b[0])/2, 1.42, (a[1]+b[1])/2, .32,.32,Ln+.2,'#2f86c9',yaw);
+  for (let s=0.5; s<Ln; s+=2.2) boxC(a[0]+dx*s/Ln, 1.13, a[1]+dz*s/Ln, .14,.26,.14,'#5c6577',yaw);
+}
+
+/* Pueblos */
+function rnd(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647;}
+const PASTEL=['#f4efe6','#ead9c4','#f6c89f','#cfe3ea','#f2b8a0','#ffffff','#e7e2f0','#f8dc9b'];
+const ADOBE=['#c9a27e','#d4b08a','#bf9470','#e0c39c','#cfa883'];
+const libre = (X,Z) => !esOc(X,Z) && !esMar(X-.6,Z) && alto(X,Z)===1 && !enSalar(X,Z) && Math.hypot(X-PIT.x,Z-PIT.z) >= SEPARA-1.5 &&
+  distPoly(X,Z,RAIL)>=1.6 && distPoly(X,Z,GP.cobre)>=1.6 && distPoly(X,Z,GP.litio)>=1.6 && distPoly(X,Z,LROAD)>=1.4 && distPoly(X,Z,PIPE)>=1.1;
+function arbol(x,z,s=1){ box(x+.4,1,z+.4,.2,1.1*s,.2,'#7a5532'); box(x+.1,1+1*s,z+.1,.8,.7*s,.8,'#3f8f3a'); box(x+.25,1.55+1*s,z+.25,.5,.35,.5,'#55a94a'); }
+function pueblo(x0,z0,x1,z1,n,maxH,seed,estilo='costa'){
+  const r=rnd(seed);
+  for(let i=0;i<n;i++){
+    const x=Math.floor(x0+r()*(x1-x0)), z=Math.floor(z0+r()*(z1-z0));
+    const w=r()<.35?2:1, d=r()<.35?2:1, hh=1+Math.floor(r()*r()*maxH+r()*1.2);
+    let ok=true;
+    for(let a=0;a<w;a++)for(let b=0;b<d;b++) if(!libre(x+a+.5,z+b+.5)) ok=false;
+    if(!ok)continue;
+    for(let a=0;a<w;a++)for(let b=0;b<d;b++)oc(x+a,z+b);
+    if (estilo==='adobe') {
+      const c=ADOBE[Math.floor(r()*ADOBE.length)], h2=Math.min(hh,2)*.8;
+      box(x+.1,1,z+.1,w-.2,h2,d-.2,c); box(x+.05,1+h2,z+.05,w-.1,.14,d-.1,r()<.5?'#a8835e':'#cdb37a');
+      luz(x+.35,1.15,z+d-.12,.3,.35,.04,'#6b4a32');
+    } else {
+      const c=PASTEL[Math.floor(r()*PASTEL.length)];
+      box(x+.08,1,z+.08,w-.16,hh,d-.16,c);
+      box(x+.02,1+hh,z+.02,w-.04,.18,d-.04, r()<.5?'#c9c2b6':'#b75d43');
+      for(let y=1.4;y<1+hh-.3;y+=1) luz(x+.25,y,z+d-.1,w-.5,.35,.04); // ventanas
+    }
+  }
+  if (estilo==='adobe') for (let i=0;i<n*.8;i++){ const x=Math.floor(x0-1+r()*(x1-x0+2)), z=Math.floor(z0-1+r()*(z1-z0+2)); if(libre(x+.5,z+.5)){oc(x,z);arbol(x,z,.8+r()*.4);} }
+}
+
+/* Antofagasta: costanera, palmeras, faroles, bandera */
+for (let z=33; z<45; z++){
+  const x0=Math.ceil(coastX(z+.5)-.5);
+  box(x0,1,z,1,.06,1,(z%2)?'#ece9e2':'#cdc8bd'); oc(x0,z);
+  if (z%3===0 && !(z>=36 && z<=37)) { const px=x0+1; oc(px,z);
+    box(px+.35,1,z+.35,.3,2.2,.3,'#8a5a34'); box(px-.15,3.1,z-.15,1.3,.35,1.3,'#3f8f3a'); box(px+.2,3.45,z+.2,.6,.3,.6,'#55a94a'); }
+  if (z%3===1) { box(x0+.45,1,z+.45,.1,1.9,.1,'#3b3b44'); luz(x0+.3,2.9,z+.3,.4,.25,.4,'#e8e8e8'); }
+}
+for (const [a,b] of [[19,42],[20,42],[21,42]]) oc(a,b);
+box(19.4,1,42.4,.2,7.2,.2,'#e8e8e8');
+box(19.6,7.1,42.45,1,1,.1,'#0039a6'); box(20.6,7.1,42.45,2,1,.1,'#ffffff'); box(19.6,6.1,42.45,3,1,.1,'#d52b1e');
+box(19.95,7.45,42.42,.3,.3,.16,'#ffffff');
+
+/* Casa del futuro: paneles solares, auto eléctrico y cargador (el cobre y el litio en tu vida) */
+for (let x=18;x<27;x++) for (let z=37;z<45;z++) { oc(x,z); if (!esMar(x,z+.5)) box(x,1,z,1,.04,1,(x+z)%2?'#e6e0d4':'#d6cfc1'); } // plaza despejada: que nada tape a Gorito
+for (const [px,pz] of [[18.2,44],[25.6,44],[25.6,37.4]]) { box(px+.35,1,pz+.35,.3,2.2,.3,'#8a5a34'); box(px-.15,3.1,pz-.15,1.3,.35,1.3,'#3f8f3a'); box(px+.2,3.45,pz+.2,.6,.3,.6,'#55a94a'); }
+box(21.2,1,38.6,2.6,1.7,2,'#f4efe6'); box(21.1,2.7,38.5,2.8,.16,2.2,'#b75d43');
+for (let k=0;k<3;k++) boxC(21.75+k*.8,3.05,39.6,.7,.06,1.4,'#1f3f8f',0,-.35);
+luz(21.5,1.5,40.58,.6,.5,.04); luz(22.7,1.5,40.58,.6,.5,.04);
+box(23.3,1,40.9,1.7,.5,.9,'#2b7fd4'); box(23.6,1.5,41.0,1,.35,.7,'#bfe3f5'); for (const [wx,wz] of [[23.4,40.85],[24.6,40.85],[23.4,41.7],[24.6,41.7]]) box(wx,1,wz,.3,.3,.08,'#1d1d1d');
+box(25.3,1,40.8,.25,1,.25,'#e8e8e8'); luz(25.28,1.7,40.78,.29,.2,.29,'#4ccf6b');
+
+/* Puerto: plataforma, contenedores, grúas */
+box(10,-0.7,28.6,6.6,1.7,5,'#9aa3ab'); box(10,.98,28.6,6.6,.04,5,'#b4bcc3');
+{const r=rnd(7);const CC=['#c0392b','#2f6db5','#e6a817','#2e8b57','#7d3c98','#d35400'];
+ for(let x=13;x<16;x++)for(let z=29;z<33.2;z+=1.4){const n=1+Math.floor(r()*3);for(let k=0;k<n;k++)box(x+.05,1+k*.8,z,.9,.78,1.3,CC[Math.floor(r()*CC.length)]);}}
+for (const zc of [29.2, 32.0]) {
+  for (const [lx,lz] of [[10.6,0],[12.2,0],[10.6,1.1],[12.2,1.1]]) box(lx,1,zc+lz,.28,4.6,.28,'#e3473b');
+  box(10.5,5.4,zc,1.9,.4,1.4,'#e3473b'); box(5.5,5.8,zc+.45,8.5,.35,.5,'#f1f1f1'); box(11.2,5.8,zc+.25,1,.8,.9,'#2a3550');
+  box(6,4.2,zc+.55,.08,1.6,.08,'#333'); box(5.6,3.8,zc+.3,.9,.4,.8,'#2f6db5');
+  luz(11.35,6.3,zc+.3,.7,.2,.8,'#e8e8e8');
+}
+
+/* Muelle Histórico */
+for (let x=7; x<16.5; x+=1) box(x,.7,36,1,.3,1.6, ['#9c6b45','#8a5c3b','#a87a52'][Math.floor(hash(x,36)*3)]);
+for (let x=7.2; x<16.5; x+=1.6){ box(x,-0.7,36.05,.25,1.4,.25,'#4a3426'); box(x,-0.7,37.3,.25,1.4,.25,'#4a3426'); }
+box(7,1,35.95,9.5,.3,.1,'#2d3a55'); box(7,1,37.55,9.5,.3,.1,'#2d3a55');
+box(7,1.0,36.55,9.5,.05,.08,'#3b3b44'); box(7,1.0,37.0,9.5,.05,.08,'#3b3b44');
+for (const gx2 of [9.6, 13.2]) {
+  box(gx2-.4,1,36.4,.8,.5,.8,'#6b3f27'); box(gx2-.18,1.5,36.62,.36,2.6,.36,'#7b4a2e');
+  for (let k=0;k<6;k++) box(gx2-.2-k*.42,3.7+k*.32,36.65,.4,.32,.3,'#7b4a2e');
+  for (let k=0;k<4;k++) box(gx2-2.5,3.6-k*.5,36.75,.06,.25,.06,'#2d2d2d');
+}
+for (let x=7.6; x<16; x+=3) luz(x,1.3,36.1,.16,.16,.16,'#e8e8e8');
+for (let x=6; x<17; x++) oc(x,36), oc(x,37);
+
+/* La Portada */
+box(12,-0.7,26,1.2,4.7,1.2,'#c9a27e'); box(12,-0.7,28.6,1.2,4.7,1.2,'#bf9772');
+box(11.9,3.9,26,1.4,1.3,3.8,'#c9a27e'); box(11.9,5.2,26,1.4,.3,3.8,'#efe9df');
+
+/* Desaladora (agua de mar para la minería) */
+for (let x=15;x<21;x++) for (let z=22;z<26;z++) oc(x,z);
+box(16.1,1,22.6,2.6,1.4,2.2,'#f2f5f7'); box(16.05,2.4,22.55,2.7,.14,2.3,'#2f86c9'); box(16.1,1.6,24.79,2.6,.18,.04,'#2f86c9');
+for (const [tx,tz] of [[19.2,22.8],[19.2,24.2]]) box(tx,1,tz,.9,.9,.9,'#dfe6ea');
+box(12.4,.15,23.5,3.8,.3,.3,'#2f86c9');
+luz(16.6,1.8,24.8,.5,.35,.04); luz(17.7,1.8,24.8,.5,.35,.04);
+
+/* Concentradora + correa + acopio */
+box(48,1,6,4,2.6,3,'#d7dde2'); box(47.8,3.6,5.8,4.4,.3,3.4,'#0090D4'); box(48.5,1,8.95,1.2,1.4,.1,'#5c6577');
+luz(50.2,2.2,8.98,.6,.4,.04); luz(51.1,2.2,8.98,.6,.4,.04);
+for(let x=48;x<52;x++)for(let z=6;z<9;z++)oc(x,z);
+for (let k=0;k<9;k++){const t=k/8; box(54.4-t*2.8,1.4+t*2.1,3.9+t*2.5,.6,.2,.6,'#3d4250');}
+{const r=rnd(3);for(let k=0;k<7;k++)box(52.4+r()*1.2,1,6.8+r()*1.2,.9,.4+r()*.9,.9,'#a7714c');}
+// Torres de luz de la mina
+for (const [tx,tz] of [[54.2,-0.4],[57.6,-1.2]]) { box(tx,1,tz,.18,3.2,.18,'#5c6577'); luz(tx-.25,4.1,tz-.1,.7,.35,.35,'#e8e8e8'); }
+// Camioneta de la faena
+box(51.5,1,0.6,.8,.5,1.4,'#f4f4f0'); box(51.55,1.5,0.7,.7,.35,.6,'#bfe3f5'); luz(51.6,1.25,1.98,.6,.12,.04,'#ffde8a');
+
+/* Parque solar */
+for (let z=9.2; z<15; z+=1.25) for (let x=38.6; x<46; x+=1.15) {
+  if (distPoly(x+.5,z+.4,GP.cobre)<1.3) continue;
+  box(x+.45,1,z+.3,.1,.5,.1,'#5c6577');
+  boxC(x+.5,1.55,z+.4,1.02,.07,.8,'#1f3f8f',0,-.45);
+  boxC(x+.5,1.59,z+.4,.96,.02,.7,'#3a62b8',0,-.45);
+}
+for (let z=9;z<15;z++) for (let x=38;x<47;x++) oc(x,z);
+
+/* Salar de Atacama: piscinas de evaporación, laguna y planta */
+{
+  const PC = ['#8fdbe4','#6fd2cc','#8fdcb4','#bfe39b','#e1e38a','#f0dc78'];
+  for (let i=0, x=67.4; x<72.6; x+=1.75, i++) for (let z=36.2; z<41.2; z+=1.25) {
+    box(x,.92,z,1.55,.12,1.05,PC[Math.min(PC.length-1,i)]);
+    box(x-.08,1,z-.08,1.71,.05,.08,'#d8cfbb'); box(x-.08,1,z+1.05,1.71,.05,.08,'#d8cfbb');
+  }
+  for (let x=67;x<73;x++) for (let z=36;z<42;z++) oc(x,z);
+  box(73.6,1,41.3,2,1.2,1.4,'#e9edf0'); box(73.55,2.2,41.25,2.1,.14,1.5,'#38b6c9'); luz(73.9,1.5,42.72,.5,.35,.04); luz(74.9,1.5,42.72,.5,.35,.04);
+  for (let x=73;x<76;x++) for (let z=41;z<43;z++) oc(x,z);
+  // Laguna (Chaxa) con flamencos
+  for (const [lx,lz] of [[73,27],[74,27],[73,28],[74,28],[75,28]]) box(lx,.9,lz,1,.14,1,'#5bc3d6');
+  for (const [fx,fz] of [[73.4,27.3],[74.3,28.4],[74.8,27.6]]) { box(fx,1.04,fz,.06,.35,.06,'#e7708a'); box(fx-.1,1.38,fz-.1,.3,.2,.25,'#f2a0b2'); box(fx+.08,1.58,fz-.05,.06,.2,.06,'#f2a0b2'); }
+}
+/* Planta química de litio (cerca de Antofagasta) */
+for (let x=23;x<29;x++) for (let z=34;z<40;z++) oc(x,z);
+box(24,1,35.6,3.2,1.8,2.2,'#e9edf0'); box(23.95,2.8,35.55,3.3,.14,2.3,'#38b6c9'); box(27.4,1,36.1,.6,3.2,.6,'#c9ced4');
+for (const sx of [24.4,25.5]) box(sx,1,34.5,.8,1.3,.8,'#d9dee3');
+luz(24.4,1.9,37.82,.6,.35,.04); luz(25.6,1.9,37.82,.6,.35,.04);
+
+/* Pueblos y poblados */
+const POS = {};
+for (const t of TERR) { const p = t.fijo ? {x:t.fijo[0], z:t.fijo[1]} : geo(t.lat,t.lng); POS[t.k] = p; oc(p.x,p.z); }
+pueblo(16,30,27,45,110,6,11);            // Antofagasta
+pueblo(50,13,62,20.5,34,2,5);            // Calama (lejos del rajo)
+pueblo(43,20,49,25,10,1,9);              // Sierra Gorda
+pueblo(29,27,35,31,7,1,13);              // Baquedano
+pueblo(10.5,17,17,21.5,12,2,17);         // Mejillones
+pueblo(20,-3,25,3,14,2,19);              // Tocopilla
+pueblo(35,4,40.5,9,12,1,23);             // María Elena
+pueblo(39,-5.5,43,-2,5,1,29,'adobe');    // Quillagua
+pueblo(70.5,17.5,76,22.5,16,1,31,'adobe'); // San Pedro de Atacama
+pueblo(75,24.5,79,28,7,1,37,'adobe');    // Toconao
+pueblo(69.5,2.5,75,8,12,1,41,'adobe');   // Alto Loa
+pueblo(75.5,30.5,79.5,35.5,8,1,43,'adobe'); // Socaire, Camar, Talabre
+pueblo(69.5,-8.5,74,-5,6,1,47,'adobe');  // Ollagüe
+pueblo(15,51,20.5,57.5,16,2,53);         // Taltal
+
+/* Construir los InstancedMesh */
+function malla(lista, mat, sombras=true){
+  const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1), mat, lista.length);
+  const m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler(), p=new THREE.Vector3(), s=new THREE.Vector3(), c=new THREE.Color();
+  lista.forEach((b,i)=>{ p.set(b[0],b[1],b[2]); s.set(b[3],b[4],b[5]); e.set(b[8]||0,b[6],0,'YXZ'); q.setFromEuler(e); m.compose(p,q,s);
+    im.setMatrixAt(i,m); im.setColorAt(i,c.set(b[7])); });
+  im.castShadow = im.receiveShadow = sombras; scene.add(im); return im;
+}
+malla(B, new THREE.MeshLambertMaterial());
+const matLuces = new THREE.MeshLambertMaterial({emissive:new THREE.Color('#ffc766'), emissiveIntensity:0});
+malla(L, matLuces, false);
+
+/* Estanques espesadores */
+for (const [tx,tz] of [[45.6,6.6],[45.6,9.6]]) {
+  const t = new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.25,.7,20), new THREE.MeshLambertMaterial({color:'#b9c0c7'}));
+  t.position.set(tx,1.35,tz); t.castShadow=t.receiveShadow=true; scene.add(t);
+  const a = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,.05,20), new THREE.MeshLambertMaterial({color:'#5aa7a0'}));
+  a.position.set(tx,1.71,tz); scene.add(a);
+}
+
+/* ═════════ Objetos animados ═════════ */
+const mats = {};
+function gbox(parent,x,y,z,w,h,d,c){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mats[c] ||= new THREE.MeshLambertMaterial({color:c}));
+  m.position.set(x,y,z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
+}
+
+// Barco (zarpa en la parada del muelle)
+const barco = new THREE.Group();
+gbox(barco,0,.2,0,5.2,1.1,2.2,'#b8382f'); gbox(barco,0,.85,0,5.2,.2,2.2,'#2b2f3a');
+gbox(barco,1.9,1.6,0,1.2,1.4,1.8,'#f2f2f2'); gbox(barco,1.9,2.45,0,1.25,.25,1.85,'#2b2f3a'); gbox(barco,1.5,2.8,0,.4,.9,.4,'#e3473b');
+for (const x of [-1.8,-.9,0]) gbox(barco,x,1.15,0,.75,.4,1.5,'#c46a35');
+const BARCO_A = {x:6.5,z:30.9,yaw:0}, BARCO_B = {x:3,z:21,yaw:-1.1};
+barco.position.set(BARCO_A.x,0,BARCO_A.z); scene.add(barco);
+
+// Botes
+const botes = [];
+[[4,12,'#e8c32e'],[8,7,'#2f6db5'],[3,22,'#d6453b'],[5,41,'#2e8b57'],[11,42.5,'#e8c32e'],[2.5,34,'#d6453b'],[12,-4,'#2f6db5'],[9,50,'#d6453b']].forEach(([x,z,c],i)=>{
+  const g=new THREE.Group(); gbox(g,0,.15,0,1.6,.4,.7,c); gbox(g,0,-.05,0,1.6,.1,.72,'#f4f4f4'); gbox(g,.3,.55,0,.5,.4,.45,'#f4f4f4'); gbox(g,-.3,1,0,.08,1.2,.08,'#2b2f3a');
+  g.position.set(x,.3,z); g.rotation.y = hash(i,9)*Math.PI; scene.add(g); botes.push(g);
+});
+
+// Gaviotas
+const gaviotas = [];
+for (let i=0;i<7;i++){
+  const g=new THREE.Group(); gbox(g,0,0,0,.18,.14,.42,'#ffffff');
+  const a1=new THREE.Group(), a2=new THREE.Group(); gbox(a1,-.28,0,0,.5,.04,.24,'#f1f1f1'); gbox(a2,.28,0,0,.5,.04,.24,'#f1f1f1'); g.add(a1,a2);
+  scene.add(g); gaviotas.push({g,a1,a2,r:3+hash(i,2)*5,h:5+hash(i,3)*3,sp:.25+hash(i,4)*.3,ph:hash(i,5)*6.3,cx:8+hash(i,6)*6,cz:29+hash(i,7)*8});
+}
+
+// Camión minero (dentro del rajo)
+function camionMinero(){ const c=new THREE.Group();
+  gbox(c,0,.45,0,.9,.55,1.4,'#f2b705'); gbox(c,0,.85,-.35,.9,.3,.6,'#f2b705'); gbox(c,.2,.9,.45,.4,.35,.35,'#2b2f3a');
+  for (const [x,z] of [[-.45,.45],[.45,.45],[-.45,-.45],[.45,-.45]]) gbox(c,x,.18,z,.2,.36,.36,'#1d1d1d'); return c; }
+const camion = camionMinero(); scene.add(camion);
+
+// Camiones del litio
+const camionesLitio = [];
+for (let k=0;k<3;k++){ const c=new THREE.Group();
+  gbox(c,0,.42,.55,.75,.6,.5,'#2b7fd4'); gbox(c,0,.5,-.25,.7,.62,1.15,'#eef2f5'); gbox(c,0,.12,0,.6,.16,1.6,'#222');
+  scene.add(c); camionesLitio.push({c,s:k*lroad.L/3,dir:k%2?-1:1}); }
+
+// Tren
+const tren = [];
+{ const loco = new THREE.Group();
+  gbox(loco,0,.5,0,.9,.75,1.7,'#2f7d4f'); gbox(loco,0,1.05,-.45,.92,.45,.75,'#2f7d4f'); gbox(loco,0,.32,0,.93,.12,1.72,'#FAA900'); gbox(loco,0,.08,0,.7,.18,1.5,'#222');
+  gbox(loco,0,1.05,.86,.5,.2,.04,'#bfe3f5'); tren.push(loco); scene.add(loco);
+  for (let k=0;k<4;k++){ const w=new THREE.Group(); gbox(w,0,.4,0,.85,.55,1.45,'#5b5f66'); gbox(w,0,.72,0,.72,.18,1.25,'#c8743d'); gbox(w,0,.08,0,.7,.18,1.3,'#222'); tren.push(w); scene.add(w); } }
+
+// Trabajadoras y trabajadores de la mina
+const personas = [];
+[[53.3,0.2,'#ff7a1a','#ffffff'],[54.4,-0.8,'#ff7a1a','#f2c230'],[52.6,-1.3,'#2f6db5','#ffffff'],[55,1,'#ff7a1a','#ffffff'],[53.9,1.4,'#e3473b','#f2c230']].forEach(([x,z,ch,ca],i)=>{
+  const p=new THREE.Group();
+  gbox(p,-.09,.18,0,.13,.36,.14,'#2b2f3a'); gbox(p,.09,.18,0,.13,.36,.14,'#2b2f3a');
+  gbox(p,0,.55,0,.36,.4,.24,ch); gbox(p,0,.5,.125,.37,.05,.01,'#e8e8e8');
+  gbox(p,0,.86,0,.24,.22,.22,'#c98e63'); gbox(p,0,1.0,0,.3,.1,.3,ca);
+  const br=new THREE.Group(); br.position.set(.22,.72,0); gbox(br,0,-.15,0,.1,.32,.1,ch); p.add(br);
+  p.position.set(x,1,z); p.rotation.y = -0.6 + hash(i,1)*1.2; p.scale.setScalar(1.25); scene.add(p); personas.push({p,br,i});
+});
+
+/* ═════════ Pines por territorio ═════════ */
+const pines = [];
+const capaPines = $('pines');
+for (const t of TERR) {
+  const p = POS[t.k], y0 = Math.max(1, alto(p.x,p.z));
+  const g = new THREE.Group(); g.position.set(p.x,y0,p.z); scene.add(g);
+  gbox(g,0,2,0,.14,4,.14,'#ffffff');
+  const cubos = {}; for (const n of [1,2,3,4,5]) { cubos[n] = gbox(g,0,4.4,0,.8,.8,.8,OEC[n]); cubos[n].visible=false; }
+  const el = document.createElement('button'); el.className='pin';
+  el.innerHTML = `<i></i><span>${esc(t.n)}</span><b>0</b>`;
+  el.onclick = () => irAPin(t.k);
+  capaPines.appendChild(el);
+  pines.push({k:t.k,g,cubos,el,pos:new THREE.Vector3(p.x,y0+5.4,p.z),n:0});
+}
+let filtroOE = 0;
+const visibles = () => INI.filter(x => !filtroOE || x.oe.includes(filtroOE));
+function pintarPines(){
+  const v = visibles();
+  for (const pin of pines) {
+    const items = v.filter(x=>x.t===pin.k), oes = [...new Set(items.flatMap(x=>x.oe))].filter(n=>!filtroOE||n===filtroOE).sort();
+    pin.n = items.length; pin.el.hidden = !items.length; pin.g.visible = !!items.length;
+    pin.el.querySelector('b').textContent = items.length;
+    const cols = oes.map(n=>OEC[n]); pin.el.querySelector('i').style.background = cols.length>1 ? `linear-gradient(${cols.join(',')})` : (cols[0]||'#ccc');
+    pin.el.setAttribute('aria-label', `${TN[pin.k].n}: ${items.length} iniciativas`);
+    [1,2,3,4,5].forEach(n=>pin.cubos[n].visible=false);
+    oes.forEach((n,i)=>{ const c=pin.cubos[n]; c.visible=true; c.userData.y = 4.4 + i*.85; });
+    pin.alto = 4.4 + Math.max(0,oes.length-1)*.85;
+  }
+  // chips de filtro
+  const total = INI.length;
+  $('chips').innerHTML = `<button class="cf ${filtroOE?'':'on'}" data-oe="0" aria-pressed="${!filtroOE}">Todas · ${total}</button>` +
+    [1,2,3,4,5].map(n=>{ const c = INI.filter(x=>x.oe.includes(n)).length;
+      return `<button class="cf ${filtroOE===n?'on':''}" data-oe="${n}" style="--c:${OEC[n]}" ${c?'':'disabled'} aria-pressed="${filtroOE===n}" title="${esc(OBJ[n].corto)}"><i></i>OE${n} · ${c}</button>`; }).join('');
+  const tx = $('oeTxt');
+  if (filtroOE) { tx.hidden=false; tx.style.setProperty('--c',OEC[filtroOE]); tx.textContent = OBJ[filtroOE].t; } else tx.hidden = true;
+}
+$('chips').onclick = e => { const b=e.target.closest('.cf'); if(!b||b.disabled) return; filtroOE = +b.dataset.oe; pintarPines(); };
+
+/* ═════════ Gorito voxel ═════════ */
+const gorito = new THREE.Group(), cuerpo = new THREE.Group(); gorito.add(cuerpo);
+const piernas = [], brazos = [];
+for (const sx of [-1,1]) {
+  const piv = new THREE.Group(); piv.position.set(.32*sx,.85,0); gorito.add(piv);
+  gbox(piv,0,-.3,0,.22,.55,.22,'#1b1b22'); gbox(piv,0,-.7,.1,.48,.3,.72,'#2350c8'); piernas.push(piv);
+}
+gbox(cuerpo,0,1.15,0,1.6,.7,1.3,'#ffffff');
+gbox(cuerpo,0,1.2,.66,1.1,.2,.04,'#1f45b0'); gbox(cuerpo,0,.99,.66,.95,.11,.04,'#ff5812');
+gbox(cuerpo,0,1.65,0,1.6,.3,1.3,'#ff6a2b'); gbox(cuerpo,0,1.85,0,1.6,.1,1.3,'#d8322a'); gbox(cuerpo,0,2.2,0,1.6,.6,1.3,'#2348b8');
+for (const [x,y] of [[-.62,2.36],[.6,2.3],[-.6,1.98],[.62,2.0]]) gbox(cuerpo,x,y,.66,.13,.13,.04,'#ffffff');
+for (const sx of [-1,1]) { gbox(cuerpo,.22*sx,2.06,.67,.34,.44,.05,'#ffffff'); gbox(cuerpo,.2*sx,2.0,.7,.15,.2,.04,'#111'); }
+const boca = gbox(cuerpo,0,1.62,.67,.48,.13,.05,'#7a1222');
+gbox(cuerpo,0,2.56,0,1.95,.1,1.7,'#f4f4f0'); gbox(cuerpo,0,2.75,0,1.75,.3,1.45,'#f4f4f0'); gbox(cuerpo,0,3.0,0,1.35,.25,1.1,'#f4f4f0'); gbox(cuerpo,0,3.16,0,.3,.1,1.15,'#e0e0da');
+Object.values(OEC).forEach((c,i)=>gbox(cuerpo,-.42+i*.21,2.78,.735,.15,.15,.02,c));
+for (const sx of [-1,1]) {
+  const piv = new THREE.Group(); piv.position.set(.9*sx,1.85,0); cuerpo.add(piv);
+  gbox(piv,0,-.33,0,.2,.65,.2,'#1b1b22'); gbox(piv,0,-.72,0,.36,.34,.36,'#ffffff'); brazos.push(piv);
+}
+scene.add(gorito);
+
+/* ═════════ Voz de Gorito ═════════ */
+// Gemini TTS (AI Studio), voz Mako. Originales en Clientes4/gorito_voces/ruta-cobre. Si falta un audio, Gorito solo escribe.
+const vozCache = {};
+const voz = id => { if (!vozCache[id]) { const a=new Audio(`rutas-gorito/audio/${id}.m4a`); a.preload='auto';
+  a.addEventListener('ended',()=>{ if(!escribiendo) $('dGorito').classList.remove('habla'); }); vozCache[id]=a; } return vozCache[id]; };
+let sonido = true, vozActual = null, bienvenidaSono = false;
+const hablaVoz = () => !!(vozActual && !vozActual.paused && !vozActual.ended);
+function callar(){ if (vozActual) { vozActual.pause(); vozActual.currentTime = 0; vozActual = null; } }
+function hablar(id){
+  callar(); if (!sonido || !id) return null;
+  const a = voz(id); a.currentTime = 0; vozActual = a;
+  a.play().then(()=>{ if (id.endsWith('-intro')) bienvenidaSono = true; }).catch(()=>{ if (vozActual===a) vozActual = null; });
+  return a;
+}
+$('sonido').onclick = () => {
+  sonido = !sonido; const b = $('sonido');
+  b.textContent = sonido ? '🔊' : '🔇'; b.setAttribute('aria-pressed', sonido);
+  b.setAttribute('aria-label', sonido ? 'Silenciar a Gorito' : 'Activar la voz de Gorito'); b.title = b.getAttribute('aria-label');
+  if (sonido) { if (!caminando) { hablar(P().a); $('dGorito').classList.add('habla'); } } else { callar(); if (!escribiendo) $('dGorito').classList.remove('habla'); }
+};
+
+/* ═════════ Estado y navegación ═════════ */
+let ruta = 'cobre', parada = 0, gS = 0, gObj = 0, auto = true, caminando = false, yawG = 0, salto = 0;
+let excursion = null, fuera = null, gy = 1; // excursion: Gorito camina hasta un pin; fuera: dónde quedó
+let tren_s = 7.5, tren_dir = 1, noche = 0, nocheObj = 0;
+const R = () => RUTAS[ruta], P = () => R().paradas[parada], gpath = () => gpaths[ruta];
+const camT = new THREE.Vector3();
+
+let escribiendo = null, textoCompleto = '';
+function escribir(txt, segundos){
+  clearInterval(escribiendo); textoCompleto = txt; let i = 0; $('dTexto').textContent = '';
+  $('dGorito').classList.add('habla');
+  const paso = segundos ? Math.max(20, segundos*1000*0.92/(txt.length/2)) : 28; // al ritmo de la voz
+  escribiendo = setInterval(()=>{ i += 2; $('dTexto').textContent = txt.slice(0,i); if (i>=txt.length) terminar(); }, paso);
+}
+function terminar(){ clearInterval(escribiendo); escribiendo=null; $('dTexto').textContent = textoCompleto; if (!hablaVoz()) $('dGorito').classList.remove('habla'); }
+addEventListener('pointerdown', () => { if (parada===0 && sonido && !caminando && !hablaVoz() && !bienvenidaSono) { hablar(P().a); $('dGorito').classList.add('habla'); } }, {once:true});
+$('dTxt').onclick = e => { if (e.target.closest('#dPin')) return; terminar(); };
+
+const pinesDe = p => p.pin==='todos' ? TERR.map(t=>t.k) : (p.pin||[]);
+function mostrarDialogo(){
+  const p = P(), a = hablar(p.a);
+  escribir(p.txt, a && isFinite(a.duration) ? a.duration : (a ? 7 : 0));
+  $('dFuente').textContent = p.f ? `Fuente: ${p.f} · Minería en Números, Consejo Minero` : '';
+  const b = $('dPin'), ks = pinesDe(p).filter(k => pines.find(x=>x.k===k)?.n);
+  if (ks.length && p.pin!=='todos') {
+    const k = ks[0], n = pines.find(x=>x.k===k).n;
+    b.hidden=false; b.innerHTML=`<i style="background:var(--oe1)"></i>Ver iniciativas en ${esc(TN[k].n)} (${n}) →`; b.onclick=()=>irAPin(k);
+  } else b.hidden = true;
+}
+
+function pintarPuntos(){
+  $('puntos').innerHTML = R().paradas.map((_,i)=>`<button aria-label="Parada ${i+1}" class="${i===parada?'on':''}"></button>`).join('');
+  [...$('puntos').children].forEach((b,i)=>b.onclick=()=>ir(i));
+  $('cuenta').textContent = `${parada+1} / ${R().paradas.length}`;
+}
+function ir(i){
+  parada = Math.max(0, Math.min(R().paradas.length-1, i));
+  const p = P(), ultima = parada===R().paradas.length-1;
+  $('cTit').textContent = p.t; $('cSub').textContent = p.s;
+  const c=$('cartel'); c.classList.remove('cambia'); void c.offsetWidth; c.classList.add('cambia');
+  pintarPuntos();
+  $('ant').disabled = parada===0;
+  $('sig').textContent = ultima ? '¡Desafío! ▶' : 'Siguiente ▶';
+  const act = p.pin==='todos' ? [] : pinesDe(p); pines.forEach(x=>x.el.classList.toggle('activo', act.includes(x.k)));
+  gObj = gpath().cum[p.g]; auto = true; callar();
+  if (excursion || fuera) { // Gorito vuelve caminando desde el pin hasta la ruta
+    const q = pathAt(gpath(), gS); fuera = null;
+    excursion = {path: mkPath(trazar({x:gorito.position.x, z:gorito.position.z}, {x:q.x, z:q.z})), s:0,
+      fin:()=>{ if (Math.abs(gObj-gS) < .01) mostrarDialogo(); }};
+  }
+  if (!excursion && Math.abs(gObj-gS) < .01) mostrarDialogo();
+  else { clearInterval(escribiendo); escribiendo = null; $('dTexto').textContent = '…'; $('dFuente').textContent=''; $('dPin').hidden = true; }
+  try { history.replaceState(null,'',`?ruta=${ruta}&p=${parada}`); } catch {}
+}
+function cambiarRuta(r, p=0){
+  ruta = r; $('rCobre').classList.toggle('on', r==='cobre'); $('rLitio').classList.toggle('on', r==='litio');
+  $('rCobre').setAttribute('aria-selected', r==='cobre'); $('rLitio').setAttribute('aria-selected', r==='litio');
+  pintarMedallas();
+  gS = gObj = gpath().cum[R().paradas[p].g]; excursion = fuera = null; // Gorito aparece al inicio de la ruta elegida
+  ir(p);
+}
+$('rCobre').onclick = () => { if (ruta!=='cobre') cambiarRuta('cobre'); };
+$('rLitio').onclick = () => { if (ruta!=='litio') cambiarRuta('litio'); };
+$('sig').onclick = () => parada===R().paradas.length-1 ? abrirQuiz() : ir(parada+1);
+$('ant').onclick = () => ir(parada-1);
+controls.addEventListener('start', () => { auto = false; });
+
+/* Día y noche */
+$('bNoche').onclick = () => { nocheObj = nocheObj ? 0 : 1; const b=$('bNoche');
+  b.textContent = nocheObj ? '☀️' : '🌙'; b.title = b.ariaLabel = nocheObj ? 'Ver de día' : 'Ver de noche'; };
+
+/* ═════════ Ventanas ═════════ */
+const abiertas = [];
+function abrir(id){ const v=$(id); v.hidden=false; if(!abiertas.includes(id)) abiertas.push(id); v.querySelector('.cerrar')?.focus(); }
+function cerrar(id){ $(id).hidden=true; const i=abiertas.indexOf(id); if(i>=0) abiertas.splice(i,1); }
+document.querySelectorAll('.capa').forEach(v=>{
+  v.addEventListener('click', e => { if (e.target===v || e.target.closest('[data-cierra]')) cerrar(v.id); });
+});
+addEventListener('keydown', e => {
+  if (e.key==='Escape' && abiertas.length) { cerrar(abiertas[abiertas.length-1]); return; }
+  if (abiertas.length) return;
+  if (e.key==='ArrowRight') $('sig').click(); if (e.key==='ArrowLeft') ir(parada-1);
+});
+
+const fecha = f => { if(!f) return ''; const [a,m,d]=f.split('-'); return `${d}-${m}-${a}`; };
+const foto = (u,w,h) => !u ? '' : /res\.cloudinary\.com\/.+\/upload\//.test(u) ? u.replace('/upload/',`/upload/c_fill,g_center,w_${w},h_${h},f_auto,q_auto/`) : u;
+const chipsOE = oe => oe.map(n=>`<span class="chip" style="--c:${OEC[n]}">OE${n}</span>`).join('');
+
+/* Gorito camina hasta un pin: línea recta por tierra (rodea el mar y el rajo), subiendo y bajando el relieve */
+function trazar(a, b){
+  const pts = [[a.x,a.z]]; let x = a.x, z = a.z;
+  if (esMar(x,z)) { x = coastX(z)+1.2; pts.push([x,z]); }            // sale del muelle hacia tierra
+  const destinoMar = esMar(b.x,b.z), bx = destinoMar ? coastX(b.z)+1.2 : b.x;
+  const n = Math.max(2, Math.ceil(Math.hypot(bx-x, b.z-z)));
+  for (let i=1;i<=n;i++){ let px = x+(bx-x)*i/n, pz = z+(b.z-z)*i/n;
+    const c = coastX(pz)+1.2; if (px < c) px = c;
+    const dp = Math.hypot(px-PIT.x, pz-PIT.z); if (dp < PIT.r+1.5) { px = PIT.x+(px-PIT.x)/dp*(PIT.r+1.5); pz = PIT.z+(pz-PIT.z)/dp*(PIT.r+1.5); }
+    pts.push([px,pz]); }
+  if (destinoMar) pts.push([b.x,b.z]);                                 // entra al muelle
+  return pts;
+}
+function irAPin(k){
+  const pin = pines.find(p=>p.k===k); if (!pin) return;
+  const cur = {x:gorito.position.x, z:gorito.position.z}, dx = pin.pos.x-cur.x, dz = pin.pos.z-cur.z, d = Math.hypot(dx,dz);
+  if (d < 3) { abrirLista(k); return; }
+  if (!excursion && !fuera) gObj = gS;                                 // la ruta queda en pausa donde iba
+  const meta = {x: pin.pos.x - dx/d*1.6, z: pin.pos.z - dz/d*1.6};
+  fuera = null; auto = true; callar(); clearInterval(escribiendo); escribiendo = null;
+  excursion = {path: mkPath(trazar(cur, meta)), s:0, fin:()=>{ fuera = meta; abrirLista(k); $('dTexto').textContent = $('lGor').textContent; }};
+  $('dTexto').textContent = `¡Vamos a ${TN[k].n}! 🏃`; $('dFuente').textContent = ''; $('dPin').hidden = true;
+}
+
+/* Tres maneras de decir «aquí hay iniciativas»: se turnan sin repetir la anterior.
+   El audio es genérico; el texto en pantalla nombra el lugar y la cantidad. Una frase entra a la rotación solo si su audio existe. */
+const FRASES_PIN = [
+  {a:'g-pin',   txt:(t,n,oe)=>`¡Mira! ${t.k==='regional'?'Para toda la región':'En '+t.n} hay ${n} iniciativas de la EMRA${oe}. Toca una para ver cómo avanza.`},
+  {a:'g-pin-2', txt:(t,n,oe)=>`¡Llegamos${t.k==='regional'?'':' a '+t.n}! Aquí la EMRA tiene ${n} ${n===1?'iniciativa':'iniciativas'}${oe}. ${n===1?'Tócala':'Elige una'} para conocerla.`},
+  {a:'g-pin-3', txt:(t,n,oe)=>`¡Qué bueno! ${t.k==='regional'?'Para toda la región':'En '+t.n} también hay ${n} iniciativas de la EMRA${oe}. Toca una para ver en qué va.`},
+];
+FRASES_PIN.forEach(f => { f.ok = true; voz(f.a).addEventListener('error', () => { f.ok = false; }); });
+let turnoPin = Math.floor(Math.random()*FRASES_PIN.length);
+function elegirFrase(n){
+  if (n === 1) return FRASES_PIN[1];                       // la única que no habla de «iniciativas» en plural
+  for (let i=0;i<FRASES_PIN.length;i++) { turnoPin = (turnoPin+1) % FRASES_PIN.length; if (FRASES_PIN[turnoPin].ok) return FRASES_PIN[turnoPin]; }
+  return FRASES_PIN[0];
+}
+
+let listaAbierta = null;
+function abrirLista(k){
+  listaAbierta = k;
+  const t = TN[k], items = visibles().filter(x=>x.t===k);
+  const grupos = [['corto','Corto plazo'],['mediano','Mediano plazo']];
+  $('lTit').textContent = `${t.n} · ${items.length}`;
+  const fr = elegirFrase(items.length);
+  $('lGor').textContent = fr.txt(t, items.length, filtroOE ? ' del OE'+filtroOE : '') + (t.det?` (${t.det})`:'');
+  $('lCard').style.setProperty('--c', OEC[filtroOE||1]);
+  $('lCuerpo').innerHTML = grupos.map(([g,nom])=>{ const gi = items.filter(x=>x.plazo===g); if(!gi.length) return '';
+    return `<p class="grupo">${nom} · ${gi.length}</p><ul class="lista">` + gi.map(x=>`<li><button data-id="${esc(x.id)}" data-plazo="${g}" style="--c:${OEC[x.oe[0]]}">
+      <span class="nom">${esc(x.n)}</span>
+      <span class="meta">${chipsOE(x.oe)}${esc(x.loc||'')}${x.av!=null&&g==='corto'?` · ${x.av}%`:''}</span>
+      ${g==='corto'?`<span class="mini"><i style="width:${x.av||0}%"></i></span>`:''}</button></li>`).join('') + '</ul>'; }).join('');
+  $('lCuerpo').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>abrirFicha(b.dataset.id,b.dataset.plazo,true));
+  abrir('vLista');
+  // Gorito reacciona: salta y lo dice
+  salto = 1; const a = hablar(fr.a); if (a) $('dGorito').classList.add('habla');
+}
+
+function abrirFicha(id, plazo, desdeLista){
+  const x = INI.find(y=>String(y.id)===String(id) && y.plazo===plazo); if(!x) return;
+  const c = OEC[x.oe[0]];
+  $('fCard').style.setProperty('--c',c);
+  $('fChips').innerHTML = chipsOE(x.oe) + `<span class="chip gris">${plazo==='corto'?'Corto plazo':'Mediano plazo'}</span>`;
+  $('fNom').textContent = x.n;
+  $('fZona').textContent = `📍 ${x.loc || TN[x.t].n} · Región de Antofagasta`;
+  let h = '';
+  if (x.img) h += `<img class="foto" src="${esc(foto(x.img,640,360))}" alt="" loading="lazy">`;
+  if (plazo==='corto') {
+    h += `<div class="barra"><i id="fBar" style="--c:${c}"></i></div><div class="avtxt"><span>Avance</span><span>${x.av==null?'Sin dato aún':x.av+'%'}</span></div>`;
+  }
+  if (x.d) h += `<p class="dato">${esc(x.d)}</p>`;
+  if (x.tipo) h += `<p class="dato"><b>Tipo</b>${esc(x.tipo)}</p>`;
+  if (x.inst) h += `<p class="dato"><b>${plazo==='corto'?'Instituciones':'Responsables'}</b>${esc(x.inst)}</p>`;
+  if (x.f) h += `<p class="dato"><b>Última actualización</b>${fecha(x.f)}</p>`;
+  h += `<p class="dato"><b>Objetivo estratégico</b>${x.oe.map(n=>esc(OBJ[n].t)).join('<br>')}</p>`;
+  $('fCuerpo').innerHTML = h;
+  $('fAcc').innerHTML = (plazo==='corto'
+      ? `<a class="btn" href="https://emra.cl/plataforma_gestion/" target="_blank" rel="noopener">Ver en la Plataforma de gestión →</a>`
+      : `<a class="btn" href="${OBJ[x.oe[0]].url}" target="_blank" rel="noopener">Ver el objetivo en emra.cl →</a>`)
+    + (desdeLista ? `<button class="btn blanco" id="fVolver">← Volver a la lista</button>` : '');
+  if (desdeLista) $('fVolver').onclick = () => cerrar('vFicha');
+  const bar = $('fBar'); if (bar) requestAnimationFrame(()=>requestAnimationFrame(()=>{ bar.style.width = (x.av||0)+'%'; }));
+  abrir('vFicha');
+}
+
+/* ═════════ Desafío y sello ═════════ */
+let quiz = null;
+const mezclar = a => { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; };
+function abrirQuiz(){
+  quiz = {qs: mezclar(PREGUNTAS[ruta]).slice(0,3), i:0, ok:0};
+  $('qCard').style.setProperty('--c', R().color);
+  abrir('vQuiz'); hablar('g-quiz'); pregunta();
+}
+function pregunta(){
+  const q = quiz.qs[quiz.i];
+  $('qNum').style.setProperty('--c', R().color); $('qNum').textContent = `Pregunta ${quiz.i+1} de ${quiz.qs.length}`;
+  $('qPre').textContent = q.p; $('qExp').hidden = true; $('qSig').hidden = true;
+  $('qOps').innerHTML = mezclar([q.r,...q.o]).map(o=>`<button>${esc(o)}</button>`).join('');
+  $('qOps').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const bien = b.textContent===q.r; if (bien) quiz.ok++;
+    $('qOps').querySelectorAll('button').forEach(x=>{ x.disabled=true; if(x.textContent===q.r) x.classList.add('bien'); });
+    if (!bien) b.classList.add('mal');
+    $('qExp').innerHTML = `${bien?'¡Muy bien!':'¡Casi! Era'} <b>${esc(q.r)}</b>.${q.f?`<small>Fuente: ${esc(q.f)}</small>`:''}`; $('qExp').hidden = false;
+    hablar(bien?'g-bien':'g-casi');
+    $('qSig').hidden = false; $('qSig').textContent = quiz.i < quiz.qs.length-1 ? 'Siguiente pregunta ▶' : 'Ver mi sello ▶'; $('qSig').focus();
+  });
+}
+$('qSig').onclick = () => { quiz.i++; if (quiz.i < quiz.qs.length) pregunta(); else { cerrar('vQuiz'); abrirSello(); } };
+
+const MED_KEY = 'rutasGorito.medallas';
+const leerMed = () => { try { return JSON.parse(localStorage.getItem(MED_KEY)||'{}'); } catch { return {}; } };
+function pintarMedallas(){ const m=leerMed(); $('rCobre').textContent = 'Cobre'+(m.cobre?' 🏅':''); $('rLitio').textContent = 'Litio'+(m.litio?' 🏅':''); }
+function abrirSello(){
+  const m = leerMed(); m[ruta] = Math.max(m[ruta]||0, quiz.ok); try { localStorage.setItem(MED_KEY, JSON.stringify(m)); } catch {}
+  pintarMedallas();
+  $('sCard').style.setProperty('--c', R().color);
+  $('sNom').textContent = R().sello; $('sTit').textContent = `¡Completaste la ${R().nombre}!`;
+  $('sPts').textContent = `Respondiste bien ${quiz.ok} de ${quiz.qs.length} preguntas del desafío.`;
+  const otra = ruta==='cobre' ? 'litio' : 'cobre';
+  $('sOtra').textContent = `Ir a la ${RUTAS[otra].nombre} ▶`; $('sOtra').onclick = () => { cerrar('vSello'); cambiarRuta(otra); };
+  abrir('vSello'); hablar('g-medalla');
+}
+$('sCompartir').onclick = async () => {
+  const url = location.href.split('?')[0], text = `¡Completé la ${R().nombre} con Gorito! Respondí ${quiz?.ok??0} de 3 en el desafío.`;
+  try { if (navigator.share) { await navigator.share({title:R().nombre+' · Gorito', text, url}); return; } } catch { return; }
+  try { await navigator.clipboard.writeText(`${text} ${url}`); aviso('Enlace copiado'); } catch { aviso(url); }
+};
+function aviso(t){ const a=$('aviso'); a.textContent=t; a.classList.add('ver'); clearTimeout(aviso.t); aviso.t=setTimeout(()=>a.classList.remove('ver'),1800); }
+
+/* ═════════ Iniciativas de mediano plazo en vivo (misma tabla pública de solo lectura que el Portal EMRA) ═════════ */
+(function cargarVivo(){
+  const SB='https://tjoveoqolrfxntvvdjwh.supabase.co/rest/v1/iniciativas?order=id&select=id,nombre,oe,ciudad,lat,lng,tipo,responsable,descripcion,image_url';
+  fetch(SB,{headers:{apikey:'sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE'}}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{
+    if (!Array.isArray(rows) || rows.length<10) return; // ante algo raro, se queda con la copia de respaldo
+    const terr = c => /Calama/.test(c)?'calama':/Tocopilla/.test(c)?'tocopilla':/Antofagasta/.test(c)?'antofagasta':'regional';
+    const vivos = rows.filter(r=>r.nombre).map(r=>({id:r.id,n:r.nombre,oe:[+String(r.oe).replace(/\D/g,'')||1],t:terr(r.ciudad||''),loc:r.ciudad||'',
+      tipo:r.tipo||'',inst:r.responsable||'',d:r.descripcion||'',img:r.image_url||''}));
+    const ids = new Set(vivos.map(x=>x.id));
+    DATOS.mediano = [...vivos, ...DATOS.mediano.filter(x=>!ids.has(x.id))]; // conserva las locales que aún no están en Supabase
+    INI = todas(); pintarPines(); if (!caminando) mostrarDialogo();
+  }).catch(()=>{});
+})();
+
+/* ═════════ Tamaño ═════════ */
+const FH = 60;
+function resize(){
+  const w = innerWidth, h = innerHeight, a = w/h;
+  renderer.setSize(w,h,false);
+  camera.left = -FH*a/2; camera.right = FH*a/2; camera.top = FH/2; camera.bottom = -FH/2;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+const zoomPara = (w,h) => Math.min((FH*innerWidth/innerHeight)/w, FH/h) * 0.92;
+
+/* ═════════ Bucle ═════════ */
+const reloj = new THREE.Clock(), tmp = new THREE.Vector3();
+const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame(){
+  const dt = Math.min(.1, reloj.getDelta()), t = reloj.elapsedTime;
+  const k = reducido ? 1 : 1-Math.exp(-dt*2.4);
+
+  // Gorito camina por la ruta
+  let gp, yawMov = null, anda = false;
+  if (excursion) {                                   // caminata hasta un pin (o de vuelta a la ruta)
+    excursion.s = Math.min(excursion.path.L, excursion.s + (reducido?60:16)*dt);
+    gp = pathAt(excursion.path, excursion.s); yawMov = gp.yaw; anda = true; caminando = false;
+    if (excursion.s >= excursion.path.L) { const ex = excursion; excursion = null; ex.fin(); }
+  } else if (fuera) { gp = {x:fuera.x, z:fuera.z}; caminando = false; }
+  else {
+    const dif = gObj - gS, eraCaminando = caminando;
+    caminando = Math.abs(dif) > .01;
+    if (caminando) gS += Math.sign(dif) * Math.min(Math.abs(dif), (reducido?60:10)*dt);
+    gp = pathAt(gpath(), gS);
+    if (caminando) { yawMov = dif>0 ? gp.yaw : gp.yaw+Math.PI; anda = true; }
+    if (eraCaminando && !caminando) mostrarDialogo();
+  }
+  const suelo = esMar(gp.x,gp.z) ? 1 : Math.max(1, alto(gp.x,gp.z));
+  gy += (suelo-gy)*Math.min(1, dt*12);
+  salto = Math.max(0, salto - dt*1.6);
+  gorito.position.set(gp.x, gy + Math.sin(salto*Math.PI)*1.2*(salto>0), gp.z);
+  let yawObj;
+  if (yawMov !== null) yawObj = yawMov;
+  else { tmp.copy(camera.position).sub(controls.target); yawObj = Math.atan2(tmp.x,tmp.z); }
+  const dy = ((yawObj-yawG+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; yawG += dy*Math.min(1,dt*10); gorito.rotation.y = yawG;
+  const ph = t*(excursion?15:11);
+  piernas[0].rotation.x = anda ? Math.sin(ph)*.6 : 0; piernas[1].rotation.x = anda ? -Math.sin(ph)*.6 : 0;
+  cuerpo.position.y = anda ? Math.abs(Math.sin(ph))*.12 : Math.sin(t*2.2)*.03;
+  const hablando = !!escribiendo || hablaVoz();
+  brazos[0].rotation.x = anda ? -Math.sin(ph)*.5 : 0;
+  brazos[1].rotation.x = anda ? Math.sin(ph)*.5 : 0;
+  brazos[1].rotation.z = (!anda && hablando) || salto>0 ? 2.3 + Math.sin(t*8)*.25 : brazos[1].rotation.z*.85;
+  brazos[0].rotation.z = salto>0 ? -2.3 : brazos[0].rotation.z*.85;
+  boca.scale.y = hablando ? 1 + Math.abs(Math.sin(t*18))*1.6 : 1;
+
+  // Cámara: sigue a Gorito al caminar y encuadra la parada al llegar
+  if (auto) {
+    const p = P(); let tx,ty,tz,w,h;
+    if (excursion) { tx=gp.x; ty=gy; tz=gp.z; w=40; h=28; }
+    else if (fuera) { tx=fuera.x; ty=gy; tz=fuera.z; w=24; h=17; }
+    else if (caminando) { tx=gp.x; ty=1; tz=gp.z; w=34; h=24; } else { [tx,ty,tz]=p.cam; w=p.w; h=p.h; }
+    tmp.copy(camera.position).sub(controls.target);
+    controls.target.lerp(camT.set(tx,ty,tz), k);
+    camera.position.copy(controls.target).add(tmp);
+    camera.zoom += (zoomPara(w,h)-camera.zoom)*k; camera.updateProjectionMatrix();
+  }
+  controls.update();
+
+  // Día y noche
+  noche += (nocheObj-noche)*Math.min(1,dt*1.5);
+  hemi.intensity = 1.5 - 1.1*noche; sun.intensity = 2.4 - 2.05*noche; sun.color.copy(SOL_DIA).lerp(SOL_NOCHE, noche);
+  matLuces.emissiveIntensity = noche*1.6;
+  document.body.style.setProperty('--noche', noche.toFixed(3)); document.body.classList.toggle('noche', noche>.5);
+
+  // Tren
+  tren_s += tren_dir*3.2*dt;
+  if (tren_s > rail.L) { tren_s = rail.L; tren_dir = -1; } if (tren_s < 7.5) { tren_s = 7.5; tren_dir = 1; }
+  tren.forEach((car,i)=>{ const q = pathAt(rail, tren_s - tren_dir*i*1.75); car.position.set(q.x,1.28,q.z); car.rotation.y = q.yaw; });
+  // Camiones del litio
+  for (const c of camionesLitio) { c.s += c.dir*3*dt; if (c.s>lroad.L){c.s=lroad.L;c.dir=-1;} if (c.s<0){c.s=0;c.dir=1;}
+    const q = pathAt(lroad, c.s); c.c.position.set(q.x,1.06,q.z); c.c.rotation.y = q.yaw + (c.dir<0?Math.PI:0); }
+  // Camión en el rajo
+  const ang = t*.35; camion.position.set(PIT.x+Math.cos(ang)*2.4, -1, PIT.z+Math.sin(ang)*2.4); camion.rotation.y = -ang;
+  // Personas de la faena
+  personas.forEach(({p,br,i})=>{ p.position.y = 1 + Math.abs(Math.sin(t*2+i))*.03; br.rotation.z = i===1 ? 2.4+Math.sin(t*6)*.4 : Math.sin(t*1.5+i)*.15; });
+
+  // Mar: barco (zarpa en el muelle), botes y gaviotas
+  const zarpa = ruta==='cobre' && P().a==='c-muelle', bo = zarpa ? BARCO_B : BARCO_A, kb = Math.min(1, dt*.35);
+  barco.position.x += (bo.x-barco.position.x)*kb; barco.position.z += (bo.z-barco.position.z)*kb; barco.rotation.y += (bo.yaw-barco.rotation.y)*kb;
+  barco.position.y = Math.sin(t*1.1)*.08;
+  botes.forEach((b,i)=>{ b.position.y = .3+Math.sin(t*1.6+i)*.08; b.rotation.z = Math.sin(t*1.3+i)*.05; });
+  for (const s of gaviotas) { const a = t*s.sp + s.ph;
+    s.g.position.set(s.cx+Math.cos(a)*s.r, s.h+Math.sin(t*.8+s.ph)*.4, s.cz+Math.sin(a)*s.r); s.g.rotation.y = -a;
+    const f = Math.sin(t*9+s.ph)*.6; s.a1.rotation.z = f; s.a2.rotation.z = -f; }
+  // Pines
+  pines.forEach((p,i)=>{ for (const n of [1,2,3,4,5]) { const c=p.cubos[n]; if(!c.visible) continue; c.rotation.y = t*1.2+i; c.position.y = c.userData.y + Math.sin(t*2+i)*.12; } });
+
+  renderer.render(scene, camera);
+
+  // Etiquetas HTML de los pines (sin encimarse)
+  const chico = (camera.right-camera.left)/camera.zoom > 48;
+  const puestos = [];
+  for (const p of pines) { if (p.el.hidden) continue;
+    tmp.set(p.pos.x, p.g.position.y + (p.alto||4.4) + 1, p.pos.z).project(camera);
+    p.el.classList.toggle('chico', chico && !p.el.classList.contains('activo'));
+    puestos.push({p, x:(tmp.x+1)/2*innerWidth, y:(1-tmp.y)/2*innerHeight, w:p.el.offsetWidth, h:p.el.offsetHeight});
+  }
+  puestos.sort((a,b)=>a.y-b.y);
+  for (let i=0;i<puestos.length;i++) for (let j=0;j<i;j++) { const a=puestos[j], b=puestos[i];
+    if (Math.abs(a.x-b.x) < (a.w+b.w)/2+4 && b.y-a.y < b.h+4) b.y = a.y + b.h + 4; }
+  for (const q of puestos) { q.p.el.style.left = q.x+'px'; q.p.el.style.top = q.y+'px'; }
+  requestAnimationFrame(frame);
+}
+
+/* ═════════ Inicio ═════════ */
+$('cargando').remove();
+pintarPines();
+{ // ?ruta=litio&p=N abre directo en una parada (para enlazar o grabar reels); ?noche=1 parte de noche
+  const q = new URLSearchParams(location.search), r = q.get('ruta')==='litio' ? 'litio' : 'cobre';
+  const p0 = Math.max(0, Math.min(RUTAS[r].paradas.length-1, parseInt(q.get('p')) || 0));
+  if (q.get('noche')==='1') { nocheObj = noche = 1; $('bNoche').textContent='☀️'; }
+  ruta = r; const pp = RUTAS[r].paradas[p0];
+  controls.target.set(...pp.cam); camera.position.copy(controls.target).add(OFFSET);
+  camera.zoom = zoomPara(pp.w, pp.h); camera.updateProjectionMatrix();
+  cambiarRuta(r, p0);
+}
+frame();
+</script>
+</body>
+</html>

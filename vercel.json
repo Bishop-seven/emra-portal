@@ -17,6 +17,10 @@
       "destination": "/dato-o-mito.html"
     },
     {
+      "source": "/rutas-gorito",
+      "destination": "/rutas-gorito.html"
+    },
+    {
       "source": "/((?!api/|_vercel/).*)",
       "destination": "/index.html"
     }
