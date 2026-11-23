@@ -905,7 +905,8 @@ svg{display:block}
 
 /* Barra superior */
 #topbar{position:fixed;top:0;left:0;right:0;height:var(--top);background:#fff;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:18px;padding:0 18px;z-index:650}
-.tb-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:none}
+.tb-brand{display:flex;align-items:center;gap:12px;min-width:0;flex:none;text-decoration:none;border-radius:10px}
+.tb-brand:hover b{color:#a9622f}
 .tb-brand .tb-logo{height:38px;width:auto;display:block}
 .tb-brand b{display:block;font-size:15px;font-weight:800;line-height:1.1;color:var(--ink);white-space:nowrap}
 .tb-brand span{display:block;font-size:12px;color:var(--mut);white-space:nowrap}
@@ -1146,10 +1147,10 @@ svg{display:block}
 
   <!-- BARRA SUPERIOR (rediseño 23-nov-2026): marca, secciones y acciones -->
   <header id="topbar">
-    <div class="tb-brand">
-      <img src="logo-emra.webp" class="tb-logo" alt="EMRA 2023–2050" style="cursor:pointer" title="EMRA" onclick="if(PORTADA_ACTIVA||verPortadaPrueba())showPortada()" onerror="this.style.display='none'"/>
+    <a class="tb-brand" href="/" onclick="event.preventDefault();irInicio()" title="Ir al inicio del portal">
+      <img src="logo-emra.webp" class="tb-logo" alt="EMRA 2023–2050 · inicio del portal" onerror="this.style.display='none'"/>
       <div><b>Portal EMRA 2023–2050</b><span>Estrategia Minera para el Bienestar · Región de Antofagasta</span></div>
-    </div>
+    </a>
     <nav class="tabs" aria-label="Secciones del portal">
       <button class="tab on" id="t-l" onclick="switchTab('l')">Iniciativas</button>
       <button class="tab" id="t-e" onclick="switchTab('e')">La EMRA</button>
@@ -7242,13 +7243,22 @@ function showAdminToast(msg,err=false){
 function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebar-overlay').classList.add('on')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('on')}
 
+// Logo de la barra superior: vuelve al inicio del portal (Iniciativas, ambas capas, sin filtros, mapa completo, lista arriba)
+function irInicio(){
+  if(PORTADA_ACTIVA||verPortadaPrueba()){showPortada();return;}
+  CAPAS.mp=true;CAPAS.cp=true;sectorFilter=null;
+  switchTab('l');window._irInicio=true;resetAll();window._irInicio=false;
+  try{if(map&&INI.length)map.flyToBounds(L.latLngBounds([...INI,...CP].map(i=>[i.lat,i.lng])),{padding:[40,40],duration:1});}catch(e){}
+  const b=document.getElementById('sb-body');if(b)b.scrollTop=0;
+  document.getElementById('sidebar').classList.remove('max');
+}
 function resetAll(){
   activeOE=null;cityFilter='';searchQ='';highlighted=new Set();selCmp=[];
   document.getElementById('search-q').value='';document.getElementById('city-sel').value='';
   document.getElementById('btn-cmp').disabled=true;
   updateCmpSlots();renderOEPills();renderList();renderMarkers();
   closeFicha();closeCmp();closePDF();
-  if(map) map.flyTo([-23.5,-69.5],7,{duration:1.2});
+  if(map&&!window._irInicio) map.flyTo([-23.5,-69.5],7,{duration:1.2});
 }
 
 // ═══════════════════════════════════════════════════════
