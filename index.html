@@ -1519,8 +1519,8 @@ function proj(lat,lng){
 const INI=[
   {id:'r1',n:'Declaración Área Metropolitana Antofagasta-Mejillones',oe:'OE 1',c:'Antofagasta',lat:-23.64,lng:-70.39,tipo:'Proyecto estructural',plazo:'Corto plazo 2023-2026',resp:'SUBDERE · Gobernación Regional',d:'Mecanismo administrativo que une Antofagasta y Mejillones para coordinar planificación, transporte y servicios. Beneficia a más de 400.000 habitantes del área metropolitana emergente.'},
   {id:'r2',n:'Tren interurbano Antofagasta-Mejillones',oe:'OE 1',c:'Regional',lat:-23.54,lng:-70.38,tipo:'Infraestructura de transporte',plazo:'Mediano plazo 2026-2030',resp:'MOP · MTT',d:'Sistema ferroviario interurbano que conecta el área metropolitana. Alta velocidad, estaciones modernas, alternativa al transporte carretero.'},
-  {id:'r3',n:'Ruta 5 Tramo Caldera–Antofagasta',oe:'OE 1',c:'Regional',lat:-23.80,lng:-70.31,tipo:'Concesión vial',plazo:'Corto plazo 2023-2026',resp:'MOP · Concesiones',d:'466 km de doble calzada a 120 km/h. Zonas de descanso, postes SOS, segregación de flujos y altos estándares de seguridad vial.'},
-  {id:'r4',n:'Ruta 5 Tramo Antofagasta–Iquique',oe:'OE 1',c:'Regional',lat:-23.59,lng:-70.25,tipo:'Concesión vial',plazo:'Mediano plazo 2026-2030',resp:'MOP · Concesiones',d:'Doble calzada con pasarelas peatonales, pasos desnivelados y velocidad de diseño 120 km/h con resistencia sísmica.'},
+  {id:'r3',n:'Doble vía Ruta 5 Tramo Caldera – Antofagasta',oe:'OE 1',c:'Regional',lat:-23.80,lng:-70.31,tipo:'Concesión vial',plazo:'Corto plazo 2023-2026',resp:'MOP · Concesiones',d:'466 km de doble calzada a 120 km/h. Zonas de descanso, postes SOS, segregación de flujos y altos estándares de seguridad vial.'},
+  {id:'r4',n:'Doble vía Ruta 5 Tramo Antofagasta – Iquique',oe:'OE 1',c:'Regional',lat:-23.59,lng:-70.25,tipo:'Concesión vial',plazo:'Mediano plazo 2026-2030',resp:'MOP · Concesiones',d:'Doble calzada con pasarelas peatonales, pasos desnivelados y velocidad de diseño 120 km/h con resistencia sísmica.'},
   {id:'r5',n:'Aeropuerto Antofagasta',oe:'OE 1',c:'Antofagasta',lat:-23.45,lng:-70.44,tipo:'Concesión aeroportuaria',plazo:'Corto plazo 2023-2026',resp:'MOP · DGAC',d:'Remodelación completa con nuevo puente de embarque, red eléctrica, hall de pasajeros y áreas comerciales renovadas.'},
   {id:'r6',n:'Aeropuerto Calama',oe:'OE 1',c:'Calama',lat:-22.50,lng:-68.90,tipo:'Concesión aeroportuaria',plazo:'Corto plazo 2023-2026',resp:'MOP · DGAC',d:'Ampliación con nuevas dependencias SAR, cuartel SSEI, hall público de pasajeros y señalética actualizada.'},
   {id:'r7',n:'Mejoramiento Ruta B-39',oe:'OE 1',c:'Regional',lat:-23.66,lng:-68.74,tipo:'Vialidad regional',plazo:'Corto plazo 2023-2026',resp:'MOP',d:'Pavimentación de la Ruta B-39 que une Peine y Baquedano, mejorando significativamente el acceso al Salar de Atacama.'},
@@ -2192,6 +2192,8 @@ const ID_EMRA={a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,
 const idEmra=id=>ID_EMRA[id]||'';
 // a6 · ex-estanques Codelco/Petrobras: sector «Las Petroleras», entre Mejillones, Ovalle, Elqui y Av. Iquique (23-nov-2026).
 const COORD_FIX={a6:[-23.6230,-70.3900]};
+// Nombres oficiales pedidos por EMRA (Caterina Wilson, 23-nov-2026) mientras se corrigen en Supabase.
+const NOMBRE_FIX={r3:'Doble vía Ruta 5 Tramo Caldera – Antofagasta',r4:'Doble vía Ruta 5 Tramo Antofagasta – Iquique'};
 const idBadge=id=>ID_EMRA[id]?`<span class="id-badge">ID ${ID_EMRA[id]}</span>`:'';
 
 const SB_URL = 'https://tjoveoqolrfxntvvdjwh.supabase.co';
@@ -2338,7 +2340,7 @@ async function loadFromSupabase(){
         gallery: (r.gallery && r.gallery.length) ? r.gallery : null
       }));
       // Coordenadas corregidas (Supabase las tiene redondeadas a 2 decimales y algunas caen en el mar).
-      mapped.forEach(i=>{const c=COORD_FIX[i.id];if(c){i.lat=c[0];i.lng=c[1];}});
+      mapped.forEach(i=>{const c=COORD_FIX[i.id];if(c){i.lat=c[0];i.lng=c[1];}if(NOMBRE_FIX[i.id])i.n=NOMBRE_FIX[i.id];});
       INI.length = 0;
       mapped.forEach(i => INI.push(i));
       ADMIN_INI.length = 0;

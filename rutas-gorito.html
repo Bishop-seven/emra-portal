@@ -1029,7 +1029,8 @@ function aviso(t){ const a=$('aviso'); a.textContent=t; a.classList.add('ver'); 
   fetch(SB,{headers:{apikey:'sb_publishable_CC2mhTuNvau_uoo9myThCw_7milAiHE'}}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(rows=>{
     if (!Array.isArray(rows) || rows.length<10) return; // ante algo raro, se queda con la copia de respaldo
     const terr = c => /Calama/.test(c)?'calama':/Tocopilla/.test(c)?'tocopilla':/Antofagasta/.test(c)?'antofagasta':'regional';
-    const vivos = rows.filter(r=>r.nombre).map(r=>({id:r.id,n:r.nombre,oe:[+String(r.oe).replace(/\D/g,'')||1],t:terr(r.ciudad||''),loc:r.ciudad||'',
+    const NOMBRE_FIX={r3:'Doble vía Ruta 5 Tramo Caldera – Antofagasta',r4:'Doble vía Ruta 5 Tramo Antofagasta – Iquique'}; // nombres oficiales EMRA (23-nov-2026)
+    const vivos = rows.filter(r=>r.nombre).map(r=>({id:r.id,n:NOMBRE_FIX[r.id]||r.nombre,oe:[+String(r.oe).replace(/\D/g,'')||1],t:terr(r.ciudad||''),loc:r.ciudad||'',
       tipo:r.tipo||'',inst:r.responsable||'',d:r.descripcion||'',img:r.image_url||''}));
     const ids = new Set(vivos.map(x=>x.id));
     DATOS.mediano = [...vivos, ...DATOS.mediano.filter(x=>!ids.has(x.id))]; // conserva las locales que aún no están en Supabase
