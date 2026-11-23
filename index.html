@@ -898,7 +898,7 @@ svg{display:block}
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-head">
-      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" style="cursor:pointer" title="Ver portada" onclick="showPortada()" onerror="this.style.display='none'"/>
+      <img src="https://res.cloudinary.com/diajsuwpi/image/upload/v1782361684/emra/tgitb2osvrhuiv1kcauy.png" class="sb-logo" alt="EMRA" style="cursor:pointer" title="EMRA" onclick="if(PORTADA_ACTIVA||verPortadaPrueba())showPortada()" onerror="this.style.display='none'"/>
       <div>
         <div class="sb-title">EMRA <span style="color:var(--e)">2023–2050</span></div>
         <div class="sb-sub">Región de Antofagasta · <span id="app-version"></span></div>
@@ -4298,6 +4298,12 @@ function animarConteo(el){
   }
   requestAnimationFrame(paso);
 }
+// ── PORTADA EN PAUSA (23-nov-2026, pedido EMRA) ──
+// El portal entra directo al mapa. La portada (portada/index.html y la clásica) queda intacta como borrador.
+// Para volver a activarla: cambiar PORTADA_ACTIVA a true.
+// Para verla de prueba sin activarla: abrir https://portal.emra.cl/?portada  (o ?portada=clasica para la clásica).
+const PORTADA_ACTIVA=false;
+const verPortadaPrueba=()=>/[?&]portada\b/.test(location.search);
 function showPortada(){
   const el=document.getElementById('portada');
   // Portada animada (portada/index.html). La portada clásica editable queda en ?portada=clasica
@@ -6824,7 +6830,8 @@ window.addEventListener('load',async()=>{
     else if(location.hash==='#totem'){ openTotem(); }
     else if(location.hash==='#links'){ openLinks(); }
     else if(location.hash==='#mapa'){ /* acceso directo al mapa, sin portada */ }
-    else { showPortada(); }
+    else if(PORTADA_ACTIVA||verPortadaPrueba()){ showPortada(); }
+    /* si la portada está en pausa, se queda en el mapa */
     // Init Leaflet después de que el DOM sea visible
     setTimeout(()=>{
       initMap();
