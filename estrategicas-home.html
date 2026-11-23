@@ -120,14 +120,24 @@ const corta=(t,n)=>t&&t.length>n?t.slice(0,n-1).replace(/[\s,;(]+\S*$/,'')+'…'
 // Proyectos que EMRA pidió no mostrar en este carrusel (23-nov-2026): Instituto Nacional del Litio (69),
 // Corredor Bioceánico · Puerto de Tocopilla (73), Instituto de Tecnologías Limpias (76) y Mecanismos para generación de iniciativas (447).
 const OCULTOS=new Set(['69','73','76','447']);
-const L=D.lista.filter(x=>(PARTE2||x.parte===1)&&!OCULTOS.has(String(x.id))).map(x=>({...x,f:D.fichas[x.id]||{}}));
+const L0=D.lista.filter(x=>(PARTE2||x.parte===1)&&!OCULTOS.has(String(x.id))).map(x=>({...x,f:D.fichas[x.id]||{}}));
+// Proyectos que se muestran juntos en una sola tarjeta (pedido EMRA, 23-nov-2026): ID 1 + ID 2 = Patios Ferroviarios.
+// La tarjeta muestra los dos ID y la actualización más reciente de ambos.
+const UNIR=[{ids:['1','2'],nom:'Plan de Reconversión de Patios Ferroviarios'}];
+const L=L0.filter(x=>!UNIR.some(u=>u.ids.slice(1).includes(String(x.id)))).map(x=>{
+  const u=UNIR.find(u=>u.ids[0]===String(x.id));if(!u)return x;
+  const partes=u.ids.map(i=>L0.find(y=>String(y.id)===i)).filter(Boolean);
+  const act=partes.flatMap(y=>y.f.act||[]).sort((a,b)=>String(b.f||'').localeCompare(String(a.f||'')));
+  return {...x,ids:u.ids,nom:u.nom,f:{...x.f,act}};
+});
+const idsDe=x=>x.ids||[String(x.id)];
 let sel=null;
 
 $('#car').innerHTML=L.map((x,i)=>{
   const f=x.f,u=(f.act||[])[0],k=oe1(f.oe);
   return `<article class="it" role="listitem" data-i="${i}" style="--c:${OEC[k]||'var(--cu)'}">
-    <div class="top"><span class="num" aria-hidden="true">${esc(x.id)}</span>
-      <div class="tags"><span class="tag">${esc(f.oe||'OE'+k)}</span><span class="idr">ID ${esc(x.id)}</span></div>
+    <div class="top"><span class="num" aria-hidden="true">${esc(idsDe(x).join('·'))}</span>
+      <div class="tags"><span class="tag">${esc(f.oe||'OE'+k)}</span>${idsDe(x).map(i=>`<span class="idr">ID ${esc(i)}</span>`).join('')}</div>
       <h3>${esc(x.nom)}</h3></div>
     <div class="bd">
       <div class="meta"><span><b>Zona:</b> ${esc(corta(f.zona,48))}</span><span><b>Institución:</b> ${esc(x.inst)}</span></div>
@@ -167,7 +177,7 @@ function ficha(x){
   const f=x.f,[u,...hist]=f.act||[];
   const fila=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
   return `<button class="x" id="det-x" aria-label="Cerrar ficha">×</button>
-    <div class="tags"><span class="tag">${esc(f.oe||'')}</span><span class="idr">ID ${esc(x.id)}</span></div>
+    <div class="tags"><span class="tag">${esc(f.oe||'')}</span>${idsDe(x).map(i=>`<span class="idr">ID ${esc(i)}</span>`).join('')}</div>
     <h4>${esc(x.nom)}</h4>
     <div class="fcp">
       <div><h5>Ficha de la iniciativa</h5><dl>${fila('Institución',x.inst)}${fila('Responsable',f.resp)}${fila('Plazo',f.plazo)}${fila('Tipo',f.tipo)}${fila('Zona',f.zona)}${fila('Objetivo',f.oe)}
