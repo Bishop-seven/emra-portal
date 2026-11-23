@@ -278,7 +278,7 @@ button.link{border:0}
       <div>
         <div class="kick" style="--c:var(--oe3)">Mediano plazo · al 2035</div>
         <h3 id="exp-t">Explora las 37 iniciativas</h3>
-        <p>Filtra por ciudad, por responsable (Gobierno Regional o Gobierno central) o por objetivo estratégico (OE). Toca un punto del mapa o una iniciativa de la lista para ver su ficha.</p>
+        <p>Filtra por ciudad, por responsable (Gobierno Regional, municipalidades o Gobierno central) o por objetivo estratégico (OE). Toca un punto del mapa o una iniciativa de la lista para ver su ficha.</p>
       </div>
       <button class="x" id="exp-x" aria-label="Cerrar el explorador de iniciativas">×</button>
     </div>
@@ -495,11 +495,13 @@ ir(0);
 
 // ══ EXPLORADOR DE INICIATIVAS ══
 const F={c:'',g:'',oe:0,q:'',vista:'map',sel:null};
-// 30 iniciativas en que la región se puso de acuerdo (Gobierno Regional) y 7 estratégicas de responsabilidad del Gobierno central,
-// según la lámina «Resumen de propuestas de alianzas estratégicas» (EMRA · GORE · Clúster Minero).
+// Responsable de cada iniciativa, según las láminas de alianzas estratégicas (EMRA · GORE · Clúster Minero):
+// Gobierno Regional 8 · I.M. Antofagasta 8 · I.M. Calama 7 · I.M. Tocopilla 7 (= 30 acuerdo regional) + Gobierno central 7.
 const CENTRAL=new Set(['r9','r3','r4','r5','r6','r7','r8']);
-const GRUPO=x=>CENTRAL.has(x.id)?'central':'regional';
-const GRUPOS=[['regional','Gobierno Regional'],['central','Gobierno central']];
+const GRUPO=x=>CENTRAL.has(x.id)?'central':({a:'antofagasta',c:'calama',t:'tocopilla'})[x.id[0]]||'gore';
+const GRUPOS=[['gore','Gobierno Regional','GORE'],['antofagasta','I.M. Antofagasta','I.M. Antofagasta'],['calama','I.M. Calama','I.M. Calama'],['tocopilla','I.M. Tocopilla','I.M. Tocopilla'],['central','Gobierno central','Gob. central']];
+const GRUPO_TXT={gore:'Gobierno Regional de Antofagasta (iniciativa estratégica regional)',antofagasta:'Ilustre Municipalidad de Antofagasta',calama:'Ilustre Municipalidad de Calama',tocopilla:'Ilustre Municipalidad de Tocopilla',central:'Gobierno central; la región se compromete a apoyarla'};
+const grupoCorto=x=>GRUPOS.find(g=>g[0]===GRUPO(x))[2];
 let mapa=null,capa=null,marcas={};
 const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 
@@ -569,10 +571,10 @@ function vista(v){
 const visibles=()=>INICIATIVAS.filter(x=>(!F.c||x.c===F.c)&&(!F.g||GRUPO(x)===F.g)&&(!F.oe||x.oe===F.oe)&&(!F.q||norm(x.n+' '+x.tipo+' '+x.d+' '+(ID_REPO[x.id]||'')).includes(F.q)));
 
 function ficha(x){
-  return `<dl class="dl"><dt>Tipo</dt><dd>${esc(x.tipo)}</dd>${ID_REPO[x.id]?`<dt>ID repositorio</dt><dd>N° ${ID_REPO[x.id]}</dd>`:''}<dt>Horizonte</dt><dd>Mediano plazo · al 2035</dd><dt>Compromiso</dt><dd>${GRUPO(x)==='central'?'Responsabilidad del Gobierno central; la región se compromete a apoyarla':'Acuerdo regional: la región la construye en conjunto (Gobierno Regional)'}</dd><dt>Responsables</dt><dd>${esc(x.resp)}</dd></dl>`;
+  return `<dl class="dl"><dt>Tipo</dt><dd>${esc(x.tipo)}</dd>${ID_REPO[x.id]?`<dt>ID repositorio</dt><dd>N° ${ID_REPO[x.id]}</dd>`:''}<dt>Horizonte</dt><dd>Mediano plazo · al 2035</dd><dt>Responsable EMRA</dt><dd>${GRUPO_TXT[GRUPO(x)]}</dd><dt>Responsables</dt><dd>${esc(x.resp)}</dd></dl>`;
 }
 function meta(x){
-  return `<span class="meta"><span class="tag">OE${x.oe}</span>${ID_REPO[x.id]?`<span class="idr" title="ID en el repositorio EMRA">ID ${ID_REPO[x.id]}</span>`:''}${GRUPO(x)==='central'?'<span class="gc" title="Iniciativa de responsabilidad del Gobierno central">Gob. central</span>':''}${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</span>`;
+  return `<span class="meta"><span class="tag">OE${x.oe}</span>${ID_REPO[x.id]?`<span class="idr" title="ID en el repositorio EMRA">ID ${ID_REPO[x.id]}</span>`:''}<span class="gc" title="Responsable: ${esc(GRUPO_TXT[GRUPO(x)])}">${grupoCorto(x)}</span>${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</span>`;
 }
 function pintar(reencuadrar){
   const L=visibles();
