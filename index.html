@@ -996,7 +996,34 @@ svg{display:block}
 #sidebar [style*="color:#fff"],#sidebar [style*="color: #fff"],#sidebar [style*="color:white"]{color:var(--ink)!important}
 #sidebar [style*="color:rgba(200,220,235"],#sidebar [style*="color:rgba(220,235,245"],#sidebar [style*="color:#e2e8f0"]{color:var(--tx)!important}
 #sidebar [style*="color:rgba(148,180,200"]{color:var(--mut)!important}
-#sidebar [style*="background:#0"],#sidebar [style*="background:rgba(11,25,41"],#sidebar [style*="background:rgba(8,18,32"]{background:var(--card)!important}
+#sidebar [style*="background:#0f1e2e"],#sidebar [style*="background:#0a1624"],#sidebar [style*="background:#0B1929"],#sidebar [style*="background:#112236"],#sidebar [style*="background:#060e18"],#sidebar [style*="background:rgba(11,25,41"],#sidebar [style*="background:rgba(8,18,32"]{background:var(--card)!important}
+
+/* Capas */
+.capas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.capa{display:flex;gap:9px;align-items:flex-start;text-align:left;border:1.5px solid var(--bd);background:#fff;border-radius:12px;padding:9px 10px;cursor:pointer;color:var(--tx)}
+.capa b{display:block;font-size:13.5px;color:var(--ink);line-height:1.2}
+.capa small{display:block;font-size:11.5px;color:var(--mut);line-height:1.3;margin-top:2px}
+.capa .ck{flex:none;width:18px;height:18px;border-radius:5px;border:2px solid #cfc3b7;margin-top:1px;display:grid;place-items:center}
+.capa[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.capa[aria-pressed="true"] .ck{background:var(--ink);border-color:var(--ink)}
+.capa[aria-pressed="true"] .ck:after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+#sidebar .chip .sq{width:10px;height:10px;border-radius:3px}
+[hidden]{display:none!important}
+.cp-thumb{width:92px;height:66px;border-radius:8px;background:var(--c);display:grid;place-items:center}
+.cp-thumb svg{width:30px;height:30px}
+.cp-thumb.sm{width:54px;height:40px;border-radius:6px;flex:none}.cp-thumb.sm svg{width:20px;height:20px}
+.ini-cmp-sp{flex:none;width:38px}
+.cp-tag{font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--ink);background:#fff;border:1.5px dashed #b9ab9d;border-radius:4px;padding:0 6px}
+#ficha .f-tags .cp-tag{font-size:13px;padding:3px 9px;border-radius:6px}
+.pin-cp{border-radius:7px;background:var(--c);border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:grid;place-items:center;transition:transform .15s;cursor:pointer}
+.pin-cp svg{width:62%;height:62%}
+.pin-cp.aprox{border-style:dashed}
+.pin-cp.on{box-shadow:0 0 0 6px rgba(31,26,22,.2),0 2px 8px rgba(0,0,0,.3)}
+.pin-cp.hov{transform:scale(1.35)}
+#ficha .cp-cover{aspect-ratio:16/9;background:var(--c);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-weight:800;font-size:17px}
+#ficha .cp-cover svg{width:72px;height:72px;opacity:.95}
+#ficha .cp-aprox{margin-top:12px;font-size:13.5px;color:var(--mut);background:var(--card);border-radius:8px;padding:8px 10px}
+#ficha .cp-plat{display:inline-block;margin-top:12px;font-size:14px;font-weight:700;color:var(--e)}
 
 /* Mapa */
 #map-area{background:#e9e9e7}
@@ -1147,14 +1174,18 @@ svg{display:block}
       <!-- Tab Lista -->
       <div id="pnl-l">
         <button class="sheet-h" onclick="document.getElementById('sidebar').classList.toggle('max')" aria-label="Agrandar o achicar la lista"></button>
-        <h1 class="ph-t" id="ini-h">Iniciativas de mediano plazo</h1>
-        <p class="ph-p">Diseño al 2035. Toca una en la lista o en el mapa para ver su ficha.</p>
+        <h1 class="ph-t" id="ini-h">Iniciativas EMRA</h1>
+        <p class="ph-p" id="ini-hp">Mediano plazo y corto plazo OE1.</p>
+        <div class="flt-lbl">Capas del mapa</div>
+        <div class="capas" id="capas"></div>
         <div class="search-wrap">
           <span class="search-ico">&#xe592;</span>
           <input id="search-q" type="search" placeholder="Busca por nombre, comuna o ID (ej. 594)" aria-label="Buscar iniciativa" oninput="applyFilters()"/>
         </div>
-        <div class="flt-lbl">Objetivo estratégico</div>
+        <div class="flt-lbl" id="oe-lbl">Objetivo estratégico · mediano plazo</div>
         <div class="oe-pills" id="oe-pills"></div>
+        <div class="flt-lbl" id="sector-lbl">Tipo · corto plazo</div>
+        <div class="oe-pills" id="sector-pills"></div>
         <div class="flt-lbl">Territorio</div>
         <div class="oe-pills" id="city-chips"></div>
         <div class="city-box" hidden>
@@ -1643,6 +1674,8 @@ function renderMarkers(){
   markersLayer=[];
 
   const visible=INI.filter(i=>{
+    if(!CAPAS.mp)return false;
+    if(sectorFilter)return false;
     if(activeOE&&!i.oe.includes(activeOE))return false;
     if(cityFilter&&i.c!==cityFilter)return false;
     return true;
@@ -1706,6 +1739,14 @@ function renderMarkers(){
     marker.on('click',()=>openFicha(ini.id));
     clusterGroup.addLayer(marker);
     markersLayer.push(marker);
+  });
+  // Capa corto plazo OE1: íconos cuadrados por tipo (salud, agua, educación)
+  CP.filter(cpVisible).forEach(i=>{
+    const m=L.marker([i.lat,i.lng],{icon:cpIcon(i,highlighted.has(i.id)),alt:i.n});
+    m._emraOE='OE 1';m._emraId=i.id;
+    m.bindTooltip(`ID ${i.idE} · ${i.n}`,{className:'pin-tt',direction:'top',offset:[0,-8]});
+    m.on('click',()=>openFicha(i.id));
+    clusterGroup.addLayer(m);markersLayer.push(m);
   });
 
   map.addLayer(clusterGroup);
@@ -1773,7 +1814,6 @@ function switchTab(id){
 let _filterTimer=null;
 function applyFilters(){
   searchQ=document.getElementById('search-q').value.toLowerCase();
-  cityFilter=document.getElementById('city-sel').value;
   renderList();
   // Debounce markers re-render (evita re-render en cada tecla)
   clearTimeout(_filterTimer);
@@ -1782,29 +1822,44 @@ function applyFilters(){
 
 function renderOEPills(){
   const n=o=>INI.filter(i=>i.oe&&i.oe.includes(o)).length;
+  const cap=document.getElementById('capas');
+  if(cap)cap.innerHTML=`<button class="capa" aria-pressed="${CAPAS.mp}" onclick="setCapa('mp')"><span class="ck"></span><span><b>Mediano plazo</b><small>${INI.length} iniciativas · al 2035</small></span></button>
+    <button class="capa" aria-pressed="${CAPAS.cp}" onclick="setCapa('cp')"><span class="ck"></span><span><b>Corto plazo OE1</b><small>${CP.length} proyectos · salud, agua y educación</small></span></button>`;
+  const sp=document.getElementById('sector-pills'),sl=document.getElementById('sector-lbl');
+  if(sp){sp.hidden=sl.hidden=!CAPAS.cp;const ns=x=>CP.filter(i=>i.sector===x).length;
+    sp.innerHTML=`<button class="chip" aria-pressed="${!sectorFilter}" onclick="setSector(null)">Todos <span class="n">${CP.length}</span></button>`
+      +Object.keys(SECTOR_CP).map(x=>`<button class="chip" aria-pressed="${sectorFilter===x}" onclick="setSector('${x}')"><span class="sq" style="background:${SECTOR_CP[x].c}"></span>${x==='Agua'?'Agua potable':x} <span class="n">${ns(x)}</span></button>`).join('');}
+  const oeL=document.getElementById('oe-lbl');if(oeL)oeL.hidden=!CAPAS.mp;
+  document.getElementById('oe-pills').hidden=!CAPAS.mp;
   document.getElementById('oe-pills').innerHTML=
     `<button class="chip" aria-pressed="${!activeOE}" onclick="setOE(null)">Todos <span class="n">${INI.length}</span></button>`
     +Object.entries(OE_COLORS).filter(([o])=>n(o)).map(([o,c])=>`<button class="chip" aria-pressed="${activeOE===o}" onclick="setOE('${o}')"><span class="d" style="background:${c}"></span>${o.replace(' ','')} ${OE_LIT[o].c} <span class="n">${n(o)}</span></button>`).join('');
   const cc=document.getElementById('city-chips');
-  if(cc){const nc=t=>INI.filter(i=>i.c===t).length;
+  if(cc){const nc=t=>(CAPAS.mp?INI.filter(i=>i.c===t).length:0)+(CAPAS.cp?CP.filter(i=>i.c===t).length:0);
+    const ters=[...new Set([...(CAPAS.mp?TERRITORIOS:[]),...(CAPAS.cp?CP.map(i=>i.c):[])])].sort((a,b)=>nc(b)-nc(a));
     cc.innerHTML=`<button class="chip" aria-pressed="${!cityFilter}" onclick="setCity('')">Todos</button>`
-      +TERRITORIOS.filter(t=>nc(t)).map(t=>`<button class="chip" aria-pressed="${cityFilter===t}" onclick="setCity('${t}')">${t} <span class="n">${nc(t)}</span></button>`).join('');}
+      +ters.filter(t=>nc(t)).map(t=>`<button class="chip" aria-pressed="${cityFilter===t}" onclick="setCity('${t}')">${t} <span class="n">${nc(t)}</span></button>`).join('');}
 }
-function setCity(t){document.getElementById('city-sel').value=t;applyFilters();renderOEPills();}
-function limpiarFiltros(){activeOE=null;document.getElementById('search-q').value='';setCity('');renderMarkers();}
+function setCity(t){cityFilter=t;applyFilters();renderOEPills();}
+function limpiarFiltros(){activeOE=null;sectorFilter=null;document.getElementById('search-q').value='';setCity('');renderMarkers();}
 function setOE(o){activeOE=o;renderOEPills();renderList();renderMarkers()}
 
 function renderList(){
   let l=INI.filter(i=>{
+    if(!CAPAS.mp||sectorFilter)return false;
     if(activeOE&&!i.oe.includes(activeOE))return false;
     if(cityFilter&&i.c!==cityFilter)return false;
     if(searchQ&&!i.n.toLowerCase().includes(searchQ)&&!i.c.toLowerCase().includes(searchQ)&&String(idEmra(i.id))!==searchQ.trim().replace(/^id\s*/,''))return false; // también busca por ID EMRA («594» o «ID 594»)
     return true;
   });
-  const filtro=!!(activeOE||cityFilter||searchQ);
-  document.getElementById('ini-count').textContent=filtro?`${l.length} de ${INI.length} iniciativas`:`Mostrando las ${INI.length}`;
+  const lcp=CP.filter(cpVisible);
+  const total=(CAPAS.mp?INI.length:0)+(CAPAS.cp?CP.length:0);
+  const filtro=!!(activeOE||cityFilter||searchQ||sectorFilter);
+  document.getElementById('ini-count').textContent=filtro?`${l.length+lcp.length} de ${total}`:`Mostrando ${total===1?'1':'las '+total}`;
   const clr=document.getElementById('ini-clr');if(clr)clr.hidden=!filtro;
-  const h=document.getElementById('ini-h');if(h)h.textContent=`${INI.length} iniciativas de mediano plazo`;
+  const h=document.getElementById('ini-h'),hp=document.getElementById('ini-hp');
+  if(h)h.textContent=CAPAS.mp&&CAPAS.cp?`${INI.length+CP.length} iniciativas EMRA`:CAPAS.mp?`${INI.length} iniciativas de mediano plazo`:`${CP.length} proyectos de corto plazo OE1`;
+  if(hp)hp.textContent=CAPAS.mp&&CAPAS.cp?'Mediano plazo (diseño al 2035) y Alianza estratégica de corto plazo OE1. Elige qué capas ver.':CAPAS.mp?'Diseño al 2035. Toca una en la lista o en el mapa para ver su ficha.':'Salud, agua potable y educación, impulsados por el Gobierno Regional junto a empresas e instituciones.';
   const abierta=document.getElementById('ficha-wrap').classList.contains('on')?[...highlighted][0]:null;
   document.getElementById('ini-list').innerHTML=l.map(i=>{
     const isSel=selCmp.includes(i.id);
@@ -1817,7 +1872,15 @@ function renderList(){
       </button>
       <button class="ini-cmp" onclick="toggleCmp('${i.id}')" aria-pressed="${isSel}" title="${isSel?'Quitar de la comparación':'Agregar a la comparación (máx. 3)'}" ${!isSel&&selCmp.length>=3?'disabled':''}>${isSel?selCmp.indexOf(i.id)+1:'+'}</button>
     </div>`;
-  }).join('')||'<p class="ini-empty">No hay iniciativas con esos filtros.</p>';
+  }).join('')+lcp.map(i=>{const sc=sectorCP(i.sector);return`<div class="ini-row" style="--c:${sc.c}" ${abierta===i.id?'aria-current="true"':''}>
+      <button class="ini-open" onclick="openFicha('${i.id}')" onmouseenter="pinHover('${i.id}',1)" onmouseleave="pinHover('${i.id}',0)">
+        <span class="cp-thumb" style="--c:${sc.c}"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${sc.svg}</svg></span>
+        <span class="ini-txt"><span class="ini-tags"><span class="cp-tag">Corto plazo</span><span class="id-badge">ID ${i.idE}</span></span>
+        <span class="ini-card-title">${i.n}</span>
+        <span class="ini-card-loc">${i.c}${i.loc!==i.c?' · '+i.loc:''} · ${sc.t}</span></span>
+      </button><span class="ini-cmp-sp"></span>
+    </div>`;}).join('');
+  if(!l.length&&!lcp.length)document.getElementById('ini-list').innerHTML='<p class="ini-empty">No hay iniciativas con esos filtros.</p>';
 }
 
 function renderStats(){
@@ -1871,6 +1934,7 @@ function renderGallery(){
 // FICHA
 // ═══════════════════════════════════════════════════════
 function openFicha(id){
+  if(String(id).startsWith('cp'))return openFichaCP(id);
   const i=INI.find(x=>x.id===id);if(!i)return;
   hideTooltip();highlighted=new Set([id]);renderMarkers();
   if(map) map.flyTo([i.lat,i.lng],13,{duration:1});
@@ -1929,6 +1993,46 @@ function openFicha(id){
   if(gBtn) gBtn.dataset.ini = i.n;
 }
 function closeFicha(){document.getElementById('ficha-wrap').classList.remove('on');document.getElementById('app').classList.remove('ficha-on');highlighted=new Set();renderMarkers();renderList()}
+function openFichaCP(id){
+  const i=CP.find(x=>x.id===id);if(!i)return;
+  highlighted=new Set([id]);renderMarkers();
+  if(map)map.flyTo([i.lat,i.lng],i.aprox?13:11,{duration:1});
+  const sc=sectorCP(i.sector),lit=OE_LIT['OE 1'];
+  const enc=i.enc==='DISPONIBLE'?'Disponible: aún sin institución a cargo del diseño':i.enc==='PRIVADOS'?'Empresas privadas':i.enc;
+  const rel=CP.filter(x=>x.id!==id&&(x.loc===i.loc||x.c===i.c)).slice(0,4);
+  document.getElementById('ficha').innerHTML=`
+    <div class="fh"><div class="cp-cover" style="--c:${sc.c}"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${sc.svg}</svg><span>${sc.t}</span></div>
+      <button class="fh-close" onclick="closeFicha()" aria-label="Cerrar ficha">✕</button></div>
+    <div class="fb">
+      <div class="f-tags"><span class="oe-badge" style="background:${oec('OE 1')}">OE1</span><span class="id-badge">ID ${i.idE}</span><span class="cp-tag">Corto plazo</span></div>
+      <h2 class="fh-title">${i.n}</h2>
+      <a class="f-obj" href="${lit.u}" target="_blank" rel="noopener" style="--c:${oec('OE 1')}"><b>Objetivo Estratégico 1:</b> ${lit.t}</a>
+      <div class="fmeta">
+        <div class="fmeta-item"><div class="fmeta-label">Localidad</div><div class="fmeta-val">${i.loc}</div></div>
+        <div class="fmeta-item"><div class="fmeta-label">Comuna</div><div class="fmeta-val">${i.c}</div></div>
+        <div class="fmeta-item"><div class="fmeta-label">Tipo</div><div class="fmeta-val">${sc.t}</div></div>
+        <div class="fmeta-item"><div class="fmeta-label">Plazo</div><div class="fmeta-val">Corto plazo</div></div>
+        <div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Encargado del diseño</div><div class="fmeta-val">${enc}</div></div>
+      </div>
+      <div class="fsec">Proyecto</div>
+      <div class="fdesc">${i.p}. Forma parte de la Alianza estratégica de corto plazo OE1: proyectos de salud, agua potable y educación que el Gobierno Regional impulsa junto a empresas mineras y otras instituciones.</div>
+      ${i.aprox?`<p class="cp-aprox">📍 Ubicación aproximada: el punto indica ${i.loc===i.c?'la ciudad de '+i.c:i.loc+' ('+i.c+')'}, no la dirección exacta del proyecto.</p>`:''}
+      <a class="cp-plat" href="https://www.emra.cl/plataforma_gestion/" target="_blank" rel="noopener">Ver el avance de la ID ${i.idE} en la Plataforma de gestión →</a>
+      ${rel.length?`<div class="fsec" style="margin-top:14px">También en ${rel[0].loc===i.loc?i.loc:i.c}</div>
+      ${rel.map(r=>`<div class="frel-item" onclick="openFicha('${r.id}')"><span class="cp-thumb sm" style="--c:${sectorCP(r.sector).c}"><svg viewBox="0 0 24 24" fill="#fff">${sectorCP(r.sector).svg}</svg></span>
+        <div><div class="frel-name">${r.n}</div><div class="frel-city">ID ${r.idE} · ${sectorCP(r.sector).t}</div></div><span style="color:var(--sbm);font-size:16px;margin-left:auto">›</span></div>`).join('')}`:''}
+      <div class="fact">
+        <button class="f-btn f-btn-s" onclick="closeFicha()">Cerrar</button>
+        <button class="f-btn f-btn-p" id="gorito-ficha-btn" data-ini="" onclick="presuntaGorito(this)"><img src="" id="gorito-ficha-btn-img" style="width:18px;height:18px;object-fit:contain;display:inline-block;vertical-align:middle" alt=""/> Pregúntale a Gorito ↗</button>
+      </div>
+    </div>`;
+  document.getElementById('ficha-wrap').classList.add('on');
+  document.getElementById('app').classList.add('ficha-on');
+  document.getElementById('ficha').scrollTop=0;
+  renderList();
+  const gfb=document.getElementById('gorito-ficha-btn-img');if(gfb&&window._goritoReady)gfb.src=GORITO_URL;
+  const gBtn=document.getElementById('gorito-ficha-btn');if(gBtn)gBtn.dataset.ini=i.n+' (corto plazo, ID '+i.idE+')';
+}
 // Resalta el punto del mapa al pasar por una fila de la lista
 function pinHover(id,on){const m=(markersLayer||[]).find(x=>x._emraId===id);const el=m&&m.getElement&&m.getElement();if(el&&el.firstChild)el.firstChild.classList.toggle('hov',!!on);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('ficha-wrap')?.classList.contains('on'))closeFicha();});
@@ -2192,6 +2296,54 @@ const ID_EMRA={a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,
 const idEmra=id=>ID_EMRA[id]||'';
 // a6 · ex-estanques Codelco/Petrobras: sector «Las Petroleras», entre Mejillones, Ovalle, Elqui y Av. Iquique (23-nov-2026).
 const COORD_FIX={a6:[-23.6230,-70.3900]};
+
+// ── CAPA CORTO PLAZO OE1 (23-nov-2026) ──
+// Cartera de 46 proyectos de la Alianza estratégica de corto plazo (window.EMRA_CARTERA_CP, emra-conocimiento.js).
+// No hay coordenadas oficiales: se ubican en su LOCALIDAD (OpenStreetMap; Río Grande, Chiu-Chiu y San Pedro corregidos a mano).
+// En ciudades (Antofagasta, Calama, San Pedro de Atacama) se reparten cerca del centro y se marcan «ubicación aproximada».
+const LOC_CP={'Socaire':[-23.5902,-67.8903],'Camar':[-23.4072,-67.9612],'Talabre':[-23.3156,-67.8903],'Río Grande':[-22.6512,-68.1673],
+  'Caspana':[-22.3347,-68.2129],'Ayquina':[-22.2792,-68.3221],'Ayquina y Turi':[-22.2792,-68.3221],'Baquedano':[-23.3338,-69.8435],'Chiu-Chiu':[-22.3429,-68.6500],
+  'Ollagüe':[-21.2242,-68.2535],'Quillagua':[-21.6600,-69.5350],'Antofagasta':[-23.6464,-70.3980],'María Elena':[-22.3451,-69.6618],'Sierra Gorda':[-22.8917,-69.3200],
+  'San Pedro de Atacama':[-22.9108,-68.2001],'Toconao':[-23.1905,-68.0070],'Paposo':[-25.0094,-70.4653],'Ayllú de Solor':[-22.9462,-68.1857],'Peine':[-23.6836,-68.0617],
+  'Lasana':[-22.2693,-68.6316],'Calama':[-22.4624,-68.9272],'Taltal':[-25.4078,-70.4858],'Toconce':[-22.2646,-68.1663]};
+const CIUDAD_CP=new Set(['Antofagasta','Calama','San Pedro de Atacama']);
+const SECTOR_CP={'Salud':{c:'#D9485F',t:'Salud',svg:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>'},
+  'Agua':{c:'#0090D4',t:'Agua potable y alcantarillado',svg:'<path d="M12 2.5S5 10.2 5 14.6A7 7 0 0 0 19 14.6C19 10.2 12 2.5 12 2.5z"/>'},
+  'Educación':{c:'#7A5AF8',t:'Educación',svg:'<path d="M12 3 1 9l11 6 9-4.9V17h2V9z"/><path d="M5 13.2v3.6L12 21l7-4.2v-3.6L12 17z"/>'}};
+const sectorCP=s=>SECTOR_CP[s]||SECTOR_CP['Salud'];
+let CP=[];
+const CAPAS={mp:true,cp:true};
+let sectorFilter=null;
+function buildCP(){
+  const L=window.EMRA_CARTERA_CP||[],k={};
+  CP=L.map(x=>{
+    const b=LOC_CP[x.loc]||LOC_CP[x.com]||[-23.6464,-70.398];
+    const i=(k[x.loc]=(k[x.loc]||0)+1)-1, aprox=CIUDAD_CP.has(x.loc)||!LOC_CP[x.loc];
+    const r=aprox?0.007*Math.sqrt(i+1):(i?0.0015*Math.sqrt(i):0), a=i*2.39996;
+    const base=String(x.p||'').split(' · ')[0];
+    return {id:'cp'+x.id,idE:+x.id,cp:true,oe:'OE 1',sector:x.s,p:x.p,loc:x.loc,c:x.com,enc:x.enc,
+      n:base+(base.includes(x.loc)?'':' · '+x.loc),lat:b[0]+r*Math.cos(a),lng:b[1]+r*Math.sin(a)*1.1,aprox};
+  });
+}
+function cpVisible(i){
+  if(!CAPAS.cp)return false;
+  if(activeOE&&activeOE!=='OE 1')return false;
+  if(sectorFilter&&i.sector!==sectorFilter)return false;
+  if(cityFilter&&i.c!==cityFilter)return false;
+  if(searchQ){const q=searchQ.trim().replace(/^id\s*/,'');if(!(i.n+' '+i.p+' '+i.loc+' '+i.c).toLowerCase().includes(searchQ)&&String(i.idE)!==q)return false;}
+  return true;
+}
+function cpIcon(i,hl){
+  const sc=sectorCP(i.sector),d=hl?34:26;
+  return L.divIcon({className:'',html:`<div class="pin-cp${hl?' on':''}${i.aprox?' aprox':''}" style="--c:${sc.c};width:${d}px;height:${d}px"><svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true">${sc.svg}</svg></div>`,iconSize:[d,d],iconAnchor:[d/2,d/2]});
+}
+function setCapa(k){
+  const otro=k==='mp'?'cp':'mp';
+  CAPAS[k]=!CAPAS[k]; if(!CAPAS[k]&&!CAPAS[otro])CAPAS[otro]=true; // siempre al menos una capa
+  if(!CAPAS.cp)sectorFilter=null; if(!CAPAS.mp&&activeOE&&activeOE!=='OE 1')activeOE=null;
+  renderOEPills();renderList();renderMarkers();
+}
+function setSector(s){sectorFilter=s;renderOEPills();renderList();renderMarkers();}
 // Nombres oficiales pedidos por EMRA (Caterina Wilson, 23-nov-2026) mientras se corrigen en Supabase.
 const NOMBRE_FIX={r3:'Doble vía Ruta 5 Tramo Caldera – Antofagasta',r4:'Doble vía Ruta 5 Tramo Antofagasta – Iquique'};
 const idBadge=id=>ID_EMRA[id]?`<span class="id-badge">ID ${ID_EMRA[id]}</span>`:'';
@@ -7088,6 +7240,7 @@ function resetAll(){
 // ═══════════════════════════════════════════════════════
 window.addEventListener('load',async()=>{
   await loadFromSupabase();
+  buildCP();
   renderOEPills();renderList();
   setTimeout(()=>{
     document.getElementById('loading').style.display='none';
@@ -7111,7 +7264,7 @@ window.addEventListener('load',async()=>{
     renderEmraTab();
     renderChatSugs();
     // Rediseño: el mapa parte encuadrando las iniciativas
-    setTimeout(()=>{try{const m=innerWidth<=768;if(map&&INI.length)map.fitBounds(L.latLngBounds(INI.map(i=>[i.lat,i.lng])),{paddingTopLeft:[30,30],paddingBottomRight:[30,m?Math.round(innerHeight*.46)+20:30]});}catch(e){}},300);
+    setTimeout(()=>{try{const m=innerWidth<=768;if(map&&INI.length)map.fitBounds(L.latLngBounds([...INI,...CP].map(i=>[i.lat,i.lng])),{paddingTopLeft:[30,30],paddingBottomRight:[30,m?Math.round(innerHeight*.46)+20:30]});}catch(e){}},300);
     const wOes=document.getElementById('welcome-oes');
     if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
