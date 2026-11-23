@@ -276,7 +276,7 @@ button.link{border:0}
     <div class="exp-h">
       <div>
         <div class="kick" style="--c:var(--oe3)">Mediano plazo · al 2035</div>
-        <h3 id="exp-t">Explora las 41 iniciativas</h3>
+        <h3 id="exp-t">Explora las 37 iniciativas</h3>
         <p>Filtra por ciudad o por objetivo estratégico (OE). Toca un punto del mapa o una iniciativa de la lista para ver su ficha.</p>
       </div>
       <button class="x" id="exp-x" aria-label="Cerrar el explorador de iniciativas">×</button>
@@ -372,7 +372,7 @@ button.link{border:0}
       <thead><tr><th>N°</th><th>ID EMRA</th><th>Proyecto</th><th>Localidad</th><th>Comuna</th><th>Encargado del diseño</th></tr></thead>
       <tbody id="cp-tb"></tbody>
     </table></div>
-    <p class="cp-nota">Toca un proyecto para ver su ficha y su última actualización. La información completa está en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
+    <p class="cp-nota">Para consultar el avance de cada proyecto, revisa su <b>ID EMRA</b> en la <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Plataforma de gestión – EMRA 2023-2050 →</a></p>
   </section>
 </div>
 
@@ -397,10 +397,10 @@ const VIDEOS=[
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
    texto:'Diseño de mediano plazo al 2035: la EMRA busca dar un salto en el desarrollo urbano de nuestras capitales provinciales. En este ámbito, 30 son las iniciativas en que nos hemos puesto de acuerdo como región y queremos construir juntos, y 7 son las iniciativas estratégicas de responsabilidad del Gobierno, donde la región asume el compromiso de apoyar iniciativas regionales estratégicas que dependen del nivel central.',
    lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
-   cta:['Explora las 41 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
+   cta:['Explora las 37 iniciativas','#iniciativas']}  // '#iniciativas' abre el explorador aquí mismo (8-nov)
 ];
 
-// Las 41 iniciativas (37 + 4 alianzas MP del Excel): copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
+// Las 37 iniciativas: copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
 // Al abrir el explorador se recargan en vivo desde Supabase (fotos y textos editados en el admin del portal).
 // Todas son de mediano plazo (al 2035); aún no hay iniciativas de corto plazo en el mapa.
 // oe: número de objetivo · c: ciudad ("Regional" = abarca varias comunas) · lat/lng para el mapa.
@@ -442,20 +442,15 @@ const INICIATIVAS=[
   {"id": "c5", "n": "Centro Recreacional Ojo de Opache", "oe": 1, "c": "Calama", "lat": -22.48, "lng": -69.0, "tipo": "Turismo y recreación", "resp": "Municipio · GORE · SERNATUR", "d": "Centro recreacional en el oasis Ojo de Opache, aprovechando el ecosistema natural para crear un destino turístico regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366495/emra/xtnwsjgzvf5cfx1h5pj3.webp", "gal": []},
   {"id": "c6", "n": "ARENAS Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.92, "tipo": "Equipamiento deportivo-cultural", "resp": "Municipio · GORE · Privados", "d": "Recinto multiuso tipo arena en Calama para eventos deportivos, culturales y de entretenimiento de escala regional.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782366193/emra/lowhdpqvaqdpsxoxvcsf.webp", "gal": ["https://res.cloudinary.com/diajsuwpi/image/upload/v1782422465/emra/gii4u0j0lkmt1sgkctev.webp"]},
   {"id": "c7", "n": "Museo Interactivo Calama", "oe": 1, "c": "Calama", "lat": -22.45, "lng": -68.93, "tipo": "Equipamiento cultural", "resp": "Municipio · Ministerio Culturas", "d": "Museo interactivo que difunde el patrimonio minero, cultural y natural de la región de Antofagasta.", "img": "https://res.cloudinary.com/diajsuwpi/image/upload/v1782367093/emra/twrk0dtr2r95g38wnzfh.webp", "gal": []},
-  {"id": "c8", "n": "Avenida FFCC – Circunvalación Calama", "oe": 1, "c": "Calama", "lat": -22.465, "lng": -68.915, "tipo": "Vialidad estructural", "resp": "MINVU · SERVIU", "d": "Vialidad estructurante de Calama con ingeniería de detalle terminada por SERVIU: la Avenida FFCC, que se extiende entre Avenida Balmaceda y Avenida Circunvalación.", "img": "", "gal": []},
-  {"id": "c9", "n": "Centro de Atención del Cáncer Calama", "oe": 1, "c": "Calama", "lat": -22.457, "lng": -68.928, "tipo": "Infraestructura de salud", "resp": "GORE · Municipio Calama · SSA", "d": "Centro de atención del cáncer acreditado internacionalmente en Calama, con convenios entre el centro y las mineras para atender a sus trabajadores y un fondo para la atención de la población en general.", "img": "", "gal": []},
-  {"id": "r16", "n": "Estudio doble calzada Tocopilla – Jama", "oe": 1, "c": "Regional", "lat": -22.6, "lng": -68.55, "tipo": "Vialidad regional", "resp": "MOP · Vialidad · GORE", "d": "Estudio de prefactibilidad de una doble calzada entre Tocopilla y Paso Jama, pasando por María Elena, Calama y San Pedro de Atacama. Parte del Convenio de Programación GORE–MOP 2025-2035.", "img": "", "gal": []},
-  {"id": "r17", "n": "Áreas de servicio Corredor Bioceánico Capricornio", "oe": 3, "c": "Regional", "lat": -22.27, "lng": -69.56, "tipo": "Infraestructura logística", "resp": "MOP · Vialidad · GORE", "d": "Cuatro áreas de descanso para camioneros del Corredor Bioceánico: Crucero (Tocopilla, cruce Ruta 24 y Ruta 5), San Pedro de Atacama (Ruta 23 CH), Ollagüe (Ruta 21 CH) y Mejillones (Ruta 1). Parte del Convenio de Programación GORE–MOP 2025-2035.", "img": "", "gal": []}
 ];
 const OES={1:['Calidad de vida','var(--oe1)'],2:['Minería sustentable','var(--oe2)'],3:['Empresas regionales','var(--oe3)'],4:['Institucionalidad pública','var(--oe4)'],5:['Ecosistema del conocimiento','var(--oe5)']};
 const OE_HEX={1:'#FAA900',2:'#70AD57',3:'#FF5812',4:'#0090D4',5:'#00BCB6'};
 const CIUDADES=['Antofagasta','Calama','Tocopilla','Regional'];
 // ID (columna «N°») de cada iniciativa en el REPOSITORIO_EMRA (Excel, hoja BASE, clasificación «ALIANZA ESTRATÉGICA MP») · 22-nov-2026.
 // Se aplica al pintar, así sobrevive a la recarga en vivo desde Supabase. r12 (jardines) no tiene fila propia en el Excel.
-// c8, c9, r16 y r17 se sumaron el 22-nov-2026 desde el Excel; aún no están en Supabase (ver cargarVivo).
 const ID_REPO={r1:584,r2:593,r3:595,r4:596,r5:591,r6:590,r7:13,r8:706,r9:583,r10:67,r11:609,r13:597,r14:610,r15:711,
   a1:594,a2:577,a3:680,a4:701,a5:702,a6:703,a7:709,a8:710,t1:708,t2:682,t3:599,t4:579,t5:568,t6:569,t7:707,
-  c1:608,c2:681,c3:676,c4:658,c5:699,c6:677,c7:678,c8:580,c9:729,r16:585,r17:586};
+  c1:608,c2:681,c3:676,c4:658,c5:699,c6:677,c7:678};
 
 // ══ LÓGICA ══
 const $=s=>document.querySelector(s);
@@ -669,7 +664,7 @@ function encuadrar(){
 // Datos en emra-conocimiento.js (fuente única, también la usa Gorito).
 const CARTERA=window.EMRA_CARTERA_CP||[];
 const SECTORES=[['Salud','Salud'],['Agua','Agua potable y alcantarillado'],['Educación','Educación']];
-const CP={s:'',c:'',q:'',ab:null,open:{}}; // open: sectores desplegados (todos cerrados al inicio)
+const CP={s:'',c:'',q:'',open:{}}; // open: sectores desplegados (todos cerrados al inicio)
 function abrirCartera(){
   const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;$('#est').hidden=true;
   if(cp.hidden){
@@ -677,7 +672,6 @@ function abrirCartera(){
     const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
     $('#cp-c').innerHTML=`<option value="">Todas</option>`+comunas.map(c=>`<option>${esc(c)}</option>`).join('');
     pintarCartera();
-    cargarFichasCP();
   }
   irA(cp);
 }
@@ -695,32 +689,20 @@ function pintarCartera(){
   $('#cp-tb').innerHTML=SECTORES.map(([k,t])=>{
     const g=L.filter(x=>x.s===k);if(!g.length)return '';
     const ab0=k in CP.open?CP.open[k]:!!(CP.s||CP.c||CP.q); // con un filtro o búsqueda activa se muestran los resultados
-    return `<tr class="sec" data-sec="${k}"><td colspan="6"><button class="sec-b" aria-expanded="${ab0}"><span class="car" aria-hidden="true">▸</span>${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i><span class="sec-v">${ab0?'Ocultar':'Ver proyectos'}</span></button></td></tr>`+(!ab0?'':g.map(x=>{const ab=CP.ab===x.n,fis=FICHAS_CP?String(x.id).split('/').map(i=>FICHAS_CP[i]).filter(Boolean):[],fi=fis.length;return `<tr class="fila" data-n="${x.n}" aria-expanded="${ab}">
+    return `<tr class="sec" data-sec="${k}"><td colspan="6"><button class="sec-b" aria-expanded="${ab0}"><span class="car" aria-hidden="true">▸</span>${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i><span class="sec-v">${ab0?'Ocultar':'Ver proyectos'}</span></button></td></tr>`+(!ab0?'':g.map(x=>`<tr>
       <td class="n">${x.n}</td><td class="idc">ID ${esc(x.id)}</td>
-      <td class="pj">${esc(x.p)}${FICHAS_CP===null||fi?`<br><button class="vf" aria-expanded="${ab}" aria-controls="det-${x.n}">${ab?'Cerrar ficha −':'Ver ficha +'}</button>`:''}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
-      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`+(ab?`<tr class="cpdet" id="det-${x.n}"><td colspan="6">${fi?fis.map((f,i)=>(fis.length>1?`<h5 style="margin:${i?'18px':'6px'} 0 6px;color:var(--oe2)">ID ${esc(String(x.id).split('/')[i])}</h5>`:'')+fichaCP(f)).join(''):'<p>Cargando ficha…</p>'}</td></tr>`:'');}).join(''));
+      <td class="pj">${esc(x.p)}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
+      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`).join(''));
   }).join('');
   document.querySelectorAll('#cp-tb .sec-b').forEach(b=>b.onclick=()=>{
     const k=b.closest('tr').dataset.sec,ab=b.getAttribute('aria-expanded')==='true';
     CP.open[k]=!ab;
-    if(ab)CP.ab=null;pintarCartera();
+    pintarCartera();
     const nb=document.querySelector(`#cp-tb tr[data-sec="${k}"] .sec-b`);if(nb)nb.focus({preventScroll:true});
   });
-  document.querySelectorAll('#cp-tb tr.fila').forEach(tr=>tr.onclick=e=>{
-    if(e.target.closest('a'))return;
-    const n=+tr.dataset.n;CP.ab=CP.ab===n?null:n;pintarCartera();
-    const b=document.querySelector(`#cp-tb tr.fila[data-n="${n}"] .vf`);if(b)b.focus({preventScroll:true});
-  });
+
 }
-// ── ficha por ID (mismos datos que la Plataforma de gestión / Power BI; empresas privadas anonimizadas) ──
-var FICHAS_CP=null; // null = cargando · {} = no disponible
-function cargarFichasCP(){
-  if(FICHAS_CP!==null||window.EMRA_CARTERA_FICHAS){FICHAS_CP=window.EMRA_CARTERA_FICHAS||FICHAS_CP;return;}
-  const sc=document.createElement('script');sc.src='emra-cartera-fichas.js';
-  sc.onload=()=>{FICHAS_CP=window.EMRA_CARTERA_FICHAS||{};pintarCartera();};
-  sc.onerror=()=>{FICHAS_CP={};pintarCartera();};
-  document.head.appendChild(sc);
-}
+// ── formato de fichas (lo usan las iniciativas estratégicas del Directorio) ──
 const fechaCP=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]} ${a}`;};
 const mayus=t=>t?t[0].toUpperCase()+t.slice(1):t;
 function fichaCP(f){
