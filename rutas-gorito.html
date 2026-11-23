@@ -1033,7 +1033,7 @@ function aviso(t){ const a=$('aviso'); a.textContent=t; a.classList.add('ver'); 
     const vivos = rows.filter(r=>r.nombre).map(r=>({id:r.id,n:NOMBRE_FIX[r.id]||r.nombre,oe:[+String(r.oe).replace(/\D/g,'')||1],t:terr(r.ciudad||''),loc:r.ciudad||'',
       tipo:r.tipo||'',inst:r.responsable||'',d:r.descripcion||'',img:r.image_url||''}));
     const ids = new Set(vivos.map(x=>x.id));
-    DATOS.mediano = [...vivos, ...DATOS.mediano.filter(x=>!ids.has(x.id))]; // conserva las locales que aún no están en Supabase
+    DATOS.mediano = vivos; // solo las 37 oficiales de Supabase, igual que el portal (23-nov-2026)
     INI = todas(); pintarPines(); if (!caminando) mostrarDialogo();
   }).catch(()=>{});
 })();
