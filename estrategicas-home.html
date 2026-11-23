@@ -117,7 +117,10 @@ const mayus=t=>t?t[0].toUpperCase()+t.slice(1):t;
 const oe1=t=>+((String(t).match(/\d/)||[1])[0]);
 const corta=(t,n)=>t&&t.length>n?t.slice(0,n-1).replace(/[\s,;(]+\S*$/,'')+'…':t||'';
 
-const L=D.lista.filter(x=>PARTE2||x.parte===1).map(x=>({...x,f:D.fichas[x.id]||{}}));
+// Proyectos que EMRA pidió no mostrar en este carrusel (23-nov-2026): Instituto Nacional del Litio (69),
+// Corredor Bioceánico · Puerto de Tocopilla (73), Instituto de Tecnologías Limpias (76) y Mecanismos para generación de iniciativas (447).
+const OCULTOS=new Set(['69','73','76','447']);
+const L=D.lista.filter(x=>(PARTE2||x.parte===1)&&!OCULTOS.has(String(x.id))).map(x=>({...x,f:D.fichas[x.id]||{}}));
 let sel=null;
 
 $('#car').innerHTML=L.map((x,i)=>{
