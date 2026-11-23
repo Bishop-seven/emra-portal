@@ -57,7 +57,9 @@ window.EMRA_PROYECTOS_EST = [
       'Ampliación del molo de abrigo del puerto; estudios para un centro educativo, cultural y/o turístico, y para el desarrollo de infraestructura portuaria en Tocopilla.'
     ],
     fotos: [],
-    video: {}
+    // «5.1 EPA Video Resumen La Negra», mostrado en la 2ª sesión 2025 (4-abr-2025). La misma sesión tiene también «Video Nocturno» (youtu.be/hDBHsWpH2qs).
+    video: { yt: 'https://youtu.be/BB9G0zKpwhY' },
+    videoTxt: 'Video presentado en la segunda sesión de Directorio EMRA 2025.'
   },
   {
     ids: ['275'],
