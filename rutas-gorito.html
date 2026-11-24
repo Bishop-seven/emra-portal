@@ -51,8 +51,24 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 .seg button{border:0;background:none;font-weight:900;font-size:13px;padding:6px 10px;cursor:pointer;white-space:nowrap}
 .seg button + button{border-left:2px solid var(--tinta)}
 .seg button.on{background:var(--tinta);color:#fff}
-#chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;padding:2px 2px 6px;margin-bottom:-4px}
-#chips::-webkit-scrollbar{display:none}
+#chips{position:relative;flex:1;min-width:0}
+.fbtn{width:100%;height:34px;display:flex;align-items:center;gap:8px;border:2px solid var(--tinta);border-radius:10px;background:#fff;box-shadow:0 3px 0 var(--tinta);
+  padding:0 10px;font:800 13px 'Nunito',sans-serif;color:var(--tinta);cursor:pointer;text-align:left}
+.fbtn i,.fo i{flex:none;width:12px;height:12px;border-radius:3px;border:1.5px solid var(--tinta)}
+.fbtn .fl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fbtn b,.fo b{flex:none;background:var(--tinta);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px}
+.fbtn .fv{flex:none;font-size:12px}
+.fbtn.activo{box-shadow:0 3px 0 var(--tinta),inset 0 -4px 0 var(--c)}
+#fMenu{position:absolute;top:calc(100% + 8px);left:0;right:0;min-width:240px;margin:0;padding:6px;list-style:none;background:#fff;border:2px solid var(--tinta);border-radius:12px;box-shadow:0 5px 0 var(--tinta);z-index:6}
+#fMenu[hidden]{display:none}
+.fo{width:100%;display:flex;align-items:center;gap:9px;border:0;background:none;border-radius:8px;padding:8px 10px;font:800 14px 'Nunito',sans-serif;color:var(--tinta);cursor:pointer;text-align:left}
+.fo .fl{flex:1;line-height:1.2}
+.fo small{display:block;font-size:11px;color:var(--gris);font-weight:800}
+.fo:hover,.fo:focus-visible{background:#f2f4f9;outline:none}
+.fo.on{background:#fff3d6}
+#bGlo{width:auto;padding:0 10px;gap:6px;display:flex;align-items:center;font:800 13px 'Nunito',sans-serif;color:var(--tinta)}
+#bGlo span{white-space:nowrap}
+@media (max-width:560px){.fbtn .fx{display:none}#bGlo span{display:none}#bGlo{width:34px;padding:0}.seg button{padding:6px 8px}}
 .cf{flex:none;display:flex;gap:5px;align-items:center;border:2px solid var(--tinta);border-radius:999px;background:#fff;font-weight:800;font-size:12px;padding:4px 9px 4px 6px;cursor:pointer;box-shadow:0 2px 0 var(--tinta);white-space:nowrap}
 .cf i{width:10px;height:10px;border-radius:3px;background:var(--c)}
 .cf.on{background:var(--c,var(--tinta));color:var(--tinta)}
@@ -223,8 +239,8 @@ nav button:disabled{opacity:.35;cursor:default}
     <div class="seg" role="tablist" aria-label="Ruta">
       <button id="rCobre" role="tab">Cobre</button><button id="rLitio" role="tab">Litio</button>
     </div>
-    <div id="chips" aria-label="Filtrar iniciativas por objetivo estratégico"></div>
-    <button class="boton" id="bGlo" aria-label="Abrir el glosario minero" title="Glosario minero">📖</button>
+    <div id="chips"></div>
+    <button class="boton" id="bGlo" aria-label="Abrir el glosario minero" title="Glosario minero">📖<span>Glosario</span></button>
     <button class="boton" id="bNoche" aria-label="Ver de noche" title="Ver de noche">🌙</button>
   </div>
   <p id="oeTxt" hidden></p>
@@ -809,15 +825,26 @@ function pintarPines(){
     oes.forEach((n,i)=>{ const c=pin.cubos[n]; c.visible=true; c.userData.y = 4.4 + i*.85; });
     pin.alto = 4.4 + Math.max(0,oes.length-1)*.85;
   }
-  // chips de filtro
-  const total = INI.length;
-  $('chips').innerHTML = `<button class="cf ${filtroOE?'':'on'}" data-oe="0" aria-pressed="${!filtroOE}">Todas · ${total}</button>` +
-    [1,2,3,4,5].map(n=>{ const c = INI.filter(x=>x.oe.includes(n)).length;
-      return `<button class="cf ${filtroOE===n?'on':''}" data-oe="${n}" style="--c:${OEC[n]}" ${c?'':'disabled'} aria-pressed="${filtroOE===n}" title="${esc(OBJ[n].corto)}"><i></i>OE${n} · ${c}</button>`; }).join('');
+  // Filtro por objetivo: un solo botón con menú desplegable (rediseño del menú, 23-nov-2026). Solo OE con iniciativas.
+  const total = INI.length, cnt = n => INI.filter(x=>x.oe.includes(n)).length;
+  const sel = filtroOE ? `<i style="background:${OEC[filtroOE]}"></i><span class="fl">OE${filtroOE} · ${esc(OBJ[filtroOE].corto)}</span><b>${cnt(filtroOE)}</b>`
+                       : `<span class="fl">Todas<span class="fx"> las iniciativas</span></span><b>${total}</b>`;
+  $('chips').innerHTML = `<button id="fBtn" class="fbtn${filtroOE?' activo':''}" aria-haspopup="listbox" aria-expanded="false" style="--c:${filtroOE?OEC[filtroOE]:'#fff'}">${sel}<span class="fv" aria-hidden="true">▾</span></button>
+    <ul id="fMenu" role="listbox" aria-label="Filtrar por objetivo estratégico" hidden>
+      <li><button role="option" class="fo${!filtroOE?' on':''}" data-oe="0" aria-selected="${!filtroOE}"><span class="fl">Todas las iniciativas</span><b>${total}</b></button></li>
+      ${[1,2,3,4,5].filter(cnt).map(n=>`<li><button role="option" class="fo${filtroOE===n?' on':''}" data-oe="${n}" aria-selected="${filtroOE===n}"><i style="background:${OEC[n]}"></i><span class="fl"><small>OE${n}</small>${esc(OBJ[n].corto)}</span><b>${cnt(n)}</b></button></li>`).join('')}
+    </ul>`;
   const tx = $('oeTxt');
   if (filtroOE) { tx.hidden=false; tx.style.setProperty('--c',OEC[filtroOE]); tx.textContent = OBJ[filtroOE].t; } else tx.hidden = true;
 }
-$('chips').onclick = e => { const b=e.target.closest('.cf'); if(!b||b.disabled) return; filtroOE = +b.dataset.oe; pintarPines(); };
+$('chips').onclick = e => {
+  const m = $('fMenu');
+  if (e.target.closest('#fBtn')) { const ab = m.hidden; m.hidden = !ab; $('fBtn').setAttribute('aria-expanded', ab); if (ab) m.querySelector('.fo.on')?.focus(); return; }
+  const b = e.target.closest('.fo'); if (!b) return;
+  filtroOE = +b.dataset.oe; pintarPines(); $('fBtn').focus();
+};
+addEventListener('pointerdown', e => { const m = $('fMenu'); if (m && !m.hidden && !e.target.closest('#chips')) { m.hidden = true; $('fBtn').setAttribute('aria-expanded', false); } });
+addEventListener('keydown', e => { const m = $('fMenu'); if (e.key==='Escape' && m && !m.hidden) { m.hidden = true; $('fBtn').setAttribute('aria-expanded', false); $('fBtn').focus(); } });
 
 /* ═════════ Gorito voxel ═════════ */
 const gorito = new THREE.Group(), cuerpo = new THREE.Group(); gorito.add(cuerpo);
