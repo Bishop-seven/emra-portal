@@ -97,6 +97,24 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 #glo[hidden]{display:none}
 #glo b{display:block;font-size:15px;font-weight:900;color:#1d8ea3}
 #glo p{margin:3px 0 0;font-size:14px;line-height:1.4;font-weight:700}
+#gpanel{position:fixed;inset:0;z-index:20;background:rgba(18,26,51,.45);display:grid;place-items:center;padding:16px}
+#gpanel[hidden]{display:none}
+.gp-caja{width:min(620px,100%);max-height:min(760px,calc(100dvh - 32px));display:flex;flex-direction:column;background:#fff;border:3px solid var(--tinta);border-radius:18px;box-shadow:0 7px 0 var(--tinta);overflow:hidden}
+.gp-caja header{display:flex;gap:12px;align-items:center;padding:12px 14px 10px;border-bottom:3px solid var(--tinta);background:#fff8e8}
+.gp-caja header img{width:52px;height:auto}
+.gp-caja h2{margin:0;font-size:20px;font-weight:900}
+.gp-caja header p{margin:2px 0 0;font-size:13px;font-weight:700;color:var(--gris)}
+#gpX{margin-left:auto;width:36px;height:36px;border-radius:50%;border:2px solid var(--tinta);background:#fff;font-weight:900;cursor:pointer;flex:none}
+#gpQ{margin:12px 14px 6px;padding:10px 14px;border:3px solid var(--tinta);border-radius:12px;font:700 15px 'Nunito',sans-serif}
+#gpQ:focus{outline:none;box-shadow:0 0 0 3px #38b6c9}
+#gpLista{list-style:none;margin:0;padding:6px 14px 16px;overflow-y:auto;display:grid;gap:8px}
+#gpLista li{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start;border:2px solid #dfe3ee;border-radius:12px;padding:10px}
+.gp-ic{width:44px;height:44px;border-radius:10px;background:#f2fbfd;border:2px solid var(--tinta);display:grid;place-items:center;font-size:22px}
+#gpLista b{font-size:16px;font-weight:900}
+#gpLista p{margin:2px 0 0;font-size:14px;line-height:1.4;font-weight:600}
+.gp-ver{margin-top:6px;border:0;background:none;padding:0;font:800 13px 'Nunito',sans-serif;color:#1d8ea3;cursor:pointer;text-align:left}
+.gp-ver:hover{text-decoration:underline}
+#gpLista .gp-vacio{display:block;text-align:center;color:var(--gris);font-weight:700;border:0}
 #gloX{position:absolute;top:6px;right:8px;width:28px;height:28px;border-radius:50%;border:2px solid var(--tinta);background:#fff;font-weight:900;cursor:pointer}
 @media (max-width:600px){#glo{left:8px;right:8px}.dcif{gap:5px}.dcif div{padding:5px 6px}.dcif b{font-size:15px;white-space:nowrap}.dcif span{font-size:10.5px}}
 #dPin:hover{background:#fff}
@@ -206,9 +224,19 @@ nav button:disabled{opacity:.35;cursor:default}
       <button id="rCobre" role="tab">Cobre</button><button id="rLitio" role="tab">Litio</button>
     </div>
     <div id="chips" aria-label="Filtrar iniciativas por objetivo estratégico"></div>
+    <button class="boton" id="bGlo" aria-label="Abrir el glosario minero" title="Glosario minero">📖</button>
     <button class="boton" id="bNoche" aria-label="Ver de noche" title="Ver de noche">🌙</button>
   </div>
   <p id="oeTxt" hidden></p>
+</div>
+
+<div id="gpanel" role="dialog" aria-modal="true" aria-labelledby="gpTit" hidden>
+  <div class="gp-caja">
+    <header><img src="gorito.webp" alt=""><div><h2 id="gpTit">Glosario minero</h2><p>Palabras de la minería explicadas por Gorito · <span id="gpN"></span></p></div>
+      <button id="gpX" aria-label="Cerrar el glosario">✕</button></header>
+    <input id="gpQ" type="search" placeholder="Busca una palabra (ej. relave)" aria-label="Buscar en el glosario">
+    <ul id="gpLista"></ul>
+  </div>
 </div>
 
 <section id="dialogo" aria-live="polite">
@@ -856,30 +884,75 @@ const pinesDe = p => p.pin==='todos' ? TERR.map(t=>t.k) : (p.pin||[]);
 /* ═════════ Glosario (23-nov-2026) ═════════
    Palabras de los diálogos que se pueden tocar para ver qué significan. Definiciones simples, sin cifras. */
 const GLOSARIO = [
-  ['rajo abierto','Rajo abierto','Mina a cielo abierto: un gran hoyo escalonado desde donde se saca la roca con mineral.'],
-  ['concentra','Concentrar','Separar el cobre del resto de la roca molida. Queda un polvo, el concentrado, con mucho más cobre que la roca original.'],
-  ['renovables','Energías renovables','Energía de fuentes que no se agotan, como el sol y el viento.'],
-  ['hidrógeno','Hidrógeno','Combustible que al usarse no emite CO₂. Se llama «verde» cuando se produce con energía renovable.'],
-  ['agua de mar','Agua de mar desalada','Agua del mar a la que se le quita la sal en una planta desaladora para usarla en la minería y cuidar el agua dulce del desierto.'],
-  ['PIB','PIB','Producto Interno Bruto: el valor de todo lo que produce la economía de un país o una región en un año.'],
-  ['Salar','Salar','Llanura del desierto cubierta de sal. Bajo la costra hay agua muy salada: la salmuera.'],
-  ['salmuera','Salmuera','Agua con mucha sal disuelta. La del Salar de Atacama contiene litio.'],
-  ['reservas','Reservas','Cantidad de un mineral que se conoce y que se puede extraer de forma rentable.'],
-  ['evapora','Evaporar','El calor del sol convierte el agua en vapor; las sales y el litio quedan en la piscina.'],
-  ['carbonato','Carbonato de litio','Polvo blanco hecho a partir del litio. Es una de las materias primas de las baterías.'],
-  ['hidróxido','Hidróxido de litio','Otro producto químico del litio, muy usado en las baterías de autos eléctricos.'],
-  ['vehículos eléctricos','Vehículos eléctricos','Autos, buses y motos que funcionan con baterías en vez de combustible. Sus baterías llevan litio.'],
+  // [palabra que se marca en lo que dice Gorito ('' = solo en el panel), título, definición, ícono, parada del mapa ('' = la busca en los diálogos)]
+  ['rajo abierto','Rajo abierto','Mina a cielo abierto: un gran hoyo escalonado desde donde se saca la roca con mineral.','⛏️','c-mina'],
+  ['concentra','Concentrar','Separar el cobre del resto de la roca molida. Queda un polvo, el concentrado, con mucho más cobre que la roca original.','🧪','c-conc'],
+  ['renovables','Energías renovables','Energía de fuentes que no se agotan, como el sol y el viento.','☀️','c-energia'],
+  ['hidrógeno','Hidrógeno','Combustible que al usarse no emite CO₂. Se llama «verde» cuando se produce con energía renovable.','🚆','c-tren'],
+  ['agua de mar','Agua de mar desalada','Agua del mar a la que se le quita la sal en una planta desaladora para usarla en la minería y cuidar el agua dulce del desierto.','💧','c-agua'],
+  ['PIB','PIB','Producto Interno Bruto: el valor de todo lo que produce la economía de un país o una región en un año.','📊',''],
+  ['Salar','Salar','Llanura del desierto cubierta de sal. Bajo la costra hay agua muy salada: la salmuera.','🏜️','l-salar'],
+  ['salmuera','Salmuera','Agua con mucha sal disuelta. La del Salar de Atacama contiene litio.','🫧','l-piscinas'],
+  ['reservas','Reservas','Cantidad de un mineral que se conoce y que se puede extraer de forma rentable.','🗺️','l-salar'],
+  ['evapora','Evaporar','El calor del sol convierte el agua en vapor; las sales y el litio quedan en la piscina.','♨️','l-piscinas'],
+  ['carbonato','Carbonato de litio','Polvo blanco hecho a partir del litio. Es una de las materias primas de las baterías.','⚗️','l-camino'],
+  ['hidróxido','Hidróxido de litio','Otro producto químico del litio, muy usado en las baterías de autos eléctricos.','⚗️','l-camino'],
+  ['vehículos eléctricos','Vehículos eléctricos','Autos, buses y motos que funcionan con baterías en vez de combustible. Sus baterías llevan litio.','🚗','l-usos'],
+  ['','Chancado','Primer paso del proceso: grandes máquinas trituran la roca hasta dejarla en trozos pequeños.','🪨','c-conc'],
+  ['','Molienda','La roca chancada se muele con agua en grandes molinos hasta quedar como arena fina.','⚙️','c-conc'],
+  ['','Flotación','En estanques con agua y burbujas, las partículas de cobre se pegan a la espuma y se separan del resto de la roca.','🫧','c-conc'],
+  ['','Ley del mineral','Cuánto cobre trae la roca. Si la ley es baja, hay que mover mucha roca para obtener poco cobre.','⚖️','c-conc'],
+  ['','Relave','Lo que queda de la roca molida después de sacarle el cobre: arena fina con agua que se guarda en depósitos especiales y controlados.','🏞️','c-conc'],
+  ['','Lixiviación','Otra forma de obtener cobre: la roca se riega con una solución que disuelve el cobre, que después se recupera con electricidad.','💦','c-mina'],
+  ['','Fundición','Planta donde el concentrado se funde a muy alta temperatura para separar el cobre de otros elementos.','🔥','c-puerto'],
+  ['','Refinería','Planta donde el cobre se purifica hasta quedar casi puro.','🏭','c-puerto'],
+  ['','Cátodo','Plancha de cobre casi puro: el producto final que se exporta y con el que se fabrican cables.','🟧','c-puerto'],
+  ['','Molibdeno','Metal que aparece junto al cobre en muchas minas. Se usa para hacer aceros más resistentes.','🔩','c-mina'],
+  ['','Cobre','Metal rojizo que conduce muy bien la electricidad y el calor. Está en cables, motores, paneles solares y autos eléctricos.','🔌','c-vida'],
+  ['','Litio','El metal más liviano que existe. Se usa en baterías recargables de celulares, bicicletas y autos eléctricos.','🔋','l-salar'],
+  ['','Electromovilidad','Transporte que funciona con motores eléctricos y baterías: buses, autos, motos y bicicletas.','🚌','l-usos'],
+  ['','Salitre','Mineral del desierto usado como fertilizante. Dio origen a pueblos, puertos y ferrocarriles de la región antes de la gran minería del cobre.','🏚️','c-muelle'],
+  ['','Faena','Lugar donde trabaja una empresa minera: la mina y todas sus instalaciones.','👷','c-personas'],
+  ['','Cierre de faena','Plan obligatorio para cuando una mina termina: desmontar, estabilizar y cuidar el terreno para que quede seguro.','🌱','c-mina'],
+  ['','Royalty minero','Pago que las empresas mineras hacen al Estado por explotar minerales que son de todos. Una parte llega a las regiones y comunas.','🏛️','c-cierre'],
+  ['','EMRA','Estrategia Minera para el Bienestar de la Región de Antofagasta 2023–2050: la hoja de ruta para que la minería sea motor de bienestar en la región.','🧭','c-cierre'],
+  ['','Objetivo estratégico','Cada una de las 5 grandes metas de la EMRA, como mejorar la calidad de vida o tener una minería sustentable.','🎯','c-cierre'],
+  ['','Iniciativa EMRA','Proyecto, programa o estudio que forma parte de la EMRA. Cada una tiene su ID y se sigue en la Plataforma de gestión.','📍','c-cierre'],
 ];
 const escH = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function conGlosario(txt){
   let h = escH(txt); const usadas = new Set();
   GLOSARIO.forEach(([w,t],i) => {
-    if (usadas.has(t)) return;
+    if (!w || usadas.has(t)) return;
     const re = new RegExp('(^|[^\\wáéíóúñ])('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![\\wáéíóúñ])','i');
     if (re.test(h)) { h = h.replace(re, (m,a,b)=>`${a}<button class="glo-t" data-g="${i}" type="button">${b}</button>`); usadas.add(t); }
   });
   return h;
 }
+// Parada del mapa donde se ve cada palabra: la indicada o la primera cuyo diálogo la menciona
+function lugarDe(g){
+  const [w,,,,k] = g;
+  for (const r of Object.keys(RUTAS)) { const ps = RUTAS[r].paradas;
+    for (let i=0;i<ps.length;i++) if (k ? ps[i].a===k : (w && new RegExp(w,'i').test(ps[i].txt))) return {r,i}; }
+  return null;
+}
+function pintarPanelGlo(q=''){
+  const n = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const L = GLOSARIO.map((g,i)=>({g,i})).filter(({g})=>!q || n(g[1]+' '+g[2]).includes(n(q))).sort((a,b)=>a.g[1].localeCompare(b.g[1],'es'));
+  $('gpLista').innerHTML = L.map(({g,i})=>{ const l = lugarDe(g);
+    return `<li><span class="gp-ic" aria-hidden="true">${g[3]}</span><div><b>${escH(g[1])}</b><p>${escH(g[2])}</p>${l?`<button class="gp-ver" data-i="${i}">Ver en el mapa · ${escH(RUTAS[l.r].paradas[l.i].t.toLowerCase().replace(/^./,c=>c.toUpperCase()))} →</button>`:''}</div></li>`; }).join('')
+    || '<li class="gp-vacio">No encontré esa palabra. Prueba con otra.</li>';
+  $('gpN').textContent = `${GLOSARIO.length} palabras`;
+  $('gpLista').querySelectorAll('.gp-ver').forEach(b=>b.onclick=()=>{ const l = lugarDe(GLOSARIO[+b.dataset.i]); cerrarPanelGlo();
+    if (l.r!==ruta) cambiarRuta(l.r, l.i); else ir(l.i); });
+}
+function abrirPanelGlo(){ $('gpanel').hidden = false; $('gpQ').value=''; pintarPanelGlo(); setTimeout(()=>$('gpQ').focus(),50); }
+function cerrarPanelGlo(){ $('gpanel').hidden = true; $('bGlo').focus(); }
+$('bGlo').onclick = abrirPanelGlo;
+$('gpX').onclick = cerrarPanelGlo;
+$('gpanel').onclick = e => { if (e.target.id==='gpanel') cerrarPanelGlo(); };
+$('gpQ').oninput = e => pintarPanelGlo(e.target.value.trim());
+addEventListener('keydown', e => { if (e.key==='Escape' && !$('gpanel').hidden) cerrarPanelGlo(); });
 function abrirGlosario(i){
   const [,t,d] = GLOSARIO[i]; $('gloT').textContent = t; $('gloD').textContent = d; $('glo').hidden = false;
 }
