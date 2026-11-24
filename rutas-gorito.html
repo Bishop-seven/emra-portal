@@ -77,6 +77,28 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 #dPin{margin-top:8px;display:inline-flex;align-items:center;gap:8px;border:2px solid var(--tinta);background:#f5f7fb;border-radius:999px;
   padding:5px 12px 5px 8px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 3px 0 var(--tinta)}
 #dPin[hidden]{display:none}
+/* Tarjetas de datos dentro del diálogo (Ruta del litio, 23-nov-2026) */
+#dDato{margin-top:8px}
+#dDato[hidden]{display:none}
+.dcif{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dcif div{border:2px solid var(--tinta);border-radius:10px;padding:6px 8px;background:#f2fbfd;box-shadow:0 3px 0 var(--tinta)}
+.dcif b{display:block;font-size:clamp(17px,4.4vw,22px);font-weight:900;line-height:1.05;color:#1d8ea3}
+.dcif span{display:block;font-size:11.5px;font-weight:700;line-height:1.25;margin-top:2px}
+.dbar{display:grid;gap:5px}
+.dbar div{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:2px 8px;align-items:center;font-size:12.5px;font-weight:800}
+.dbar i{grid-column:1/-1;display:block;height:9px;border-radius:5px;background:#e3eef3;overflow:hidden}
+.dbar i:after{content:"";display:block;height:100%;width:var(--v);background:#38b6c9;border-radius:5px}
+.dbar em{font-style:normal;text-align:right;color:#1d8ea3}
+.dnota{margin:6px 0 0;font-size:11.5px;color:var(--gris);font-weight:600}
+/* Glosario: palabras que se pueden tocar */
+.glo-t{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:help;border-bottom:3px dotted #38b6c9;text-decoration:none}
+.glo-t:hover,.glo-t:focus-visible{background:#e2f6f9;outline:none;border-radius:3px}
+#glo{position:absolute;left:96px;right:12px;bottom:calc(100% + 10px);background:#fff;border:3px solid var(--tinta);border-radius:14px;box-shadow:0 5px 0 var(--tinta);padding:10px 40px 10px 14px;z-index:5;text-align:left;cursor:default}
+#glo[hidden]{display:none}
+#glo b{display:block;font-size:15px;font-weight:900;color:#1d8ea3}
+#glo p{margin:3px 0 0;font-size:14px;line-height:1.4;font-weight:700}
+#gloX{position:absolute;top:6px;right:8px;width:28px;height:28px;border-radius:50%;border:2px solid var(--tinta);background:#fff;font-weight:900;cursor:pointer}
+@media (max-width:600px){#glo{left:8px;right:8px}.dcif{gap:5px}.dcif div{padding:5px 6px}.dcif b{font-size:15px;white-space:nowrap}.dcif span{font-size:10.5px}}
 #dPin:hover{background:#fff}
 #dPin i{width:12px;height:12px;border-radius:3px;background:var(--c)}
 #sonido{position:absolute;top:8px;right:10px}
@@ -196,7 +218,9 @@ nav button:disabled{opacity:.35;cursor:default}
     <p id="dNombre">Gorito</p>
     <p id="dTexto"></p>
     <p id="dFuente"></p>
+    <div id="dDato" hidden></div>
     <button id="dPin" hidden></button>
+    <div id="glo" role="dialog" aria-live="polite" hidden><button id="gloX" aria-label="Cerrar">✕</button><b id="gloT"></b><p id="gloD"></p></div>
   </div>
   <nav>
     <button id="ant" aria-label="Parada anterior">◀</button>
@@ -327,13 +351,15 @@ const RUTAS = {
     {a:'l-intro', t:'RUTA DEL LITIO', s:'Salar de Atacama · Chile', g:0, cam:[62,0,30], w:56, h:40,
      txt:'¡Ahora vamos por el litio! Acompáñame desde el Salar de Atacama hasta la costa.'},
     {a:'l-salar', t:'EL SALAR', s:'Salar de Atacama · Chile', g:0, cam:[71,0,28], w:24, h:17,
-     txt:'Este es el Salar de Atacama. Chile tiene el 31% de las reservas de litio del mundo y produce el 20% del litio del planeta.', f:'USGS 2024', pin:['san-pedro','toconao']},
+     txt:'Este es el Salar de Atacama. Chile tiene el 31% de las reservas de litio del mundo y produce el 20% del litio del planeta.', pin:['san-pedro','toconao'],
+     dato:{tipo:'cifras', items:[['31%','de las reservas de litio del mundo'],['20%','del litio del mundo · 2º productor'],['261.000 t','de litio produce Chile al año']], nota:'Fuentes: USGS 2024 y Cochilco (Minería en Números, Consejo Minero).'}},
     {a:'l-piscinas', t:'LAS PISCINAS', s:'Salar de Atacama · Chile', g:1, cam:[70,0,37.5], w:20, h:14,
      txt:'El litio viene disuelto en una salmuera bajo el salar. Se bombea a estas piscinas y el sol del desierto evapora el agua, concentrando el litio.', pin:['salar-sur']},
     {a:'l-camino', t:'LA PLANTA QUÍMICA', s:'Antofagasta · Chile', g:7, cam:[27,1,37.5], w:22, h:16,
      txt:'El litio concentrado viaja en camiones hasta plantas químicas cerca de Antofagasta, donde se transforma en carbonato e hidróxido de litio.'},
     {a:'l-usos', t:'¿PARA QUÉ SIRVE?', s:'Antofagasta · Chile', g:8, cam:[21.5,1,39.5], w:18, h:13,
-     txt:'¿Y para qué sirve? El 62% del litio se usa en vehículos eléctricos.', f:'Consejo Minero, con datos de USGS, Sernageomin y Cochilco'},
+     txt:'¿Y para qué sirve? El 62% del litio se usa en vehículos eléctricos.', f:'Consejo Minero, con datos de USGS, Sernageomin y Cochilco',
+     dato:{tipo:'barras', items:[['Vehículos eléctricos',62],['Otros usos industriales',16],['Baterías de bicicletas y electrónica',12],['Almacenamiento de energía',10]], nota:'Las energías limpias necesitan mucho cobre, litio y hierro (Banco Mundial).'}},
     {a:'l-cierre', t:'¿Y QUÉ QUEDA ACÁ?', s:'Iniciativas EMRA', g:8, cam:[70,0,24], w:40, h:30,
      txt:'En San Pedro de Atacama, Toconao y los pueblos del salar también hay iniciativas de la EMRA. ¡Toca los pines para conocerlas!', pin:['san-pedro','toconao','salar-sur']},
   ]},
@@ -354,6 +380,8 @@ const PREGUNTAS = {
     {p:'¿Qué parte del litio del mundo produce Chile?', r:'20%', o:['2%','70%'], f:'USGS 2024'},
     {p:'¿En qué se usa más el litio?', r:'Vehículos eléctricos (62%)', o:['Joyas','Monedas'], f:'Consejo Minero, con datos de USGS, Sernageomin y Cochilco'},
     {p:'En las piscinas del salar, ¿qué evapora el agua de la salmuera?', r:'El sol del desierto', o:['Un horno a gas','El viento del mar'], f:''},
+    {p:'¿Qué es la salmuera?', r:'Agua con mucha sal disuelta', o:['Un tipo de roca','Un combustible'], f:''},
+    {p:'¿Qué parte del litio de Chile producen las grandes empresas?', r:'75%', o:['10%','40%'], f:'Consejo Minero, con datos de Cochilco, Sernageomin y empresas'},
   ],
 };
 
@@ -819,15 +847,58 @@ function escribir(txt, segundos){
   const paso = segundos ? Math.max(20, segundos*1000*0.92/(txt.length/2)) : 28; // al ritmo de la voz
   escribiendo = setInterval(()=>{ i += 2; $('dTexto').textContent = txt.slice(0,i); if (i>=txt.length) terminar(); }, paso);
 }
-function terminar(){ clearInterval(escribiendo); escribiendo=null; $('dTexto').textContent = textoCompleto; if (!hablaVoz()) $('dGorito').classList.remove('habla'); }
+function terminar(){ clearInterval(escribiendo); escribiendo=null; $('dTexto').innerHTML = conGlosario(textoCompleto); if (!hablaVoz()) $('dGorito').classList.remove('habla'); }
 addEventListener('pointerdown', () => { if (parada===0 && sonido && !caminando && !hablaVoz() && !bienvenidaSono) { hablar(P().a); $('dGorito').classList.add('habla'); } }, {once:true});
-$('dTxt').onclick = e => { if (e.target.closest('#dPin')) return; terminar(); };
+$('dTxt').onclick = e => { if (e.target.closest('#dPin,#glo,.glo-t')) return; if (escribiendo) terminar(); };
 
 const pinesDe = p => p.pin==='todos' ? TERR.map(t=>t.k) : (p.pin||[]);
+
+/* ═════════ Glosario (23-nov-2026) ═════════
+   Palabras de los diálogos que se pueden tocar para ver qué significan. Definiciones simples, sin cifras. */
+const GLOSARIO = [
+  ['rajo abierto','Rajo abierto','Mina a cielo abierto: un gran hoyo escalonado desde donde se saca la roca con mineral.'],
+  ['concentra','Concentrar','Separar el cobre del resto de la roca molida. Queda un polvo, el concentrado, con mucho más cobre que la roca original.'],
+  ['renovables','Energías renovables','Energía de fuentes que no se agotan, como el sol y el viento.'],
+  ['hidrógeno','Hidrógeno','Combustible que al usarse no emite CO₂. Se llama «verde» cuando se produce con energía renovable.'],
+  ['agua de mar','Agua de mar desalada','Agua del mar a la que se le quita la sal en una planta desaladora para usarla en la minería y cuidar el agua dulce del desierto.'],
+  ['PIB','PIB','Producto Interno Bruto: el valor de todo lo que produce la economía de un país o una región en un año.'],
+  ['Salar','Salar','Llanura del desierto cubierta de sal. Bajo la costra hay agua muy salada: la salmuera.'],
+  ['salmuera','Salmuera','Agua con mucha sal disuelta. La del Salar de Atacama contiene litio.'],
+  ['reservas','Reservas','Cantidad de un mineral que se conoce y que se puede extraer de forma rentable.'],
+  ['evapora','Evaporar','El calor del sol convierte el agua en vapor; las sales y el litio quedan en la piscina.'],
+  ['carbonato','Carbonato de litio','Polvo blanco hecho a partir del litio. Es una de las materias primas de las baterías.'],
+  ['hidróxido','Hidróxido de litio','Otro producto químico del litio, muy usado en las baterías de autos eléctricos.'],
+  ['vehículos eléctricos','Vehículos eléctricos','Autos, buses y motos que funcionan con baterías en vez de combustible. Sus baterías llevan litio.'],
+];
+const escH = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function conGlosario(txt){
+  let h = escH(txt); const usadas = new Set();
+  GLOSARIO.forEach(([w,t],i) => {
+    if (usadas.has(t)) return;
+    const re = new RegExp('(^|[^\\wáéíóúñ])('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![\\wáéíóúñ])','i');
+    if (re.test(h)) { h = h.replace(re, (m,a,b)=>`${a}<button class="glo-t" data-g="${i}" type="button">${b}</button>`); usadas.add(t); }
+  });
+  return h;
+}
+function abrirGlosario(i){
+  const [,t,d] = GLOSARIO[i]; $('gloT').textContent = t; $('gloD').textContent = d; $('glo').hidden = false;
+}
+$('gloX').onclick = e => { e.stopPropagation(); $('glo').hidden = true; };
+$('dTexto').addEventListener('click', e => { const b = e.target.closest('.glo-t'); if (b) { e.stopPropagation(); abrirGlosario(+b.dataset.g); } });
+function pintarDato(p){
+  const d = p.dato, el = $('dDato');
+  if (!d) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = (d.tipo==='cifras'
+      ? `<div class="dcif">${d.items.map(([n,l])=>`<div><b>${escH(n)}</b><span>${escH(l)}</span></div>`).join('')}</div>`
+      : `<div class="dbar">${d.items.map(([l,v])=>`<div><span>${escH(l)}</span><em>${v}%</em><i style="--v:${v}%"></i></div>`).join('')}</div>`)
+    + (d.nota?`<p class="dnota">${escH(d.nota)}</p>`:'');
+}
 function mostrarDialogo(){
   const p = P(), a = hablar(p.a);
   escribir(p.txt, a && isFinite(a.duration) ? a.duration : (a ? 7 : 0));
   $('dFuente').textContent = p.f ? `Fuente: ${p.f} · Minería en Números, Consejo Minero` : '';
+  pintarDato(p); $('glo').hidden = true;
   const b = $('dPin'), ks = pinesDe(p).filter(k => pines.find(x=>x.k===k)?.n);
   if (ks.length && p.pin!=='todos') {
     const k = ks[0], n = pines.find(x=>x.k===k).n;
@@ -856,7 +927,7 @@ function ir(i){
       fin:()=>{ if (Math.abs(gObj-gS) < .01) mostrarDialogo(); }};
   }
   if (!excursion && Math.abs(gObj-gS) < .01) mostrarDialogo();
-  else { clearInterval(escribiendo); escribiendo = null; $('dTexto').textContent = '…'; $('dFuente').textContent=''; $('dPin').hidden = true; }
+  else { clearInterval(escribiendo); escribiendo = null; $('dTexto').textContent = '…'; $('dFuente').textContent=''; pintarDato({}); $('glo').hidden = true; $('dPin').hidden = true; }
   try { history.replaceState(null,'',`?ruta=${ruta}&p=${parada}`); } catch {}
 }
 function cambiarRuta(r, p=0){
