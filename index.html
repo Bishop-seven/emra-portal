@@ -14,7 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="emra-conocimiento.js"></script>
+<script src="emra-conocimiento.js?v=20261125"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -1190,6 +1190,8 @@ svg{display:block}
         </div>
         <div class="flt-lbl" id="oe-lbl">Objetivo estratégico · mediano plazo</div>
         <div class="oe-pills" id="oe-pills"></div>
+        <div class="flt-lbl" id="resp-lbl">Responsable · mediano plazo</div>
+        <div class="oe-pills" id="resp-chips"></div>
         <div class="flt-lbl" id="sector-lbl">Tipo · corto plazo</div>
         <div class="oe-pills" id="sector-pills"></div>
         <div class="flt-lbl">Territorio</div>
@@ -1617,6 +1619,10 @@ const TIMELINE=[
 // STATE
 // ═══════════════════════════════════════════════════════
 let activeOE=null, cityFilter='', searchQ='', highlighted=new Set(), selCmp=[];
+// Filtro «Responsable» de las 37 de mediano plazo; la regla viene de emra-conocimiento.js (la misma del explorador de videos en emra.cl)
+let respFilter='';
+const RESP=window.EMRA_RESPONSABLES||{grupo:()=>'',grupos:[],texto:{}};
+const respDe=i=>RESP.grupo(i.id);
 let routesOn=false, basemapKey='light';
 let ADMIN_INI=[...INI], ADMIN_TL=[...TIMELINE];
 
@@ -1684,6 +1690,7 @@ function renderMarkers(){
   const visible=INI.filter(i=>{
     if(!CAPAS.mp)return false;
     if(sectorFilter)return false;
+    if(respFilter&&respDe(i)!==respFilter)return false;
     if(activeOE&&!i.oe.includes(activeOE))return false;
     if(cityFilter&&i.c!==cityFilter)return false;
     return true;
@@ -1848,6 +1855,10 @@ function renderOEPills(){
   document.getElementById('oe-pills').innerHTML=
     `<button class="chip" aria-pressed="${!activeOE}" onclick="setOE(null)">Todos <span class="n">${INI.length}</span></button>`
     +Object.entries(OE_COLORS).filter(([o])=>n(o)).map(([o,c])=>`<button class="chip" aria-pressed="${activeOE===o}" onclick="setOE('${o}')"><span class="d" style="background:${c}"></span>${o.replace(' ','')} ${OE_LIT[o].c} <span class="n">${n(o)}</span></button>`).join('');
+  const rc=document.getElementById('resp-chips'),rl=document.getElementById('resp-lbl');
+  if(rc){rc.hidden=rl.hidden=!CAPAS.mp||!RESP.grupos.length;const nr=g=>INI.filter(i=>respDe(i)===g).length;
+    rc.innerHTML=`<button class="chip" aria-pressed="${!respFilter}" onclick="setResp('')">Todos <span class="n">${INI.length}</span></button>`
+      +RESP.grupos.map(([g,t])=>`<button class="chip" aria-pressed="${respFilter===g}" onclick="setResp('${g}')" title="${RESP.texto[g]||t}">${t} <span class="n">${nr(g)}</span></button>`).join('');}
   const cc=document.getElementById('city-chips');
   if(cc){const nc=t=>(CAPAS.mp?INI.filter(i=>i.c===t).length:0)+(CAPAS.cp?CP.filter(i=>i.c===t).length:0);
     const ters=[...new Set([...(CAPAS.mp?TERRITORIOS:[]),...(CAPAS.cp?CP.map(i=>i.c):[])])].sort((a,b)=>nc(b)-nc(a));
@@ -1855,12 +1866,14 @@ function renderOEPills(){
       +ters.filter(t=>nc(t)).map(t=>`<button class="chip" aria-pressed="${cityFilter===t}" onclick="setCity('${t}')">${t} <span class="n">${nc(t)}</span></button>`).join('');}
 }
 function setCity(t){cityFilter=t;applyFilters();renderOEPills();}
-function limpiarFiltros(){activeOE=null;sectorFilter=null;document.getElementById('search-q').value='';setCity('');renderMarkers();}
+function limpiarFiltros(){activeOE=null;sectorFilter=null;respFilter='';document.getElementById('search-q').value='';setCity('');renderMarkers();}
 function setOE(o){activeOE=o;renderOEPills();renderList();renderMarkers()}
+function setResp(g){respFilter=g;renderOEPills();renderList();renderMarkers()}
 
 function renderList(){
   let l=INI.filter(i=>{
     if(!CAPAS.mp||sectorFilter)return false;
+    if(respFilter&&respDe(i)!==respFilter)return false;
     if(activeOE&&!i.oe.includes(activeOE))return false;
     if(cityFilter&&i.c!==cityFilter)return false;
     if(searchQ&&!i.n.toLowerCase().includes(searchQ)&&!i.c.toLowerCase().includes(searchQ)&&String(idEmra(i.id))!==searchQ.trim().replace(/^id\s*/,''))return false; // también busca por ID EMRA («594» o «ID 594»)
@@ -1868,7 +1881,7 @@ function renderList(){
   });
   const lcp=CP.filter(cpVisible);
   const total=(CAPAS.mp?INI.length:0)+(CAPAS.cp?CP.length:0);
-  const filtro=!!(activeOE||cityFilter||searchQ||sectorFilter);
+  const filtro=!!(activeOE||cityFilter||searchQ||sectorFilter||respFilter);
   document.getElementById('ini-count').textContent=filtro?`${l.length+lcp.length} de ${total}`:`Mostrando ${total===1?'1':'las '+total}`;
   const clr=document.getElementById('ini-clr');if(clr)clr.hidden=!filtro;
   const h=document.getElementById('ini-h'),hp=document.getElementById('ini-hp');
@@ -1974,7 +1987,7 @@ function openFicha(id){
       <div class="fmeta">
         <div class="fmeta-item"><div class="fmeta-label">Comuna</div><div class="fmeta-val">${i.c}</div></div>
         <div class="fmeta-item"><div class="fmeta-label">Plazo</div><div class="fmeta-val">${plazoTxt(i.plazo)}</div></div>
-        <div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Responsable</div><div class="fmeta-val">${i.resp||'Por definir'}</div></div>
+        <div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Responsable</div><div class="fmeta-val">${i.resp||'Por definir'}</div></div>${RESP.texto[respDe(i)]?`<div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Responsable EMRA</div><div class="fmeta-val">${RESP.texto[respDe(i)]}</div></div>`:''}
         ${i.tipo?`<div class="fmeta-item" style="grid-column:1/-1"><div class="fmeta-label">Tipo</div><div class="fmeta-val">${i.tipo}</div></div>`:''}
       </div>
       <div class="fsec">Descripción</div>
@@ -2344,6 +2357,7 @@ function buildCP(){
 }
 function cpVisible(i){
   if(!CAPAS.cp)return false;
+  if(respFilter)return false;
   if(activeOE&&activeOE!=='OE 1')return false;
   if(sectorFilter&&i.sector!==sectorFilter)return false;
   if(cityFilter&&i.c!==cityFilter)return false;
@@ -2357,7 +2371,7 @@ function cpIcon(i,hl){
 function setCapa(k){
   const otro=k==='mp'?'cp':'mp';
   CAPAS[k]=!CAPAS[k]; if(!CAPAS[k]&&!CAPAS[otro])CAPAS[otro]=true; // siempre al menos una capa
-  if(!CAPAS.cp)sectorFilter=null; if(!CAPAS.mp&&activeOE&&activeOE!=='OE 1')activeOE=null;
+  if(!CAPAS.cp)sectorFilter=null; if(!CAPAS.mp)respFilter=''; if(!CAPAS.mp&&activeOE&&activeOE!=='OE 1')activeOE=null;
   renderOEPills();renderList();renderMarkers();
 }
 function setSector(s){sectorFilter=s;renderOEPills();renderList();renderMarkers();}
@@ -7253,7 +7267,7 @@ function irInicio(){
   document.getElementById('sidebar').classList.remove('max');
 }
 function resetAll(){
-  activeOE=null;cityFilter='';searchQ='';highlighted=new Set();selCmp=[];
+  activeOE=null;cityFilter='';searchQ='';respFilter='';highlighted=new Set();selCmp=[];
   document.getElementById('search-q').value='';document.getElementById('city-sel').value='';
   document.getElementById('btn-cmp').disabled=true;
   updateCmpSlots();renderOEPills();renderList();renderMarkers();

@@ -60,6 +60,17 @@ var FILAS=[
 var CARTERA=FILAS.map(function(r){return {n:r[0],id:r[1],s:r[2],p:r[3],loc:r[4],com:r[5],enc:r[6]};});
 window.EMRA_CARTERA_CP=CARTERA;
 
+// Responsable de cada una de las 37 iniciativas de mediano plazo, según las láminas de alianzas estratégicas
+// (EMRA · GORE · Clúster Minero): Gobierno Regional 8 · I.M. Antofagasta 8 · I.M. Calama 7 · I.M. Tocopilla 7
+// (= 30 acuerdo regional) + Gobierno central 7. Lo usan el explorador de videos-home.html y el filtro del portal (index.html).
+var CENTRAL=['r9','r3','r4','r5','r6','r7','r8'];
+window.EMRA_RESPONSABLES={
+  grupo:function(id){id=String(id||'');return CENTRAL.indexOf(id)>=0?'central':({a:'antofagasta',c:'calama',t:'tocopilla'})[id[0]]||'gore';},
+  // [clave, nombre, nombre corto] en el orden oficial
+  grupos:[['gore','Gobierno Regional','GORE'],['antofagasta','I.M. Antofagasta','I.M. Antofagasta'],['calama','I.M. Calama','I.M. Calama'],['tocopilla','I.M. Tocopilla','I.M. Tocopilla'],['central','Gobierno central','Gob. central']],
+  texto:{gore:'Gobierno Regional de Antofagasta (iniciativa estratégica regional)',antofagasta:'Ilustre Municipalidad de Antofagasta',calama:'Ilustre Municipalidad de Calama',tocopilla:'Ilustre Municipalidad de Tocopilla',central:'Gobierno central; la región se compromete a apoyarla'}
+};
+
 var SECT={'Salud':'Salud','Agua':'Agua potable y alcantarillado','Educación':'Educación'};
 var lineas=CARTERA.map(function(x){
   return '- ID '+x.id+' | '+SECT[x.s]+' | '+x.p+' | '+x.loc+' ('+x.com+') | encargado del diseño: '+(x.enc==='DISPONIBLE'?'DISPONIBLE (aún sin institución a cargo)':x.enc);

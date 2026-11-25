@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-<script src="emra-conocimiento.js"></script>
+<script src="emra-conocimiento.js?v=20261125"></script>
 <style>
 :root{--tx:#383838;--mut:#6f6a66;--bd:#e8ddd4;--card:#f7f1ec;--cu:#CC824D;--cu2:#b36c3a;
   --oe1:#FAA900;--oe2:#70AD57;--oe3:#FF5812;--oe4:#0090D4;--oe5:#00BCB6}
@@ -469,12 +469,11 @@ ir(0);
 
 // ══ EXPLORADOR DE INICIATIVAS ══
 const F={c:'',g:'',oe:0,q:'',vista:'map',sel:null};
-// Responsable de cada iniciativa, según las láminas de alianzas estratégicas (EMRA · GORE · Clúster Minero):
-// Gobierno Regional 8 · I.M. Antofagasta 8 · I.M. Calama 7 · I.M. Tocopilla 7 (= 30 acuerdo regional) + Gobierno central 7.
-const CENTRAL=new Set(['r9','r3','r4','r5','r6','r7','r8']);
-const GRUPO=x=>CENTRAL.has(x.id)?'central':({a:'antofagasta',c:'calama',t:'tocopilla'})[x.id[0]]||'gore';
-const GRUPOS=[['gore','Gobierno Regional','GORE'],['antofagasta','I.M. Antofagasta','I.M. Antofagasta'],['calama','I.M. Calama','I.M. Calama'],['tocopilla','I.M. Tocopilla','I.M. Tocopilla'],['central','Gobierno central','Gob. central']];
-const GRUPO_TXT={gore:'Gobierno Regional de Antofagasta (iniciativa estratégica regional)',antofagasta:'Ilustre Municipalidad de Antofagasta',calama:'Ilustre Municipalidad de Calama',tocopilla:'Ilustre Municipalidad de Tocopilla',central:'Gobierno central; la región se compromete a apoyarla'};
+// Responsable de cada iniciativa (GORE 8 · I.M. Antofagasta 8 · I.M. Calama 7 · I.M. Tocopilla 7 · Gobierno central 7):
+// la regla vive en emra-conocimiento.js (EMRA_RESPONSABLES), la misma que usa el filtro del portal.
+const GRUPO=x=>EMRA_RESPONSABLES.grupo(x.id);
+const GRUPOS=EMRA_RESPONSABLES.grupos;
+const GRUPO_TXT=EMRA_RESPONSABLES.texto;
 const grupoCorto=x=>GRUPOS.find(g=>g[0]===GRUPO(x))[2];
 let mapa=null,capa=null,marcas={};
 const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
