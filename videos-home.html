@@ -690,7 +690,7 @@ const CP={s:'',c:'',q:'',open:{}}; // open: sectores desplegados (todos cerrados
 function abrirCartera(){
   const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;$('#mp').hidden=true;
   if(cp.hidden){
-    cp.hidden=false;
+    cp.hidden=false;CP.open={}; // al reabrir, el primer grupo vuelve a partir desplegado
     const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
     $('#cp-c').innerHTML=`<option value="">Todas</option>`+comunas.map(c=>`<option>${esc(c)}</option>`).join('');
     pintarCartera();
@@ -714,12 +714,14 @@ function pintarCartera(){
       <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`});
 }
 // Tabla con grupos desplegables («Ver proyectos» / «Ver iniciativas»): la usan corto y mediano plazo.
-// estado: grupos abiertos o cerrados a mano; abierto: cómo parten (con filtro o búsqueda activa se muestran los resultados).
+// estado: grupos abiertos o cerrados a mano; abierto: cómo parten (con filtro o búsqueda activa se muestran todos los resultados).
+// Sin filtro, el primer grupo con resultados parte desplegado y los demás cerrados (pedido de Pablo, 25-nov).
 function tablaGrupos(tb,{grupos,lista,de,estado,abierto,unidad,fila,repintar,cols=6}){
   if(!lista.length){$(tb).innerHTML=`<tr><td colspan="${cols}" class="vacio">No hay ${unidad[1]} con esos filtros.</td></tr>`;return;}
+  const primero=(grupos.find(([k])=>lista.some(x=>de(x)===k))||[])[0];
   $(tb).innerHTML=grupos.map(([k,t])=>{
     const g=lista.filter(x=>de(x)===k);if(!g.length)return '';
-    const ab0=k in estado?estado[k]:abierto;
+    const ab0=k in estado?estado[k]:(abierto||k===primero);
     return `<tr class="sec" data-sec="${k}"><td colspan="${cols}"><button class="sec-b" aria-expanded="${ab0}"><span class="car" aria-hidden="true">▸</span>${esc(t)}<i>${g.length} ${g.length>1?unidad[1]:unidad[0]}</i><span class="sec-v">${ab0?'Ocultar':'Ver '+unidad[1]}</span></button></td></tr>`+(ab0?g.map(fila).join(''):'');
   }).join('');
   document.querySelectorAll(`${tb} .sec-b`).forEach(b=>b.onclick=()=>{
@@ -736,7 +738,7 @@ const numMP=()=>{const o={};let i=0;GRUPOS.forEach(([g])=>INICIATIVAS.filter(x=>
 function abrirMediano(){
   const mp=$('#mp');$('#exp').hidden=true;$('#cp').hidden=true;$('#oe').hidden=true;
   if(mp.hidden){
-    mp.hidden=false;
+    mp.hidden=false;MP.open={}; // al reabrir, el primer grupo vuelve a partir desplegado
     $('#mp-c').innerHTML=`<option value="">Todas</option>`+CIUDADES.map(c=>`<option value="${c}">${c==='Regional'?'Regional (varias comunas)':c}</option>`).join('');
     pintarMediano();cargarVivo();
   }
