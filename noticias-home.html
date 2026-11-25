@@ -190,13 +190,19 @@ function pintarCarrusel(L){
   $('#pista').addEventListener('touchstart',parar,{passive:true});
   window.addEventListener('resize',()=>irA(idx,false));
   $('#car').hidden=false;marcar();
-  // avance automático cada 7 s; se detiene al tocar, al pasar el mouse o con foco, y no corre si el sistema pide menos movimiento
+  // avance automático cada 4 s; se pausa mientras el mouse o el foco están encima y sigue al salir;
+  // al tocar en el celular o usar flechas/puntitos se detiene; no corre si el sistema pide menos movimiento
   if(n>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-    auto=setInterval(()=>{if(!document.hidden)irA(idx+1);},7000);
-    const car=$('#car');car.addEventListener('mouseenter',parar);car.addEventListener('focusin',parar);
+    autoOk=true;andar();
+    const car=$('#car');
+    car.addEventListener('mouseenter',pausa);car.addEventListener('mouseleave',andar);
+    car.addEventListener('focusin',pausa);car.addEventListener('focusout',andar);
   }
 }
-function parar(){if(auto){clearInterval(auto);auto=null;}}
+let autoOk=false;
+function andar(){if(autoOk&&!auto)auto=setInterval(()=>{if(!document.hidden)irA(idx+1);},4000);}
+function pausa(){if(auto){clearInterval(auto);auto=null;}}
+function parar(){autoOk=false;pausa();}
 
 // ══ GRILLAS ══
 function tarjeta(p){
