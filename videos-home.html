@@ -454,7 +454,7 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      ${v.cta[1]==='#objetivos'?`<button class="link" id="abrir-oe" aria-controls="oe">${esc(v.cta[0])} →</button>`:v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" target="_top">${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
+      ${v.cta[1]==='#objetivos'?`<button class="link" id="abrir-oe" aria-controls="oe">${esc(v.cta[0])} →</button>`:v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" ${/^https?:/.test(v.cta[1])?'target="_blank" rel="noopener"':'target="_top"'}>${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{
