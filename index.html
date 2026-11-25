@@ -7267,6 +7267,11 @@ function resetAll(){
 window.addEventListener('load',async()=>{
   await loadFromSupabase();
   buildCP();
+  // Enlace con capa ya elegida: ?plazo=mediano (solo las 37 iniciativas) o ?plazo=corto (solo corto plazo OE1).
+  // Lo usa el botón «Explora las 37 iniciativas» del video 3 en emra.cl (25-nov-2026).
+  const PLAZO_URL=(new URLSearchParams(location.search).get('plazo')||'').toLowerCase();
+  if(PLAZO_URL.startsWith('mediano')){CAPAS.mp=true;CAPAS.cp=false;}
+  else if(PLAZO_URL.startsWith('corto')){CAPAS.mp=false;CAPAS.cp=true;}
   renderOEPills();renderList();
   setTimeout(()=>{
     document.getElementById('loading').style.display='none';
@@ -7290,7 +7295,7 @@ window.addEventListener('load',async()=>{
     renderEmraTab();
     renderChatSugs();
     // Rediseño: el mapa parte encuadrando las iniciativas
-    setTimeout(()=>{try{const m=innerWidth<=768;if(map&&INI.length)map.fitBounds(L.latLngBounds([...INI,...CP].map(i=>[i.lat,i.lng])),{paddingTopLeft:[30,30],paddingBottomRight:[30,m?Math.round(innerHeight*.46)+20:30]});}catch(e){}},300);
+    setTimeout(()=>{try{const m=innerWidth<=768;const vis=[...(CAPAS.mp?INI:[]),...(CAPAS.cp?CP:[])];if(map&&vis.length)map.fitBounds(L.latLngBounds(vis.map(i=>[i.lat,i.lng])),{paddingTopLeft:[30,30],paddingBottomRight:[30,m?Math.round(innerHeight*.46)+20:30]});}catch(e){}},300);
     const wOes=document.getElementById('welcome-oes');
     if(wOes) wOes.innerHTML=Object.entries(OE_CONFIG).map(([oe,c])=>`<span class="welcome-oe" style="background:${c.color}">${oe} · ${c.label}</span>`).join('');
     // Modos de evento: #participa (asistentes vía QR) y #pantalla (proyector)
@@ -7302,6 +7307,7 @@ window.addEventListener('load',async()=>{
     else if(location.hash==='#totem'){ openTotem(); }
     else if(location.hash==='#links'){ openLinks(); }
     else if(location.hash==='#mapa'){ /* acceso directo al mapa, sin portada */ }
+    else if(PLAZO_URL){ /* llega desde emra.cl con ?plazo=…: directo al mapa filtrado, sin portada */ }
     else if(PORTADA_ACTIVA||verPortadaPrueba()){ showPortada(); }
     /* si la portada está en pausa, se queda en el mapa */
     // Init Leaflet después de que el DOM sea visible
