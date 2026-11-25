@@ -191,15 +191,15 @@ button.link{border:0}
 .tb{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}
 .tb th{position:sticky;top:0;background:var(--card);text-align:left;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:10px 12px;border-bottom:1.5px solid var(--bd);white-space:nowrap}
 .tb td{padding:9px 12px;border-bottom:1px solid #f0e8e1;vertical-align:top}
-.tb tr.sec td{background:#fbf8f5;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx);border-left:5px solid var(--oe2);padding-top:12px}
+.tb tr.sec td{background:#fbf8f5;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx);border-left:5px solid var(--tc,var(--oe2));padding-top:12px}
 .tb .sec-b{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
-.tb .sec-b:focus-visible{outline:2px solid var(--oe2);outline-offset:3px}
-.tb .sec-b .car{display:inline-block;transition:transform .2s;color:var(--oe2)}
+.tb .sec-b:focus-visible{outline:2px solid var(--tc,var(--oe2));outline-offset:3px}
+.tb .sec-b .car{display:inline-block;transition:transform .2s;color:var(--tc,var(--oe2))}
 .tb .sec-b[aria-expanded="true"] .car{transform:rotate(90deg)}
 .tb .sec-v{margin-left:auto;font-size:12px;letter-spacing:.02em;text-transform:none;color:var(--cu2);font-weight:700}
 .tb tr.sec:hover td{background:#f7f0e9}
 .tb tr.sec td i{font-style:normal;font-weight:600;color:var(--mut);letter-spacing:0;text-transform:none;margin-left:6px}
-.tb .idc{font-weight:800;color:var(--oe2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tb .idc{font-weight:800;color:var(--tc,var(--oe2));white-space:nowrap;font-variant-numeric:tabular-nums}
 .tb .n{color:var(--mut);font-variant-numeric:tabular-nums}
 .tb td[data-l]{white-space:nowrap}
 .tb .pj{font-weight:700}.tb .pj small{display:block;font-weight:500;color:var(--mut);font-size:12.5px;margin-top:2px}
@@ -228,8 +228,9 @@ button.link{border:0}
 .mas .btn2{display:inline-flex;align-items:center;gap:8px;font-size:14px;padding:10px 16px;border-color:var(--cu);color:var(--cu2)}
 .mas .btn2:hover{background:var(--cu);color:#fff}
 .tb td.org{white-space:normal;color:var(--mut);font-size:13.5px}
-.cp-nota{margin-top:14px;background:var(--card);border-left:5px solid var(--oe2);border-radius:4px;padding:14px 16px;font-size:15px}
+.cp-nota{margin-top:14px;background:var(--card);border-left:5px solid var(--tc,var(--oe2));border-radius:4px;padding:14px 16px;font-size:15px}
 .cp-nota a{color:var(--cu2);font-weight:700}
+.tb .oec{white-space:nowrap;font-weight:700}.tb .oec:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:0}
 @media (max-width:700px){
   .tb thead{display:none}
   .tb,.tb tbody,.tb tr,.tb td{display:block;width:100%}
@@ -324,6 +325,33 @@ button.link{border:0}
     </div>
   </section>
 
+  <!-- listado de mediano plazo: se abre con el botón del video 3 (mismos componentes que la cartera de corto plazo) -->
+  <section class="exp" id="mp" hidden aria-labelledby="mp-t" style="--tc:var(--oe3)">
+    <div class="exp-h">
+      <div>
+        <div class="kick" style="--c:var(--oe3)">Mediano plazo · al 2035</div>
+        <h3 id="mp-t">Las 37 iniciativas de mediano plazo</h3>
+        <p>30 iniciativas en que nos pusimos de acuerdo como región, a cargo del Gobierno Regional y de las municipalidades de Antofagasta, Calama y Tocopilla, y 7 iniciativas estratégicas que dependen del Gobierno central, donde la región se compromete a apoyarlas.</p>
+      </div>
+      <button class="x" id="mp-x" aria-label="Cerrar el listado de iniciativas">×</button>
+    </div>
+    <div class="fil">
+      <div class="frow" role="group" aria-label="Filtrar por responsable"><span class="flab">Responsable</span><span id="mp-f" style="display:contents"></span></div>
+    </div>
+    <div class="bar">
+      <div class="bar-l">
+        <input class="q" id="mp-q" type="search" placeholder="Buscar: tren, agua, ID 593…" aria-label="Buscar en las iniciativas de mediano plazo"/>
+        <label class="cp-sel">Ciudad <select id="mp-c"></select></label>
+        <span class="cnt" id="mp-n" aria-live="polite"></span>
+      </div>
+    </div>
+    <div class="tw"><table class="tb">
+      <thead><tr><th>N°</th><th>ID EMRA</th><th>Iniciativa</th><th>Ciudad</th><th>Objetivo</th><th>Instituciones</th></tr></thead>
+      <tbody id="mp-tb"></tbody>
+    </table></div>
+    <p class="cp-nota">¿Quieres verlas en el mapa, con fotos y su ficha completa? Abre el <a href="https://portal.emra.cl/?plazo=mediano" target="_blank" rel="noopener">Portal EMRA con las 37 iniciativas →</a></p>
+  </section>
+
   <!-- cartera de corto plazo: se abre con el botón del video 2 -->
   <section class="exp" id="cp" hidden aria-labelledby="cp-t">
     <div class="exp-h">
@@ -373,7 +401,7 @@ const VIDEOS=[
    titulo:'Mediano plazo: 37 iniciativas, una sola visión',
    texto:'Diseño de mediano plazo al 2035: la EMRA busca dar un salto en el desarrollo urbano de nuestras capitales provinciales. En este ámbito, 30 son las iniciativas en que nos hemos puesto de acuerdo como región y queremos construir juntos, y 7 son las iniciativas estratégicas de responsabilidad del Gobierno, donde la región asume el compromiso de apoyar iniciativas regionales estratégicas que dependen del nivel central.',
    lista:[['Movilidad: tren interurbano Mejillones–Antofagasta, tren urbano de Antofagasta, aeropuertos renovados y buses eléctricos'],['Ciudad y agua: redes de aguas grises, Borde Río Loa, Parque Los Yacimientos y Marina Pública La Chimba'],['Bienestar y desarrollo: 17.400 soluciones habitacionales, centro oncológico, 100% de cobertura en jardines infantiles y una nueva fundición']],
-   cta:['Explora las 37 iniciativas','https://portal.emra.cl/?plazo=mediano']}  // lleva al Portal EMRA con solo la capa de mediano plazo (25-nov; antes '#iniciativas' abría el explorador aquí mismo)
+   cta:['Explora las 37 iniciativas','#mediano']}  // abre el listado de las 37 aquí mismo, como corto plazo; el portal queda como nota al pie (25-nov)
 ];
 
 // Las 37 iniciativas: copia de respaldo de la tabla `iniciativas` de Supabase (9-nov-2026).
@@ -454,7 +482,7 @@ function ir(i,foco){
       <h3>${esc(v.titulo)}</h3>
       <p>${esc(v.texto)}</p>
       <ul>${v.lista.map(l=>`<li${l[1]?` style="--dot:${l[1]}"`:''}>${esc(l[0])}</li>`).join('')}</ul>
-      ${v.cta[1]==='#objetivos'?`<button class="link" id="abrir-oe" aria-controls="oe">${esc(v.cta[0])} →</button>`:v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" ${/^https?:/.test(v.cta[1])?'target="_blank" rel="noopener"':'target="_top"'}>${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
+      ${v.cta[1]==='#objetivos'?`<button class="link" id="abrir-oe" aria-controls="oe">${esc(v.cta[0])} →</button>`:v.cta[1]==='#iniciativas'?`<button class="link" id="abrir-ini" aria-controls="exp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#cortoplazo'?`<button class="link" id="abrir-cp" aria-controls="cp">${esc(v.cta[0])} →</button>`:v.cta[1]==='#mediano'?`<button class="link" id="abrir-mp" aria-controls="mp">${esc(v.cta[0])} →</button>`:v.cta[1]?`<a class="link" href="${v.cta[1]}" ${/^https?:/.test(v.cta[1])?'target="_blank" rel="noopener"':'target="_top"'}>${esc(v.cta[0])} →</a>`:`<span class="link fijo">${esc(v.cta[0])}</span>`}
     </div>
   </div>`;
   $('#play').onclick=()=>{
@@ -463,6 +491,7 @@ function ir(i,foco){
   };
   const ab=$('#abrir-ini');if(ab)ab.onclick=abrirExplorador;
   const ac=$('#abrir-cp');if(ac)ac.onclick=abrirCartera;
+  const am=$('#abrir-mp');if(am)am.onclick=abrirMediano;
   const ao=$('#abrir-oe');if(ao)ao.onclick=()=>abrirObjetivos();
 }
 ir(0);
@@ -494,7 +523,7 @@ function cargarLeaflet(){
 }
 function abrirExplorador(){
   const ex=$('#exp');
-  $('#cp').hidden=true;$('#oe').hidden=true;
+  $('#cp').hidden=true;$('#oe').hidden=true;$('#mp').hidden=true;
   if(ex.hidden){ex.hidden=false;pintarFiltros();pintar();if(F.vista==='map')iniciarMapa();cargarVivo();}
   irA(ex);
 }
@@ -516,7 +545,8 @@ function cargarVivo(){
     const enVivo=new Set(nuevos.map(x=>x.id));
     INICIATIVAS.filter(x=>!enVivo.has(x.id)).forEach(x=>nuevos.push(x));
     INICIATIVAS.splice(0,INICIATIVAS.length,...nuevos);
-    pintarFiltros();pintar(true);
+    if(!$('#exp').hidden){pintarFiltros();pintar(true);}
+    if(!$('#mp').hidden)pintarMediano();
   }).catch(()=>{});
 }
 // Cloudinary: pedir la foto al tamaño justo (f_auto/q_auto = webp/avif liviano)
@@ -654,7 +684,7 @@ const CARTERA=window.EMRA_CARTERA_CP||[];
 const SECTORES=[['Salud','Salud'],['Agua','Agua potable y alcantarillado'],['Educación','Educación']];
 const CP={s:'',c:'',q:'',open:{}}; // open: sectores desplegados (todos cerrados al inicio)
 function abrirCartera(){
-  const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;
+  const cp=$('#cp');$('#exp').hidden=true;$('#oe').hidden=true;$('#mp').hidden=true;
   if(cp.hidden){
     cp.hidden=false;
     const comunas=[...new Set(CARTERA.map(x=>x.com))].sort((a,b)=>a.localeCompare(b,'es'));
@@ -673,22 +703,59 @@ function pintarCartera(){
   document.querySelectorAll('#cp-f .chip').forEach(b=>b.onclick=()=>{CP.s=b.dataset.s;CP.open={};pintarCartera();});
   const L=CARTERA.filter(x=>(!CP.s||x.s===CP.s)&&(!CP.c||x.com===CP.c)&&(!CP.q||norm([x.id,x.p,x.loc,x.com,x.enc,x.s].join(' ')).includes(CP.q)));
   $('#cp-n').innerHTML=`<b>${L.length}</b> de ${CARTERA.length} proyectos`;
-  if(!L.length){$('#cp-tb').innerHTML=`<tr><td colspan="6" class="vacio">No hay proyectos con esos filtros.</td></tr>`;return;}
-  $('#cp-tb').innerHTML=SECTORES.map(([k,t])=>{
-    const g=L.filter(x=>x.s===k);if(!g.length)return '';
-    const ab0=k in CP.open?CP.open[k]:!!(CP.s||CP.c||CP.q); // con un filtro o búsqueda activa se muestran los resultados
-    return `<tr class="sec" data-sec="${k}"><td colspan="6"><button class="sec-b" aria-expanded="${ab0}"><span class="car" aria-hidden="true">▸</span>${esc(t)}<i>${g.length} proyecto${g.length>1?'s':''}</i><span class="sec-v">${ab0?'Ocultar':'Ver proyectos'}</span></button></td></tr>`+(!ab0?'':g.map(x=>`<tr>
+  tablaGrupos('#cp-tb',{grupos:SECTORES,lista:L,de:x=>x.s,estado:CP.open,abierto:!!(CP.s||CP.c||CP.q),unidad:['proyecto','proyectos'],repintar:pintarCartera,
+    fila:x=>`<tr>
       <td class="n">${x.n}</td><td class="idc">ID ${esc(x.id)}</td>
       <td class="pj">${esc(x.p)}</td><td data-l="Localidad">${esc(x.loc)}</td><td data-l="Comuna">${esc(x.com)}</td>
-      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`).join(''));
+      <td data-l="Encargado del diseño">${x.enc==='DISPONIBLE'?'<span class="disp">Disponible</span>':esc(x.enc)}</td></tr>`});
+}
+// Tabla con grupos desplegables («Ver proyectos» / «Ver iniciativas»): la usan corto y mediano plazo.
+// estado: grupos abiertos o cerrados a mano; abierto: cómo parten (con filtro o búsqueda activa se muestran los resultados).
+function tablaGrupos(tb,{grupos,lista,de,estado,abierto,unidad,fila,repintar,cols=6}){
+  if(!lista.length){$(tb).innerHTML=`<tr><td colspan="${cols}" class="vacio">No hay ${unidad[1]} con esos filtros.</td></tr>`;return;}
+  $(tb).innerHTML=grupos.map(([k,t])=>{
+    const g=lista.filter(x=>de(x)===k);if(!g.length)return '';
+    const ab0=k in estado?estado[k]:abierto;
+    return `<tr class="sec" data-sec="${k}"><td colspan="${cols}"><button class="sec-b" aria-expanded="${ab0}"><span class="car" aria-hidden="true">▸</span>${esc(t)}<i>${g.length} ${g.length>1?unidad[1]:unidad[0]}</i><span class="sec-v">${ab0?'Ocultar':'Ver '+unidad[1]}</span></button></td></tr>`+(ab0?g.map(fila).join(''):'');
   }).join('');
-  document.querySelectorAll('#cp-tb .sec-b').forEach(b=>b.onclick=()=>{
-    const k=b.closest('tr').dataset.sec,ab=b.getAttribute('aria-expanded')==='true';
-    CP.open[k]=!ab;
-    pintarCartera();
-    const nb=document.querySelector(`#cp-tb tr[data-sec="${k}"] .sec-b`);if(nb)nb.focus({preventScroll:true});
+  document.querySelectorAll(`${tb} .sec-b`).forEach(b=>b.onclick=()=>{
+    const k=b.closest('tr').dataset.sec;
+    estado[k]=b.getAttribute('aria-expanded')!=='true';
+    repintar();
+    const nb=document.querySelector(`${tb} tr[data-sec="${k}"] .sec-b`);if(nb)nb.focus({preventScroll:true});
   });
-
+}
+// ══ LISTADO DE MEDIANO PLAZO (video 3) ══
+// Las 37 de INICIATIVAS (Supabase en vivo, con copia de respaldo), agrupadas por responsable (EMRA_RESPONSABLES, emra-conocimiento.js).
+const MP={g:'',c:'',q:'',open:{}};
+const numMP=()=>{const o={};let i=0;GRUPOS.forEach(([g])=>INICIATIVAS.filter(x=>GRUPO(x)===g).forEach(x=>o[x.id]=++i));return o;}; // N° 1-37 en el orden de los grupos
+function abrirMediano(){
+  const mp=$('#mp');$('#exp').hidden=true;$('#cp').hidden=true;$('#oe').hidden=true;
+  if(mp.hidden){
+    mp.hidden=false;
+    $('#mp-c').innerHTML=`<option value="">Todas</option>`+CIUDADES.map(c=>`<option value="${c}">${c==='Regional'?'Regional (varias comunas)':c}</option>`).join('');
+    pintarMediano();cargarVivo();
+  }
+  irA(mp);
+}
+$('#mp-x').onclick=()=>{$('#mp').hidden=true;irA($('#tabs'));const am=$('#abrir-mp');if(am)am.focus();};
+$('#mp-q').oninput=e=>{MP.q=norm(e.target.value.trim());MP.open={};pintarMediano();};
+$('#mp-c').onchange=e=>{MP.c=e.target.value;MP.open={};pintarMediano();};
+function pintarMediano(){
+  const nG=g=>INICIATIVAS.filter(x=>GRUPO(x)===g).length;
+  $('#mp-f').innerHTML=[['','Todos',INICIATIVAS.length],...GRUPOS.map(([g,t])=>[g,t,nG(g)])]
+    .map(([v,t,n])=>`<button class="chip" data-g="${v}" style="--c:var(--oe3)" aria-pressed="${MP.g===v}">${esc(t)} <i>${n}</i></button>`).join('');
+  document.querySelectorAll('#mp-f .chip').forEach(b=>b.onclick=()=>{MP.g=b.dataset.g;MP.open={};pintarMediano();});
+  const L=INICIATIVAS.filter(x=>(!MP.g||GRUPO(x)===MP.g)&&(!MP.c||x.c===MP.c)&&(!MP.q||norm([x.n,x.tipo,x.c,x.resp,x.d,ID_REPO[x.id]||''].join(' ')).includes(MP.q)));
+  $('#mp-n').innerHTML=`<b>${L.length}</b> de ${INICIATIVAS.length} iniciativas`;
+  const num=numMP();
+  tablaGrupos('#mp-tb',{grupos:GRUPOS,lista:L,de:GRUPO,estado:MP.open,abierto:!!(MP.g||MP.c||MP.q),unidad:['iniciativa','iniciativas'],repintar:pintarMediano,
+    fila:x=>`<tr>
+      <td class="n">${num[x.id]}</td>${ID_REPO[x.id]?`<td class="idc">ID ${ID_REPO[x.id]}</td>`:'<td class="n">Sin ID</td>'}
+      <td class="pj">${esc(x.n)}${x.tipo?`<small>${esc(x.tipo)}</small>`:''}</td>
+      <td data-l="Ciudad">${esc(x.c==='Regional'?'Regional · varias comunas':x.c)}</td>
+      <td data-l="Objetivo"><span class="oec" style="--c:${OES[x.oe][1]}">OE${x.oe}</span> ${esc(OES[x.oe][0])}</td>
+      <td data-l="Instituciones" class="org">${esc(x.resp||'—')}</td></tr>`});
 }
 // ── formato de fichas (lo usan las iniciativas estratégicas del Directorio) ──
 const fechaCP=f=>{if(!f)return '';const[a,m,d]=f.split('-');return `${+d} ${['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][m-1]} ${a}`;};
@@ -733,7 +800,7 @@ const OBJETIVOS=[
 ];
 let oeSel=1;
 function abrirObjetivos(k){
-  const s=$('#oe');$('#exp').hidden=true;$('#cp').hidden=true;
+  const s=$('#oe');$('#exp').hidden=true;$('#cp').hidden=true;$('#mp').hidden=true;
   if(k)oeSel=k;
   s.hidden=false;pintarObjetivos();irA(s);
 }
@@ -765,10 +832,11 @@ function pintarObjetivos(foco){
   };
 }
 
-// enlaces directos: #objetivos abre el video 1 con los objetivos; #iniciativas el video 3 con el explorador; #cortoplazo el video 2 con la cartera
+// enlaces directos: #objetivos abre el video 1 con los objetivos; #iniciativas el video 3 con el explorador (mapa); #mediano el video 3 con el listado; #cortoplazo el video 2 con la cartera
 if(location.hash==='#objetivos'){abrirObjetivos();}
 if(location.hash==='#iniciativas'){ir(2);abrirExplorador();}
 if(location.hash==='#cortoplazo'){ir(1);abrirCartera();}
+if(location.hash==='#mediano'){ir(2);abrirMediano();}
 
 // ── iframe: avisar alto al sitio padre ──
 if(parent!==window){
