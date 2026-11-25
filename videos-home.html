@@ -466,8 +466,12 @@ document.querySelectorAll('.tab').forEach((b,i)=>{b.onclick=()=>ir(i);b.onkeydow
 document.querySelectorAll('.dots button').forEach((b,i)=>b.onclick=()=>ir(i));
 $('#prev').onclick=()=>ir(cur-1);$('#next').onclick=()=>ir(cur+1);
 
+// Panel que abre cada video (video 1: objetivos · video 2: corto plazo · video 3: listado y explorador de mediano plazo).
+const PANEL_DE=[['oe'],['cp'],['mp','exp']];
 function ir(i,foco){
   cur=(i+VIDEOS.length)%VIDEOS.length;const v=VIDEOS[cur];
+  // al cambiar de video se cierra cualquier panel que no sea de este video (pestañas, flechas, puntitos, teclado, enlaces)
+  PANEL_DE.forEach((ids,j)=>{if(j!==cur)ids.forEach(id=>{const p=document.getElementById(id);if(p)p.hidden=true;});});
   document.querySelectorAll('.tab').forEach((b,j)=>{b.setAttribute('aria-selected',j===cur);b.tabIndex=j===cur?0:-1;});
   document.querySelectorAll('.dots button').forEach((b,j)=>b.classList.toggle('on',j===cur));
   if(foco)$('#tab'+cur).focus();
