@@ -27,6 +27,7 @@ a{color:inherit}
 button{font-family:inherit;cursor:pointer}
 .w{max-width:1120px;margin:0 auto;padding:8px 10px 24px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sl,.card{position:relative} /* el texto oculto para lectores de pantalla no se escapa hacia el lado */
 
 /* ── carrusel: 3 últimas ── */
 .car{position:relative}
@@ -154,7 +155,7 @@ function cargar(pag,acum){
 }
 
 // ══ CARRUSEL ══
-let idx=0,n=0,auto=null;
+let idx=0,n=0,auto=null,prog=0; // prog: momento del último movimiento hecho por código (flechas, puntitos, avance automático)
 function slide(p,i){
   const f=foto(p,true),cat=categoria(p),t=txt(p.title.rendered),ex=txt(p.excerpt&&p.excerpt.rendered).replace(/\s*\[…\]$|\s*\[&hellip;\]$/,'…');
   return `<article class="sl" role="group" aria-roledescription="diapositiva" aria-label="${i+1} de ${n}">
@@ -168,7 +169,7 @@ function slide(p,i){
   </article>`;
 }
 function irA(i,suave){
-  idx=(i+n)%n;const pista=$('#pista');
+  idx=(i+n)%n;const pista=$('#pista');prog=Date.now();
   pista.scrollTo({left:idx*pista.clientWidth,behavior:suave===false?'auto':'smooth'});
   marcar();
 }
@@ -184,7 +185,8 @@ function pintarCarrusel(L){
   $('#prev').onclick=()=>{parar();irA(idx-1);};$('#next').onclick=()=>{parar();irA(idx+1);};
   $('.nav').hidden=n<2;
   // swipe (celular): el scroll nativo con «snap» mueve la pista; aquí solo se sincronizan los puntitos
-  let t=null;$('#pista').addEventListener('scroll',()=>{clearTimeout(t);t=setTimeout(()=>{const p=$('#pista');const i=Math.round(p.scrollLeft/p.clientWidth);if(i!==idx){idx=i;marcar();}},90);},{passive:true});
+  // (mientras se desliza por una flecha o puntito se ignora: si no, una posición intermedia pisaría la diapositiva elegida)
+  let t=null;$('#pista').addEventListener('scroll',()=>{clearTimeout(t);t=setTimeout(()=>{if(Date.now()-prog<900)return;const p=$('#pista');const i=Math.round(p.scrollLeft/p.clientWidth);if(i!==idx){idx=i;marcar();}},120);},{passive:true});
   $('#pista').addEventListener('touchstart',parar,{passive:true});
   window.addEventListener('resize',()=>irA(idx,false));
   $('#car').hidden=false;marcar();
