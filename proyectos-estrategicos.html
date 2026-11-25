@@ -4,6 +4,9 @@
      Se inserta con mineria-embed.js:  <div id="emra-proyectos-estrategicos"></div>
      Datos: emra-estrategicas.js (ficha y actualizaciones por ID) + emra-proyectos-estrategicos.js (descripción, fotos y video).
      Nombres de empresas privadas ocultos («Empresa privada»), pedido del cliente.
+     25-nov-2026: pasa de lista a carrusel (pedido del cliente): los botones de arriba son pestañas, se ve un proyecto a la vez
+     y cambia con animación (barrido del color del objetivo, imagen que se asienta, textos en cascada). Flechas, barra de avance,
+     teclado (←/→), deslizar con el dedo y «Siguiente proyecto». Con «reducir movimiento» cambia sin animar. Sin librerías externas.
      Avisa su alto al sitio padre (postMessage) para el auto-alto de mineria-embed.js. También funciona sola en portal.emra.cl/proyectos-estrategicos -->
 <html lang="es">
 <head>
@@ -33,17 +36,45 @@ body.sola .w{padding-top:40px}
 h1{font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.08;margin:0 0 10px;letter-spacing:-.01em}
 .intro{color:var(--mut);max-width:720px;font-size:17px}
 
-/* índice */
-.ind{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 8px;padding:0;list-style:none}
-.ind button{display:flex;align-items:center;gap:8px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font-size:14px;font-weight:600;color:var(--tx);transition:.15s;text-align:left}
-.ind button:hover{border-color:var(--c);box-shadow:0 4px 12px rgba(60,40,20,.08)}
-.ind .n{background:var(--c);color:#fff;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* selector de proyectos (pestañas del carrusel) */
+.ind{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 14px;padding:0;list-style:none}
+.ind button{display:flex;align-items:center;gap:8px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font-size:14px;font-weight:600;color:var(--tx);transition:background .25s,color .25s,border-color .25s,box-shadow .25s,transform .25s cubic-bezier(.34,1.56,.64,1);text-align:left}
+.ind button:hover{border-color:var(--c);box-shadow:0 4px 12px rgba(60,40,20,.08);transform:translateY(-1px)}
+.ind .n{background:var(--c);color:#fff;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;transition:background .25s,color .25s}
+.ind button[aria-selected="true"]{background:var(--c);border-color:var(--c);color:#fff;box-shadow:0 8px 20px -6px var(--c);transform:translateY(-2px)}
+.ind button[aria-selected="true"] .n{background:#fff;color:var(--tx)}
 
-/* proyecto */
-.pr{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:32px;padding:36px 0;border-top:1.5px solid var(--bd);scroll-margin-top:16px}
-.pr:first-of-type{margin-top:22px}
+/* barra: anterior · avance · siguiente */
+.ctrl{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1.5px solid var(--bd)}
+.ctrl .fl{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bd);background:#fff;display:grid;place-items:center;color:var(--tx);transition:.2s}
+.ctrl .fl:hover{border-color:var(--cc,var(--cu));color:var(--cc,var(--cu));transform:scale(1.06)}
+.ctrl .fl svg{width:18px;height:18px}
+.ctrl .seg{flex:1;display:flex;gap:6px}
+.ctrl .seg button{flex:1;height:6px;border:0;border-radius:3px;background:var(--bd);padding:0;position:relative;overflow:hidden}
+.ctrl .seg button:after{content:"";position:absolute;inset:0;background:var(--c);transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.ctrl .seg button.vista:after{transform:scaleX(1);opacity:.35}
+.ctrl .seg button[aria-current="true"]:after{transform:scaleX(1);opacity:1}
+.ctrl .cont{flex:0 0 auto;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--mut);min-width:54px;text-align:center}
+.ctrl .cont b{color:var(--tx);font-size:18px}
 
-.media{min-width:0;display:flex;flex-direction:column;gap:10px;align-self:start;position:sticky;top:16px}
+/* escenario: un proyecto a la vez */
+.escena{position:relative;overflow:hidden;padding-bottom:4px}
+.pr{display:none;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:32px;padding:20px 0 28px;position:relative}
+.pr.on{display:grid}
+.pr.sale{display:grid;position:absolute;left:0;right:0;top:0;pointer-events:none}
+/* número de ID gigante de fondo */
+.pr .fondo{position:absolute;right:-6px;top:-18px;font-size:clamp(120px,17vw,230px);font-weight:800;line-height:1;color:var(--c);opacity:.09;pointer-events:none;font-variant-numeric:tabular-nums;letter-spacing:-.04em;z-index:0}
+.pr>.media,.pr>.info{position:relative;z-index:1}
+/* barrido de color al entrar */
+.barrido{position:absolute;inset:0;background:var(--c);z-index:3;transform:scaleX(0);pointer-events:none;border-radius:10px}
+.sig{display:flex;align-items:center;gap:10px;width:100%;margin-top:4px;border:1.5px dashed var(--bd);background:none;border-radius:8px;padding:12px 14px;text-align:left;color:var(--tx);font-size:14.5px;transition:.2s}
+.sig:hover{border-style:solid;border-color:var(--cn);background:#fff;transform:translateX(3px)}
+.sig small{display:block;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.sig b{flex:1;font-weight:700}
+.sig .fx{width:30px;height:30px;border-radius:50%;background:var(--cn);color:#fff;display:grid;place-items:center;flex:0 0 auto}
+.sig .fx svg{width:15px;height:15px}
+
+.media{min-width:0;display:flex;flex-direction:column;gap:10px;align-self:start;position:relative}
 .marco{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:var(--card);box-shadow:0 10px 30px rgba(60,40,20,.10)}
 .marco img,.marco iframe,.marco video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;display:block}
 .marco video{background:#000;object-fit:contain}
@@ -105,11 +136,14 @@ dl.fi dt{color:var(--mut);font-weight:600}dl.fi dd{margin:0}
 .pie a{font-weight:700}
 
 @media (max-width:880px){
-  .pr{grid-template-columns:1fr;gap:20px;padding:28px 0}
-  .media{position:static}
+  .pr{grid-template-columns:1fr;gap:20px;padding:18px 0 24px}
 }
 @media (max-width:520px){
-  .ind button{font-size:13px}
+  .ind{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:2px 16px 8px;scroll-snap-type:x mandatory}
+  .ind::-webkit-scrollbar{display:none}
+  .ind li{scroll-snap-align:start;flex:0 0 auto}
+  .ind button{font-size:13px;white-space:nowrap}
+  .ctrl{gap:10px}
   .play .b{width:64px;height:64px;margin:-32px 0 0 -32px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
@@ -121,8 +155,14 @@ dl.fi dt{color:var(--mut);font-weight:600}dl.fi dd{margin:0}
     <h1>Proyectos Estratégicos</h1>
     <p class="intro">Proyectos de la Estrategia Minera 2023–2050 presentados en las sesiones de Directorio: qué buscan, a qué objetivo estratégico aportan y el material que se mostró en cada sesión.</p>
   </header>
-  <nav aria-label="Proyectos de esta página"><ul class="ind" id="ind"></ul></nav>
-  <main id="lista"></main>
+  <nav aria-label="Elegir proyecto"><ul class="ind" id="ind" role="tablist"></ul></nav>
+  <div class="ctrl" id="ctrl" hidden>
+    <button class="fl" id="ant" aria-label="Proyecto anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="seg" id="seg"></div>
+    <span class="cont" id="cont" aria-live="polite"></span>
+    <button class="fl" id="sig" aria-label="Proyecto siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+  <main id="lista" class="escena"></main>
   <footer class="pie">
     <span>Fuente: repositorio de iniciativas EMRA (Plataforma de gestión) y presentaciones al Directorio.</span>
     <a href="https://www.emra.cl/plataforma_gestion/" target="_top">Seguimiento completo en la Plataforma de gestión – EMRA 2023-2050 →</a>
@@ -189,9 +229,11 @@ function info(x){
     <dl class="fi">${fila('Institución',x.inst)}${fila('Zona',corta(x.f.zona,90))}${fila('Plazo',x.f.plazo)}</dl>`;
 }
 
-$('#ind').innerHTML=L.map(x=>`<li><button data-a="${x.ancla}" style="--c:${OEC[x.k]}"><span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,46))}</button></li>`).join('');
-$('#lista').innerHTML=L.map(x=>`<article class="pr" id="${x.ancla}" style="--c:${OEC[x.k]}" aria-labelledby="${x.ancla}-t">
-  <div class="media">${media(x)}</div><div class="info">${info(x).replace('<h2>',`<h2 id="${x.ancla}-t">`)}</div></article>`).join('')
+$('#ind').innerHTML=L.map((x,i)=>`<li role="presentation"><button role="tab" id="tab-${x.ancla}" data-i="${i}" aria-selected="false" aria-controls="${x.ancla}" tabindex="-1" style="--c:${OEC[x.k]}"><span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,46))}</button></li>`).join('');
+const siguiente=i=>{const n=L[(i+1)%L.length];return `<button class="sig" data-i="${(i+1)%L.length}" style="--cn:${OEC[n.k]}"><span style="flex:1"><small>Siguiente proyecto</small><b>${esc(corta(n.nom,70))}</b></span><span class="fx" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></button>`;};
+$('#lista').innerHTML=L.map((x,i)=>`<article class="pr" id="${x.ancla}" role="tabpanel" style="--c:${OEC[x.k]}" aria-labelledby="${x.ancla}-t">
+  <span class="fondo" aria-hidden="true">${esc(x.ids.join('·'))}</span>
+  <div class="media">${media(x)}</div><div class="info">${info(x).replace('<h2>',`<h2 id="${x.ancla}-t">`)}${L.length>1?siguiente(i):''}</div></article>`).join('')
   ||'<p style="color:var(--mut);margin-top:24px">No hay proyectos para mostrar.</p>';
 
 // ── video y fotos ──
@@ -232,7 +274,79 @@ function irA(el){
   if(EMBED){const y=el.getBoundingClientRect().top+window.pageYOffset;parent.postMessage({type:'emra-mineria-scroll',y},'*');}
   else el.scrollIntoView({behavior:'smooth',block:'start'});
 }
-document.querySelectorAll('#ind button').forEach(b=>b.onclick=()=>irA(document.getElementById(b.dataset.a)));
+// ── carrusel: un proyecto a la vez; los botones de arriba eligen cuál ──
+const QUIETO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tabs=[...document.querySelectorAll('#ind [role=tab]')], arts=L.map(x=>document.getElementById(x.ancla));
+let act=-1, ocupado=false;
+if(L.length>1){
+  $('#ctrl').hidden=false;
+  $('#seg').innerHTML=L.map((x,i)=>`<button data-i="${i}" style="--c:${OEC[x.k]}" aria-label="Ir al proyecto ${i+1}: ${esc(x.nom)}"></button>`).join('');
+}
+const segs=[...document.querySelectorAll('#seg button')];
+const dosDig=n=>String(n).padStart(2,'0');
+const anima=(el,k,o)=>QUIETO||!el||!el.animate?null:el.animate(k,o);
+
+function ir(i,{foco=false,subir=false}={}){
+  i=(i+L.length)%L.length;
+  if(i===act||ocupado)return;
+  const dir=act<0?0:(i>act?1:-1), ant=arts[act], nue=arts[i], x=L[i];
+  // pestañas, barra y contador
+  tabs.forEach((t,k)=>{t.setAttribute('aria-selected',k===i);t.tabIndex=k===i?0:-1;});
+  segs.forEach((s,k)=>{s.toggleAttribute('aria-current',false);if(k===i)s.setAttribute('aria-current','true');if(k<=i)s.classList.add('vista');});
+  $('#cont').innerHTML=`<b>${dosDig(i+1)}</b> / ${dosDig(L.length)}`;
+  $('#ctrl').style.setProperty('--cc',OEC[x.k]);
+  if(foco)tabs[i].focus();
+  // en celular las pestañas se deslizan: centrar la elegida (sin scrollIntoView, que movería la página de emra.cl)
+  const ul=$('#ind');if(ul.scrollWidth>ul.clientWidth){const li=tabs[i].parentNode;ul.scrollTo({left:li.offsetLeft-(ul.clientWidth-li.offsetWidth)/2,behavior:QUIETO?'auto':'smooth'});}
+  // si había un video sonando en el proyecto anterior, vuelve a su portada
+  if(ant){const pl=ant.querySelector('iframe,video');if(pl)mostrar(ant,L[act],'v',false);}
+  act=i;
+  if(!EMBED&&history.replaceState)history.replaceState(null,'','#'+x.ancla);
+  if(subir)irA($('#ind'));
+  if(QUIETO||dir===0){if(ant)ant.classList.remove('on');nue.classList.add('on');if(dir!==0||!QUIETO)entrar(nue,dir);return;}
+  ocupado=true;
+  // sale el anterior hacia el lado contrario
+  ant.classList.remove('on');ant.classList.add('sale');
+  const s=anima(ant,[{opacity:1,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-dir*70}px)`}],{duration:320,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+  const fin=()=>{ant.classList.remove('sale');ant.getAnimations&&ant.getAnimations().forEach(a=>a.cancel());};
+  if(s)s.finished.then(fin);else fin();
+  nue.classList.add('on');
+  entrar(nue,dir);
+  setTimeout(()=>ocupado=false,380);
+}
+
+// entrada: barrido del color del objetivo sobre el video, imagen que se asienta y textos en cascada
+function entrar(art,dir){
+  if(QUIETO)return;
+  const d=dir||1, marco=art.querySelector('.marco');
+  anima(art.querySelector('.fondo'),[{opacity:0,transform:`translate(${d*60}px,30px) scale(.85)`},{opacity:.09,transform:'none'}],{duration:900,easing:'cubic-bezier(.22,1,.36,1)'});
+  if(marco){
+    const b=document.createElement('span');b.className='barrido';marco.appendChild(b);
+    const o1=d>0?'left':'right', o2=d>0?'right':'left';
+    const w=anima(b,[{transform:'scaleX(0)',transformOrigin:o1},{transform:'scaleX(1)',transformOrigin:o1,offset:.45},{transform:'scaleX(1)',transformOrigin:o2,offset:.5},{transform:'scaleX(0)',transformOrigin:o2}],{duration:820,easing:'cubic-bezier(.65,0,.35,1)'});
+    if(w)w.finished.then(()=>b.remove());else b.remove();
+    anima(marco.querySelector('img'),[{transform:'scale(1.14)'},{transform:'scale(1.14)',offset:.4},{transform:'scale(1)'}],{duration:1100,easing:'cubic-bezier(.22,1,.36,1)'});
+    anima(marco.querySelector('.play .b'),[{transform:'scale(0)'},{transform:'scale(0)',offset:.55},{transform:'scale(1.15)',offset:.82},{transform:'scale(1)'}],{duration:900,easing:'ease-out'});
+  }
+  anima(art.querySelector('.thumbs'),[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:500,delay:420,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'});
+  [...art.querySelectorAll('.info > *')].forEach((el,k)=>anima(el,[{opacity:0,transform:`translate(${d*24}px,14px)`},{opacity:1,transform:'none'}],{duration:560,delay:140+k*55,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));
+}
+
+tabs.forEach(t=>{
+  t.onclick=()=>ir(+t.dataset.i);
+  t.onkeydown=e=>{const m={ArrowRight:1,ArrowLeft:-1}[e.key];if(m){e.preventDefault();ir(act+m,{foco:true});}
+    else if(e.key==='Home'){e.preventDefault();ir(0,{foco:true});}else if(e.key==='End'){e.preventDefault();ir(L.length-1,{foco:true});}};
+});
+segs.forEach(s=>s.onclick=()=>ir(+s.dataset.i));
+if($('#ant')){$('#ant').onclick=()=>ir(act-1);$('#sig').onclick=()=>ir(act+1);}
+document.querySelectorAll('.sig').forEach(b=>b.onclick=()=>ir(+b.dataset.i,{subir:true}));
+// deslizar con el dedo sobre la imagen
+arts.forEach(a=>{const m=a.querySelector('.marco');if(!m)return;let x0=null,y0=0;
+  m.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  m.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4)ir(act+(dx<0?1:-1));},{passive:true});});
+// abrir directo en un proyecto con #p-6, etc.
+const inicio=Math.max(0,L.findIndex(x=>'#'+x.ancla===location.hash));
+if(L.length)ir(inicio);
 
 // ── iframe: avisar alto al sitio padre ──
 if(EMBED){
