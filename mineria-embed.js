@@ -17,6 +17,9 @@
    Página «Proyectos Estratégicos» (subpágina de Actualidad de emra.cl): ficha completa con descripción, fotos y video:
      <div id="emra-proyectos-estrategicos"></div>
      <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
+   Noticias (página Actualidad de emra.cl): carrusel con las 3 últimas, «Noticias {año}» e historial por año:
+     <div id="emra-noticias-home"></div>
+     <script src="https://portal.emra.cl/mineria-embed.js" defer></script>
    Cada iframe crece al alto de su contenido (sin doble scroll).
    Opcional: window.MINERIA_BASE para apuntar a otro servidor. */
 (function(){
@@ -29,7 +32,8 @@
     'emra-videos-home':{src:'videos-home.html',title:'EMRA en videos',h:620,bg:'transparent',radius:'0'},
     'emra-dato-o-mito':{src:'dato-o-mito.html?embed=1',title:'¿Dato o mito? Reto de Minería en Números',h:760,bg:'#F7F1EC',radius:'16px'},
     'emra-estrategicas-home':{src:'estrategicas-home.html',title:'Proyectos estratégicos EMRA',h:560,bg:'transparent',radius:'0'},
-    'emra-proyectos-estrategicos':{src:'proyectos-estrategicos.html',title:'Proyectos Estratégicos EMRA',h:2400,bg:'transparent',radius:'0'}
+    'emra-proyectos-estrategicos':{src:'proyectos-estrategicos.html',title:'Proyectos Estratégicos EMRA',h:2400,bg:'transparent',radius:'0'},
+    'emra-noticias-home':{src:'noticias-home.html',title:'Noticias EMRA',h:2200,bg:'transparent',radius:'0'}
   };
   var frames=[];
   Object.keys(TIPOS).forEach(function(id){

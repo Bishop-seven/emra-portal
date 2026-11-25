@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!-- Noticias EMRA · página Actualidad de emra.cl (iframe).
+     Se inserta con mineria-embed.js:  <div id="emra-noticias-home"></div>
+     Orden (pedido de Pablo, 25-nov-2026):
+       1. Carrusel con las 3 noticias más recientes.
+       2. «Noticias {año}»: las del año de la noticia más reciente, desde la 4.ª (sin repetir el carrusel).
+       3. Historial: años anteriores, en pestañas.
+     Datos en vivo desde la API de WordPress (/wp-json/wp/v2/posts), categorías «Noticias» y «EMRA en medios» mezcladas por fecha.
+     Se actualiza sola al publicar una entrada: nadie edita nada a mano, y el año cambia solo en enero.
+     Avisa su alto al sitio padre (postMessage) para el auto-alto de mineria-embed.js. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Noticias EMRA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* colores y formas de emra.cl (Actualidad): gris #383838, azul #013FAF, esquina superior izquierda redondeada */
+:root{--tx:#383838;--mut:#777;--mut2:#555;--bd:#e6e6e6;--az:#013FAF;--az-s:#eef3fc;--osc:#383838;--img:#eee}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:transparent}
+body{font-family:'Figtree',-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--tx);font-size:16px;line-height:1.5}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+.w{max-width:1120px;margin:0 auto;padding:8px 10px 24px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── carrusel: 3 últimas ── */
+.car{position:relative}
+.pista{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;border-radius:77px 0 0 0}
+.pista::-webkit-scrollbar{display:none}
+.sl{scroll-snap-align:start;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;align-items:center;background:var(--osc);color:#fff;border-radius:77px 0 0 0;padding:30px 40px 30px 30px;min-height:380px}
+.sl .ft{display:block;aspect-ratio:3/2;border-radius:76px 0 0 0;overflow:hidden;background:#4a4a4a}
+.sl .ft img{width:100%;height:100%;object-fit:cover;display:block}
+.sl .tx{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.sup{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;color:#d6d6d6}
+.cat{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.14);border-radius:3px;padding:2px 8px}
+.sl h2{font-size:clamp(24px,2.6vw,34px);font-weight:800;line-height:1.15}
+.sl h2 a{text-decoration:none}
+.sl h2 a:hover{text-decoration:underline;text-underline-offset:3px}
+.sl p{color:#dcdcdc;font-size:16.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--az);color:#fff;text-decoration:none;font-size:15px;font-weight:500;border-radius:3px;padding:8px 14px;margin-top:4px}
+.btn:hover{background:#0a4fd0}
+.nav{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:16px}
+.arr{width:44px;height:44px;border-radius:50%;border:2px solid var(--az);background:#fff;color:var(--az);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;transition:.15s}
+.arr:hover{background:var(--az);color:#fff}
+.dots{display:flex;gap:8px}
+.dots button{width:11px;height:11px;border-radius:50%;border:0;background:#cfd6e4;padding:0;transition:.2s}
+.dots button[aria-current="true"]{background:var(--az);width:26px;border-radius:6px}
+
+/* ── secciones con grilla (mismo diseño que el «Historial de noticias» de emra.cl) ── */
+.sec{margin-top:48px}
+.sec h2{font-size:30px;font-weight:700;color:var(--tx);margin-bottom:6px;line-height:1.2}
+.baj{color:var(--mut2);font-size:17px;margin-bottom:22px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px;border-bottom:2px solid var(--bd);padding-bottom:14px}
+.tab{font-size:18px;font-weight:600;padding:8px 20px;border-radius:30px;border:2px solid var(--az);background:#fff;color:var(--az);transition:.2s}
+.tab span{font-weight:400;opacity:.75;font-size:15px;margin-left:4px}
+.tab:hover{background:var(--az-s)}
+.tab[aria-selected="true"]{background:var(--az);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px 30px}
+.card{display:flex;flex-direction:column}
+.card .im{display:block;aspect-ratio:2/1;border-radius:72px 0 0 0;overflow:hidden;background:var(--img)}
+.card .im img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .im img{transform:scale(1.03)}
+.card .bd{padding:16px 14px 0}
+.card .fe{font-size:14px;color:var(--mut);margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card .fe .cat{color:var(--az);background:var(--az-s)}
+.card h3{font-size:19px;font-weight:400;line-height:1.25;color:var(--tx);margin-bottom:12px}
+.card h3 a{text-decoration:none}
+.card h3 a:hover{color:var(--az)}
+.leer{display:inline-flex;align-items:center;gap:6px;font-size:18px;font-weight:500;color:var(--az);text-decoration:none}
+.leer svg,.btn svg{width:17px;height:17px;flex:none}
+.msg{grid-column:1/-1;color:var(--mut)}
+.err a{color:var(--az);font-weight:600}
+a:focus-visible,button:focus-visible{outline:3px solid var(--az);outline-offset:3px}
+
+@media (max-width:1024px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){
+  .pista,.sl{border-radius:48px 0 0 0}
+  .sl{grid-template-columns:1fr;gap:18px;padding:18px 18px 24px;min-height:0;align-items:start}
+  .sl .ft{border-radius:44px 0 0 0}
+  .sl p{font-size:15.5px}
+}
+@media (max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .sec{margin-top:36px}
+  .sec h2{font-size:24px}
+  .tab{font-size:16px;padding:7px 16px}
+}
+@media (prefers-reduced-motion:reduce){.pista{scroll-behavior:auto}.card .im img{transition:none}}
+</style>
+</head>
+<body>
+<div class="w">
+  <section class="car" id="car" aria-roledescription="carrusel" aria-label="Últimas noticias" hidden>
+    <div class="pista" id="pista" aria-live="polite"></div>
+    <div class="nav">
+      <button class="arr" id="prev" aria-label="Noticia anterior">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="arr" id="next" aria-label="Noticia siguiente">›</button>
+    </div>
+  </section>
+
+  <section class="sec" id="anio" aria-labelledby="anio-t" hidden>
+    <h2 id="anio-t"></h2>
+    <div class="grid" id="anio-g"></div>
+  </section>
+
+  <section class="sec" id="hist" aria-labelledby="hist-t" hidden>
+    <h2 id="hist-t">Historial de noticias</h2>
+    <p class="baj">Revisa nuestras publicaciones anteriores, ordenadas por año.</p>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Años"></div>
+    <div class="grid" id="hist-g" role="tabpanel" aria-live="polite"></div>
+  </section>
+
+  <p class="msg" id="msg">Cargando noticias…</p>
+</div>
+
+<script>
+// ══ DATOS: WordPress de emra.cl ══
+const WP='https://www.emra.cl/wp-json/wp/v2/posts';
+const CAMPOS='_embed=wp:featuredmedia,wp:term&_fields=id,date,link,title,excerpt,_links,_embedded';
+const N_CAR=3; // noticias en el carrusel
+
+const $=s=>document.querySelector(s);
+const fmt=new Intl.DateTimeFormat('es-CL',{day:'numeric',month:'long',year:'numeric'});
+const fecha=d=>fmt.format(new Date(d));
+// títulos y bajadas llegan como HTML (con &#8211; etc.): se pasan a texto plano y luego se escapan
+const txt=h=>{const d=document.createElement('div');d.innerHTML=h||'';return (d.textContent||'').replace(/\s+/g,' ').trim();};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MAS='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const FLECHA='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l5 5-5 5M13 7l5 5-5 5"/></svg>';
+
+function foto(p,grande){
+  try{
+    const m=p._embedded['wp:featuredmedia'][0],s=(m.media_details&&m.media_details.sizes)||{};
+    const orden=grande?['large','medium_large','full','medium']:['medium_large','large','medium','full'];
+    for(const k of orden)if(s[k])return {u:s[k].source_url,alt:m.alt_text||''};
+    return {u:m.source_url,alt:m.alt_text||''};
+  }catch(e){return null;}
+}
+const categoria=p=>{try{return p._embedded['wp:term'][0].map(t=>txt(t.name)).find(n=>/medios/i.test(n))||'';}catch(e){return '';}};
+
+// Pide todas las páginas. El «v» cambia cada 5 minutos: así el navegador no muestra una lista vieja
+// (WordPress hoy manda cache-control de 2 días en la API).
+function cargar(pag,acum){
+  const v=Math.floor(Date.now()/300000);
+  return fetch(`${WP}?per_page=100&page=${pag}&${CAMPOS}&v=${v}`)
+    .then(r=>{if(!r.ok)throw r.status;const tot=+r.headers.get('X-WP-TotalPages')||1;
+      return r.json().then(d=>{acum=acum.concat(d);return pag<tot?cargar(pag+1,acum):acum;});});
+}
+
+// ══ CARRUSEL ══
+let idx=0,n=0,auto=null;
+function slide(p,i){
+  const f=foto(p,true),cat=categoria(p),t=txt(p.title.rendered),ex=txt(p.excerpt&&p.excerpt.rendered).replace(/\s*\[…\]$|\s*\[&hellip;\]$/,'…');
+  return `<article class="sl" role="group" aria-roledescription="diapositiva" aria-label="${i+1} de ${n}">
+    <a class="ft" href="${esc(p.link)}" target="_top" tabindex="-1" aria-hidden="true">${f?`<img src="${esc(f.u)}" alt="${esc(f.alt)}"${i?' loading="lazy"':''}/>`:''}</a>
+    <div class="tx">
+      <div class="sup"><span>${fecha(p.date)}</span>${cat?`<span class="cat">${esc(cat)}</span>`:''}</div>
+      <h2><a href="${esc(p.link)}" target="_top">${esc(t)}</a></h2>
+      ${ex?`<p>${esc(ex)}</p>`:''}
+      <a class="btn" href="${esc(p.link)}" target="_top">Ver más ${FLECHA}<span class="sr">: ${esc(t)}</span></a>
+    </div>
+  </article>`;
+}
+function irA(i,suave){
+  idx=(i+n)%n;const pista=$('#pista');
+  pista.scrollTo({left:idx*pista.clientWidth,behavior:suave===false?'auto':'smooth'});
+  marcar();
+}
+function marcar(){
+  document.querySelectorAll('#dots button').forEach((b,j)=>b.setAttribute('aria-current',j===idx?'true':'false'));
+  document.querySelectorAll('#pista .sl').forEach((s,j)=>s.inert=j!==idx); // solo la diapositiva visible recibe el foco
+}
+function pintarCarrusel(L){
+  n=L.length;if(!n)return;
+  $('#pista').innerHTML=L.map(slide).join('');
+  $('#dots').innerHTML=L.map((p,i)=>`<button aria-label="Noticia ${i+1}: ${esc(txt(p.title.rendered))}"></button>`).join('');
+  document.querySelectorAll('#dots button').forEach((b,i)=>b.onclick=()=>{parar();irA(i);});
+  $('#prev').onclick=()=>{parar();irA(idx-1);};$('#next').onclick=()=>{parar();irA(idx+1);};
+  $('.nav').hidden=n<2;
+  // swipe (celular): el scroll nativo con «snap» mueve la pista; aquí solo se sincronizan los puntitos
+  let t=null;$('#pista').addEventListener('scroll',()=>{clearTimeout(t);t=setTimeout(()=>{const p=$('#pista');const i=Math.round(p.scrollLeft/p.clientWidth);if(i!==idx){idx=i;marcar();}},90);},{passive:true});
+  $('#pista').addEventListener('touchstart',parar,{passive:true});
+  window.addEventListener('resize',()=>irA(idx,false));
+  $('#car').hidden=false;marcar();
+  // avance automático cada 7 s; se detiene al tocar, al pasar el mouse o con foco, y no corre si el sistema pide menos movimiento
+  if(n>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    auto=setInterval(()=>{if(!document.hidden)irA(idx+1);},7000);
+    const car=$('#car');car.addEventListener('mouseenter',parar);car.addEventListener('focusin',parar);
+  }
+}
+function parar(){if(auto){clearInterval(auto);auto=null;}}
+
+// ══ GRILLAS ══
+function tarjeta(p){
+  const f=foto(p,false),cat=categoria(p),t=txt(p.title.rendered);
+  return `<article class="card">
+    <a class="im" href="${esc(p.link)}" target="_top" tabindex="-1" aria-hidden="true">${f?`<img src="${esc(f.u)}" alt="" loading="lazy"/>`:''}</a>
+    <div class="bd">
+      <div class="fe"><span>${fecha(p.date)}</span>${cat?`<span class="cat">${esc(cat)}</span>`:''}</div>
+      <h3><a href="${esc(p.link)}" target="_top">${esc(t)}</a></h3>
+      <a class="leer" href="${esc(p.link)}" target="_top">Leer noticia ${MAS}<span class="sr">: ${esc(t)}</span></a>
+    </div>
+  </article>`;
+}
+function pintarHistorial(porAnio){
+  const anios=Object.keys(porAnio).sort().reverse();
+  if(!anios.length)return;
+  let sel=anios[0];
+  const pintar=()=>{
+    $('#tabs').innerHTML=anios.map(a=>`<button class="tab" role="tab" id="tab-${a}" aria-selected="${a===sel}" aria-controls="hist-g" tabindex="${a===sel?0:-1}" data-a="${a}">${a}<span>(${porAnio[a].length})</span></button>`).join('');
+    $('#hist-g').setAttribute('aria-labelledby','tab-'+sel);
+    $('#hist-g').innerHTML=porAnio[sel].map(tarjeta).join('');
+    document.querySelectorAll('#tabs .tab').forEach((b,i)=>{
+      b.onclick=()=>{sel=b.dataset.a;pintar();$('#tab-'+sel).focus();};
+      b.onkeydown=e=>{const d={ArrowRight:1,ArrowLeft:-1}[e.key];if(d){e.preventDefault();sel=anios[(i+d+anios.length)%anios.length];pintar();$('#tab-'+sel).focus();}};
+    });
+  };
+  pintar();$('#hist').hidden=false;
+}
+
+cargar(1,[]).then(posts=>{
+  posts.sort((a,b)=>b.date.localeCompare(a.date)); // más reciente primero (Noticias y EMRA en medios mezcladas)
+  if(!posts.length){$('#msg').textContent='Aún no hay noticias publicadas.';return;}
+  $('#msg').hidden=true;
+  pintarCarrusel(posts.slice(0,N_CAR));
+  // «Noticias {año}»: el año de la noticia más reciente, desde la 4.ª (el carrusel no se repite)
+  const anio=posts[0].date.slice(0,4);
+  const resto=posts.slice(N_CAR);
+  const deAnio=resto.filter(p=>p.date.slice(0,4)===anio);
+  if(deAnio.length){$('#anio-t').textContent='Noticias '+anio;$('#anio-g').innerHTML=deAnio.map(tarjeta).join('');$('#anio').hidden=false;}
+  // historial: años anteriores
+  const porAnio={};resto.filter(p=>p.date.slice(0,4)!==anio).forEach(p=>{const a=p.date.slice(0,4);(porAnio[a]=porAnio[a]||[]).push(p);});
+  pintarHistorial(porAnio);
+}).catch(()=>{
+  $('#msg').className='msg err';
+  $('#msg').innerHTML='No pudimos cargar las noticias en este momento. <a href="https://www.emra.cl/category/noticias/" target="_top">Ver todas las noticias →</a>';
+});
+
+// ── iframe: avisar alto al sitio padre ──
+if(parent!==window){
+  let lastH=0;
+  const send=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;parent.postMessage({type:'emra-mineria-height',h},'*');}};
+  new ResizeObserver(send).observe(document.body);send();
+}
+</script>
+</body>
+</html>
