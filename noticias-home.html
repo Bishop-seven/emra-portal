@@ -31,10 +31,15 @@ button{font-family:inherit;cursor:pointer}
 
 /* ── carrusel: 3 últimas ── */
 .car{position:relative}
-.pista{display:grid;grid-auto-flow:column;grid-auto-columns:100%;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;border-radius:77px 0 0 0}
-.pista::-webkit-scrollbar{display:none}
-.sl{scroll-snap-align:start;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;align-items:center;background:var(--osc);color:#fff;border-radius:77px 0 0 0;padding:30px 40px 30px 30px;min-height:380px}
-.sl .ft{display:block;aspect-ratio:3/2;border-radius:76px 0 0 0;overflow:hidden;background:#4a4a4a}
+/* todas las diapositivas en la misma celda: el alto es el de la más alta y no salta al cambiar */
+.pista{display:grid;border-radius:77px 0 0 0;overflow:hidden;background:var(--osc);touch-action:pan-y}
+.sl{grid-area:1/1;visibility:hidden}
+.sl.on{visibility:visible;z-index:2}
+.sl.sale{visibility:visible;z-index:1;pointer-events:none}
+.sl{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;align-items:center;background:var(--osc);color:#fff;border-radius:77px 0 0 0;padding:30px 40px 30px 30px;min-height:380px}
+.sl .ft{display:block;position:relative;aspect-ratio:3/2;border-radius:76px 0 0 0;overflow:hidden;background:#4a4a4a}
+/* barrido azul EMRA al entrar (como en Proyectos Estratégicos) */
+.barrido{position:absolute;inset:0;background:var(--az);z-index:3;transform:scaleX(0);pointer-events:none}
 .sl .ft img{width:100%;height:100%;object-fit:cover;display:block}
 .sl .tx{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .sup{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px;color:#d6d6d6}
@@ -49,8 +54,13 @@ button{font-family:inherit;cursor:pointer}
 .arr{width:44px;height:44px;border-radius:50%;border:2px solid var(--az);background:#fff;color:var(--az);font-size:24px;font-weight:700;line-height:1;display:grid;place-items:center;transition:.15s}
 .arr:hover{background:var(--az);color:#fff}
 .dots{display:flex;gap:8px}
-.dots button{width:11px;height:11px;border-radius:50%;border:0;background:#cfd6e4;padding:0;transition:.2s}
-.dots button[aria-current="true"]{background:var(--az);width:26px;border-radius:6px}
+.dots button{position:relative;overflow:hidden;width:11px;height:11px;border-radius:6px;border:0;background:#cfd6e4;padding:0;transition:width .35s cubic-bezier(.22,1,.36,1),background .2s}
+.dots button[aria-current="true"]{background:var(--az);width:40px}
+/* mientras corre el avance automático, el puntito activo se va llenando hasta la siguiente noticia */
+.car.auto .dots button[aria-current="true"]{background:#b9c8e8}
+.car.auto .dots button[aria-current="true"]::after{content:"";position:absolute;inset:0;background:var(--az);transform-origin:left;animation:llena var(--t,5s) linear forwards}
+.car.auto.pausa .dots button[aria-current="true"]::after{animation-play-state:paused}
+@keyframes llena{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
 /* ── secciones con grilla (mismo diseño que el «Historial de noticias» de emra.cl) ── */
 .sec{margin-top:48px}
@@ -91,7 +101,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--az);outline-offset:
   .sec h2{font-size:24px}
   .tab{font-size:16px;padding:7px 16px}
 }
-@media (prefers-reduced-motion:reduce){.pista{scroll-behavior:auto}.card .im img{transition:none}}
+@media (prefers-reduced-motion:reduce){.card .im img,.dots button{transition:none}}
 </style>
 </head>
 <body>
@@ -155,7 +165,7 @@ function cargar(pag,acum){
 }
 
 // ══ CARRUSEL ══
-let idx=0,n=0,auto=null,prog=0; // prog: momento del último movimiento hecho por código (flechas, puntitos, avance automático)
+let idx=0,n=0;
 function slide(p,i){
   const f=foto(p,true),cat=categoria(p),t=txt(p.title.rendered),ex=txt(p.excerpt&&p.excerpt.rendered).replace(/\s*\[…\]$|\s*\[&hellip;\]$/,'…');
   return `<article class="sl" role="group" aria-roledescription="diapositiva" aria-label="${i+1} de ${n}">
@@ -168,10 +178,35 @@ function slide(p,i){
     </div>
   </article>`;
 }
-function irA(i,suave){
-  idx=(i+n)%n;const pista=$('#pista');prog=Date.now();
-  pista.scrollTo({left:idx*pista.clientWidth,behavior:suave===false?'auto':'smooth'});
-  marcar();
+// Cambio de noticia con animación (la misma idea de Proyectos Estratégicos):
+// la que sale se desliza y se desvanece; en la que entra pasa un barrido azul sobre la foto,
+// la imagen se asienta (zoom suave) y los textos llegan en cascada desde el lado del movimiento.
+const QUIETO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const anima=(el,k,o)=>el&&el.animate?el.animate(k,o):null;
+const SUAVE='cubic-bezier(.22,1,.36,1)';
+function irA(i,dir){
+  const nuevo=(i+n)%n;if(nuevo===idx&&dir!==0)return;
+  const sls=document.querySelectorAll('#pista .sl'),viejo=sls[idx],art=sls[nuevo];
+  const d=dir||(nuevo>idx?1:-1);
+  if(viejo&&viejo!==art&&!QUIETO){
+    viejo.classList.add('sale');viejo.classList.remove('on');
+    const a=anima(viejo,[{opacity:1,transform:'none'},{opacity:0,transform:`translateX(${-d*50}px)`}],{duration:380,easing:'ease-in'});
+    const fin=()=>viejo.classList.remove('sale');a?a.finished.then(fin,fin):fin();
+  }else if(viejo)viejo.classList.remove('on');
+  idx=nuevo;art.classList.add('on');marcar();
+  if(dir!==0)entrar(art,d);
+}
+function entrar(art,d){
+  if(QUIETO)return;
+  const ft=art.querySelector('.ft');
+  if(ft){
+    const b=document.createElement('span');b.className='barrido';ft.appendChild(b);
+    const o1=d>0?'left':'right',o2=d>0?'right':'left';
+    const w=anima(b,[{transform:'scaleX(0)',transformOrigin:o1},{transform:'scaleX(1)',transformOrigin:o1,offset:.45},{transform:'scaleX(1)',transformOrigin:o2,offset:.5},{transform:'scaleX(0)',transformOrigin:o2}],{duration:820,easing:'cubic-bezier(.65,0,.35,1)'});
+    w?w.finished.then(()=>b.remove(),()=>b.remove()):b.remove();
+    anima(ft.querySelector('img'),[{transform:'scale(1.14)'},{transform:'scale(1.14)',offset:.4},{transform:'scale(1)'}],{duration:1100,easing:SUAVE});
+  }
+  [...art.querySelectorAll('.tx > *')].forEach((el,k)=>anima(el,[{opacity:0,transform:`translate(${d*28}px,12px)`},{opacity:1,transform:'none'}],{duration:560,delay:180+k*70,easing:SUAVE,fill:'backwards'}));
 }
 function marcar(){
   document.querySelectorAll('#dots button').forEach((b,j)=>b.setAttribute('aria-current',j===idx?'true':'false'));
@@ -182,27 +217,28 @@ function pintarCarrusel(L){
   $('#pista').innerHTML=L.map(slide).join('');
   $('#dots').innerHTML=L.map((p,i)=>`<button aria-label="Noticia ${i+1}: ${esc(txt(p.title.rendered))}"></button>`).join('');
   document.querySelectorAll('#dots button').forEach((b,i)=>b.onclick=()=>{parar();irA(i);});
-  $('#prev').onclick=()=>{parar();irA(idx-1);};$('#next').onclick=()=>{parar();irA(idx+1);};
+  $('#prev').onclick=()=>{parar();irA(idx-1,-1);};$('#next').onclick=()=>{parar();irA(idx+1,1);};
   $('.nav').hidden=n<2;
-  // swipe (celular): el scroll nativo con «snap» mueve la pista; aquí solo se sincronizan los puntitos
-  // (mientras se desliza por una flecha o puntito se ignora: si no, una posición intermedia pisaría la diapositiva elegida)
-  let t=null;$('#pista').addEventListener('scroll',()=>{clearTimeout(t);t=setTimeout(()=>{if(Date.now()-prog<900)return;const p=$('#pista');const i=Math.round(p.scrollLeft/p.clientWidth);if(i!==idx){idx=i;marcar();}},120);},{passive:true});
-  $('#pista').addEventListener('touchstart',parar,{passive:true});
-  window.addEventListener('resize',()=>irA(idx,false));
-  $('#car').hidden=false;marcar();
-  // avance automático cada 4 s; se pausa mientras el mouse o el foco están encima y sigue al salir;
-  // al tocar en el celular o usar flechas/puntitos se detiene; no corre si el sistema pide menos movimiento
-  if(n>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-    autoOk=true;andar();
-    const car=$('#car');
-    car.addEventListener('mouseenter',pausa);car.addEventListener('mouseleave',andar);
-    car.addEventListener('focusin',pausa);car.addEventListener('focusout',andar);
+  // deslizar con el dedo (celular)
+  let x0=null,y0=0;const pista=$('#pista');
+  pista.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  pista.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4){parar();irA(idx+(dx<0?1:-1),dx<0?1:-1);}},{passive:true});
+  const car=$('#car');car.hidden=false;irA(0,0);
+  // avance automático cada 6 s: el puntito activo se va llenando y, al completarse, pasa a la siguiente.
+  // Se pausa con el mouse o el foco encima; se detiene al usar flechas, puntitos o el dedo;
+  // no corre si el sistema pide menos movimiento.
+  if(n>1&&!QUIETO){
+    car.style.setProperty('--t',AUTO_MS+'ms');car.classList.add('auto');
+    $('#dots').addEventListener('animationend',e=>{if(e.animationName==='llena'&&car.classList.contains('auto'))irA(idx+1,1);});
+    car.addEventListener('mouseenter',pausa);car.addEventListener('mouseleave',sigue);
+    car.addEventListener('focusin',pausa);car.addEventListener('focusout',sigue);
   }
 }
-let autoOk=false;
-function andar(){if(autoOk&&!auto)auto=setInterval(()=>{if(!document.hidden)irA(idx+1);},4000);}
-function pausa(){if(auto){clearInterval(auto);auto=null;}}
-function parar(){autoOk=false;pausa();}
+const AUTO_MS=6000;
+function pausa(){$('#car').classList.add('pausa');}
+function sigue(){$('#car').classList.remove('pausa');}
+function parar(){$('#car').classList.remove('auto','pausa');}
 
 // ══ GRILLAS ══
 function tarjeta(p){
