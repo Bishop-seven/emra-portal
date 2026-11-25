@@ -43,6 +43,14 @@ h1{font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.08;margin:0 0 10
 .ind .n{background:var(--c);color:#fff;font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 8px;white-space:nowrap;font-variant-numeric:tabular-nums;transition:background .25s,color .25s}
 .ind button[aria-selected="true"]{background:var(--c);border-color:var(--c);color:#fff;box-shadow:0 8px 20px -6px var(--c);transform:translateY(-2px)}
 .ind button[aria-selected="true"] .n{background:#fff;color:var(--tx)}
+/* fotito del proyecto en cada botón */
+.ind button{padding-left:4px}
+.ind .ft{flex:0 0 auto;width:36px;height:36px;border-radius:50%;overflow:hidden;background:var(--card);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--c);margin-right:2px;display:grid;place-items:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.ind .ft img{width:100%;height:100%;object-fit:cover;display:block}
+.ind .ft.sin{background:var(--c);color:#fff}
+.ind .ft.sin svg{width:17px;height:17px}
+.ind button:hover .ft{transform:scale(1.08) rotate(-4deg)}
+.ind button[aria-selected="true"] .ft{box-shadow:0 0 0 2px var(--c),0 0 0 3.5px #fff;transform:scale(1.06)}
 
 /* barra: anterior · avance · siguiente */
 .ctrl{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1.5px solid var(--bd)}
@@ -229,7 +237,11 @@ function info(x){
     <dl class="fi">${fila('Institución',x.inst)}${fila('Zona',corta(x.f.zona,90))}${fila('Plazo',x.f.plazo)}</dl>`;
 }
 
-$('#ind').innerHTML=L.map((x,i)=>`<li role="presentation"><button role="tab" id="tab-${x.ancla}" data-i="${i}" aria-selected="false" aria-controls="${x.ancla}" tabindex="-1" style="--c:${OEC[x.k]}"><span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,46))}</button></li>`).join('');
+// fotito del botón: portada, primera foto o miniatura de YouTube; si no hay, un ícono con el color del objetivo
+const fotito=x=>x.portada||(x.fotos&&x.fotos[0]&&x.fotos[0].src)||(x.yt?`https://i.ytimg.com/vi/${x.yt}/mqdefault.jpg`:'');
+const ftHTML=x=>{const s=fotito(x);return s?`<span class="ft" aria-hidden="true"><img src="${esc(s)}" alt="" loading="lazy" width="36" height="36"></span>`
+  :`<span class="ft sin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>`;};
+$('#ind').innerHTML=L.map((x,i)=>`<li role="presentation"><button role="tab" id="tab-${x.ancla}" data-i="${i}" aria-selected="false" aria-controls="${x.ancla}" tabindex="-1" style="--c:${OEC[x.k]}">${ftHTML(x)}<span class="n">${x.ids.map(i=>'ID '+i).join(' · ')}</span>${esc(corta(x.nom,38))}</button></li>`).join('');
 const siguiente=i=>{const n=L[(i+1)%L.length];return `<button class="sig" data-i="${(i+1)%L.length}" style="--cn:${OEC[n.k]}"><span style="flex:1"><small>Siguiente proyecto</small><b>${esc(corta(n.nom,70))}</b></span><span class="fx" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span></button>`;};
 $('#lista').innerHTML=L.map((x,i)=>`<article class="pr" id="${x.ancla}" role="tabpanel" style="--c:${OEC[x.k]}" aria-labelledby="${x.ancla}-t">
   <span class="fondo" aria-hidden="true">${esc(x.ids.join('·'))}</span>
@@ -301,7 +313,8 @@ function ir(i,{foco=false,subir=false}={}){
   // si había un video sonando en el proyecto anterior, vuelve a su portada
   if(ant){const pl=ant.querySelector('iframe,video');if(pl)mostrar(ant,L[act],'v',false);}
   act=i;
-  if(!EMBED&&history.replaceState)history.replaceState(null,'','#'+x.ancla);
+  // la dirección (#p-6…) se actualiza solo cuando la persona cambia de proyecto; al cargar, poner el # haría saltar la página hacia abajo
+  if(!EMBED&&dir!==0&&history.replaceState)history.replaceState(null,'','#'+x.ancla);
   if(subir)irA($('#ind'));
   if(QUIETO||dir===0){if(ant)ant.classList.remove('on');nue.classList.add('on');if(dir!==0||!QUIETO)entrar(nue,dir);return;}
   ocupado=true;

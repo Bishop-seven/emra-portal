@@ -72,7 +72,12 @@ window.EMRA_PROYECTOS_EST = [
       'Aumentar la capacidad de las plantas de procesamiento de ENAMI mediante la instalación de nuevos chancadores, que permitirán recibir colpas de mayor tamaño que las actuales.',
       'Incluye un diagnóstico de los actuales procesos de gestión de las plantas de procesamiento de mineral de la región y propuestas de mejora para incrementar el procesamiento, cumpliendo con la normativa ambiental vigente.'
     ],
-    fotos: [],
+    // Fotos de la presentación «4.4 GORE-ENAMI» en la Tercera Sesión 2026 (Tocopilla, 9-nov-2026).
+    fotos: [
+      { src: 'proyectos/enami-1.jpg', alt: 'Planta de procesamiento de minerales de ENAMI con sus correas transportadoras y acopios' },
+      { src: 'proyectos/enami-2.jpg', alt: 'Nuevos chancadores para recibir colpas de mayor tamaño' },
+      { src: 'proyectos/enami-3.jpg', alt: 'Letrero de ENAMI Poder de Compra de Minerales Tocopilla' }
+    ],
     video: {}
   },
   {
@@ -81,7 +86,11 @@ window.EMRA_PROYECTOS_EST = [
       'Conjunto de obras públicas emblemáticas que tienen por propósito mejorar la calidad de vida de los habitantes de la Villa San Pedro de Coloso. Las obras incluyen jardín infantil, gimnasio multiuso, centro médico, muros y taludes y una nueva caleta pesquera, entre otras acciones.',
       'Fueron comprometidas por la empresa a través de Compromisos Voluntarios Ambientales establecidos en la RCA de la Planta Desaladora de Coloso y en el Plan 6+1, iniciativa complementaria que contempla la ejecución de 7 proyectos enfocados en mejorar la calidad de vida del sector.'
     ],
-    fotos: [],
+    // Fotos de prensa de la nueva Caleta Coloso (descargadas 25-nov-2026): Timeline.cl (jul-2026) y Creo Antofagasta (dic-2025).
+    fotos: [
+      { src: 'proyectos/coloso-1.jpg', alt: 'Nueva Caleta Coloso terminada junto al mar, con la villa en el cerro (foto: Timeline.cl)' },
+      { src: 'proyectos/coloso-2.jpg', alt: 'Vista aérea de las obras de la nueva Caleta Coloso (foto: Creo Antofagasta)' }
+    ],
     video: {}
   }
 ];
