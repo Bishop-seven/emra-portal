@@ -211,7 +211,7 @@ function mostrar(art,x,que,autoplay){
         :`<video src="${esc(x.mp4)}" controls autoplay playsinline ${x.fotos[0]?`poster="${esc(x.fotos[0].src)}"`:''}></video>`;
       return;
     }
-    const poster=x.fotos[0]?x.fotos[0].src:`https://i.ytimg.com/vi/${x.yt}/maxresdefault.jpg`;
+    const poster=x.portada||(x.fotos[0]?x.fotos[0].src:`https://i.ytimg.com/vi/${x.yt}/maxresdefault.jpg`);
     m.innerHTML=`<img src="${esc(poster)}" alt="" ${art.id===L[0].ancla?'':'loading="lazy"'}><button class="play" aria-label="Reproducir video: ${esc(x.nom)}"><span class="b"></span><span class="l">Ver video del proyecto</span></button>`;
     m.querySelector('.play').onclick=()=>mostrar(art,x,'v',true);
   }else{

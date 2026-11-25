@@ -10,6 +10,7 @@
      fotos   → [{src, alt}] la primera es la portada.
      video   → {yt:'ID de YouTube'} o {mp4:'https://…'}; vacío = solo fotos.
      videoTxt→ texto bajo el video (opcional).
+     portada → imagen de portada del video (opcional; si falta, la primera foto o la miniatura de YouTube).
    El orden de esta lista es el orden de la página. Un proyecto que no está aquí no se muestra. */
 window.EMRA_PROYECTOS_EST = [
   {
@@ -43,7 +44,10 @@ window.EMRA_PROYECTOS_EST = [
       'Desde la nueva planta se construirán dos conducciones de unos 25 km cada una: hacia el norte, hasta el sector de la plaza de peaje de la Ruta 5 hacia Calama, y hacia el sur, hasta el sector industrial de La Negra.'
     ],
     fotos: [],
-    video: {}
+    // Video resumen armado el 25-nov-2026 con la presentación de ECONSSA (oct-2025) y voz en off; en YouTube.
+    video: { yt: 'https://youtu.be/eSHKGvy0aoo' },
+    videoTxt: 'Video resumen del proyecto, con información de la presentación de ECONSSA.',
+    portada: 'proyectos/ptas-reuso-antofagasta-portada.jpg'
   },
   {
     ids: ['74'],
