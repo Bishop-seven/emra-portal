@@ -25,6 +25,10 @@
       "destination": "/rutas-gorito.html"
     },
     {
+      "source": "/links",
+      "destination": "/links.html"
+    },
+    {
       "source": "/((?!api/|_vercel/).*)",
       "destination": "/index.html"
     }
