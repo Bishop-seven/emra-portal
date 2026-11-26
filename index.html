@@ -918,6 +918,20 @@ svg{display:block}
 .tb-btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--bd);background:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;cursor:pointer;white-space:nowrap}
 .tb-btn:hover{border-color:var(--cu)}
 .tb-play{width:0;height:0;border-left:9px solid #d32f2f;border-top:6px solid transparent;border-bottom:6px solid transparent}
+/* Acceso a Rutas de Gorito: lo educativo y entretenido (26-nov-2026) */
+.tb-gorito{background:#fff4d2;border-color:#FAA900;padding:4px 14px 4px 5px;gap:8px}
+.tb-gorito:hover{border-color:#e08a00;background:#ffecb8}
+.tb-gorito img{width:30px;height:30px;object-fit:contain;border-radius:50%;background:#fff;border:1.5px solid #FAA900}
+.tb-gorito .tg-c{display:none}
+.tb-gorito small{font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#a35f00;background:#fff;border-radius:999px;padding:2px 7px}
+@media (max-width:1280px){.tb-gorito small{display:none}}
+.rg-card{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--ink);background:linear-gradient(135deg,#fff4d2,#ffe2c4);border:1.5px solid #f3c27a;border-radius:16px;padding:10px 12px;margin:0 0 14px;transition:transform .15s,box-shadow .15s}
+.rg-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(160,100,30,.18)}
+.rg-card img{width:58px;height:58px;object-fit:contain;flex:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.08))}
+.rg-card .rg-k{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#a35f00}
+.rg-card b{display:block;font-size:15px;font-weight:800;line-height:1.2}
+.rg-card p{margin:2px 0 0;font-size:12.5px;line-height:1.35;color:var(--tx)}
+.rg-card .rg-ir{flex:none;font-size:13px;font-weight:800;background:var(--ink);color:#fff;border-radius:999px;padding:7px 12px;white-space:nowrap}
 .map-header{display:none!important}
 @media (max-width:1280px){.tb-brand span{display:none}.tb-ig span{display:none}}
 @media (max-width:1100px){#topbar .tab{padding:8px 11px;font-size:13px}.tb-brand b{font-size:14px}}
@@ -1108,6 +1122,9 @@ svg{display:block}
   .tb-brand{flex:1}.tb-brand .tb-logo{height:30px}.tb-brand b{font-size:14px}
   .tb-acts .tb-btn{padding:7px 11px;font-size:13px}
   .tb-acts .tb-ig{display:none}
+  .tb-gorito{padding:3px 11px 3px 4px;gap:6px}.tb-gorito img{width:26px;height:26px}
+  .tb-gorito .tg-l{display:none}.tb-gorito .tg-c{display:inline}
+  .rg-card{display:none}
   #topbar .tabs{order:3;width:calc(100% + 24px);margin:0 -12px;border-radius:0;background:#fff;border-top:1px solid #efe7df;padding:4px 8px;overflow-x:auto;scrollbar-width:none}
   #topbar .tabs::-webkit-scrollbar{display:none}
   #topbar .tab{padding:7px 12px;font-size:13.5px}
@@ -1160,6 +1177,7 @@ svg{display:block}
       <button class="tab" id="t-r" onclick="abrirReto()" style="display:none">Reto</button><!-- oculta por pedido 23-nov-2026 -->
     </nav>
     <div class="tb-acts">
+      <a class="tb-btn tb-gorito" href="/rutas-gorito" target="_blank" rel="noopener" title="Rutas de Gorito: aprende jugando sobre el cobre y el litio de la Región de Antofagasta"><img src="gorito.webp" alt="" aria-hidden="true"/><span class="tg-l">Rutas de Gorito</span><span class="tg-c">Jugar</span><small>Aprende jugando</small></a>
       <button class="tb-btn" onclick="openEMRAVideo()"><span class="tb-play" aria-hidden="true"></span>Video EMRA · 10 min</button>
       <a class="tb-btn tb-ig" href="https://www.instagram.com/emra.cl/" target="_blank" rel="noopener" aria-label="Instagram @emra.cl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg><span>@emra.cl</span></a>
     </div>
@@ -1182,6 +1200,11 @@ svg{display:block}
         <button class="sheet-h" onclick="document.getElementById('sidebar').classList.toggle('max')" aria-label="Agrandar o achicar la lista"></button>
         <h1 class="ph-t" id="ini-h">Iniciativas EMRA</h1>
         <p class="ph-p" id="ini-hp">Mediano plazo y corto plazo OE1.</p>
+        <a class="rg-card" href="/rutas-gorito" target="_blank" rel="noopener">
+          <img src="gorito.webp" alt="" aria-hidden="true"/>
+          <span><span class="rg-k">🎮 Aprende jugando</span><b>Rutas de Gorito</b><p>Recorre con Gorito la ruta del cobre y del litio, descubre las iniciativas de tu territorio y gana tu medalla.</p></span>
+          <span class="rg-ir">Jugar →</span>
+        </a>
         <div class="flt-lbl">Capas del mapa</div>
         <div class="capas" id="capas"></div>
         <div class="search-wrap">
