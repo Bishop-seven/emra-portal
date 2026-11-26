@@ -66,6 +66,18 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:
 .fo small{display:block;font-size:11px;color:var(--gris);font-weight:800}
 .fo:hover,.fo:focus-visible{background:#f2f4f9;outline:none}
 .fo.on{background:#fff3d6}
+.fsec{padding:8px 10px 2px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gris)}
+.fsec:not(:first-child){border-top:2px solid #eef0f5;margin-top:4px}
+.fseg{display:flex;gap:6px;padding:4px 6px 6px}
+.fseg .fo{flex:1;min-width:0;justify-content:center;gap:5px;border:2px solid var(--tinta);padding:6px 6px;font-size:13px}
+@media (max-width:560px){.fseg .fo b{display:none}}
+.fseg .fo.on{background:var(--tinta);color:#fff}
+.fseg .fo.on b{background:#fff;color:var(--tinta)}
+/* Etiqueta de plazo (26-nov-2026): corto = sólida, mediano = contorno */
+.plazo{display:inline-flex;align-items:center;font-weight:900;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border:2px solid var(--tinta);border-radius:6px;padding:1px 6px;line-height:1.3;white-space:nowrap}
+.plazo.corto{background:var(--tinta);color:#fff}
+.plazo.mediano{background:#fff;color:var(--tinta)}
+.fbtn .plazo{font-size:10px;padding:0 5px}
 #bGlo{width:auto;padding:0 10px;gap:6px;display:flex;align-items:center;font:800 13px 'Nunito',sans-serif;color:var(--tinta)}
 #bGlo span{white-space:nowrap}
 @media (max-width:560px){.fbtn .fx{display:none}#bGlo span{display:none}#bGlo{width:34px;padding:0}.seg button{padding:6px 8px}}
@@ -188,7 +200,9 @@ nav button:disabled{opacity:.35;cursor:default}
 .lista .meta{font-size:12px;color:var(--gris);font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .lista .mini{height:6px;background:#e6e9f1;border-radius:3px;overflow:hidden}
 .lista .mini i{display:block;height:100%;background:var(--c)}
-.grupo{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);margin:12px 0 6px}
+.grupo{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:900;color:var(--gris);margin:14px 0 6px}
+.grupo .plazo{font-size:12px;padding:2px 8px}
+.chip.plazo{font-size:12px;padding:1px 8px}
 /* Desafío */
 .pregunta{font-size:18px;font-weight:900;line-height:1.3;margin:10px 0 14px}
 .opciones{display:grid;gap:8px}
@@ -811,8 +825,10 @@ for (const t of TERR) {
   capaPines.appendChild(el);
   pines.push({k:t.k,g,cubos,el,pos:new THREE.Vector3(p.x,y0+5.4,p.z),n:0});
 }
-let filtroOE = 0;
-const visibles = () => INI.filter(x => !filtroOE || x.oe.includes(filtroOE));
+let filtroOE = 0, filtroPlazo = '';
+const PLAZO = {corto:'Corto plazo', mediano:'Mediano plazo'};
+const etqPlazo = p => `<span class="plazo ${p}">${PLAZO[p]}</span>`;
+const visibles = () => INI.filter(x => (!filtroOE || x.oe.includes(filtroOE)) && (!filtroPlazo || x.plazo===filtroPlazo));
 function pintarPines(){
   const v = visibles();
   for (const pin of pines) {
@@ -826,21 +842,30 @@ function pintarPines(){
     pin.alto = 4.4 + Math.max(0,oes.length-1)*.85;
   }
   // Filtro por objetivo: un solo botón con menú desplegable (rediseño del menú, 23-nov-2026). Solo OE con iniciativas.
-  const total = INI.length, cnt = n => INI.filter(x=>x.oe.includes(n)).length;
-  const sel = filtroOE ? `<i style="background:${OEC[filtroOE]}"></i><span class="fl">OE${filtroOE} · ${esc(OBJ[filtroOE].corto)}</span><b>${cnt(filtroOE)}</b>`
+  // Plazo (corto / mediano) en el mismo menú (26-nov-2026). Los conteos de cada sección respetan el filtro de la otra.
+  const total = INI.length, porPz = INI.filter(x=>!filtroPlazo||x.plazo===filtroPlazo), cnt = n => porPz.filter(x=>x.oe.includes(n)).length;
+  const cntPz = p => INI.filter(x=>(!p||x.plazo===p) && (!filtroOE||x.oe.includes(filtroOE))).length;
+  const pz = filtroPlazo ? etqPlazo(filtroPlazo) : '';
+  const sel = filtroOE ? `<i style="background:${OEC[filtroOE]}"></i>${pz}<span class="fl">OE${filtroOE} · ${esc(OBJ[filtroOE].corto)}</span><b>${visibles().length}</b>`
+            : filtroPlazo ? `${pz}<span class="fl"><span class="fx">Todos los objetivos</span></span><b>${visibles().length}</b>`
                        : `<span class="fl">Todas<span class="fx"> las iniciativas</span></span><b>${total}</b>`;
-  $('chips').innerHTML = `<button id="fBtn" class="fbtn${filtroOE?' activo':''}" aria-haspopup="listbox" aria-expanded="false" style="--c:${filtroOE?OEC[filtroOE]:'#fff'}">${sel}<span class="fv" aria-hidden="true">▾</span></button>
-    <ul id="fMenu" role="listbox" aria-label="Filtrar por objetivo estratégico" hidden>
-      <li><button role="option" class="fo${!filtroOE?' on':''}" data-oe="0" aria-selected="${!filtroOE}"><span class="fl">Todas las iniciativas</span><b>${total}</b></button></li>
+  $('chips').innerHTML = `<button id="fBtn" class="fbtn${filtroOE||filtroPlazo?' activo':''}" aria-haspopup="listbox" aria-expanded="false" style="--c:${filtroOE?OEC[filtroOE]:'var(--tinta)'}">${sel}<span class="fv" aria-hidden="true">▾</span></button>
+    <ul id="fMenu" role="listbox" aria-label="Filtrar por plazo y objetivo estratégico" hidden>
+      <li class="fsec" role="presentation">Plazo</li>
+      <li class="fseg" role="presentation">${[['','Todos'],['corto','Corto'],['mediano','Mediano']].map(([p,nom])=>`<button role="option" class="fo${filtroPlazo===p?' on':''}" data-pz="${p}" aria-selected="${filtroPlazo===p}"${p?` title="${PLAZO[p]}"`:''}><span>${nom}</span><b>${cntPz(p)}</b></button>`).join('')}</li>
+      <li class="fsec" role="presentation">Objetivo estratégico</li>
+      <li><button role="option" class="fo${!filtroOE?' on':''}" data-oe="0" aria-selected="${!filtroOE}"><span class="fl">Todos los objetivos</span><b>${porPz.length}</b></button></li>
       ${[1,2,3,4,5].filter(cnt).map(n=>`<li><button role="option" class="fo${filtroOE===n?' on':''}" data-oe="${n}" aria-selected="${filtroOE===n}"><i style="background:${OEC[n]}"></i><span class="fl"><small>OE${n}</small>${esc(OBJ[n].corto)}</span><b>${cnt(n)}</b></button></li>`).join('')}
     </ul>`;
   const tx = $('oeTxt');
   if (filtroOE) { tx.hidden=false; tx.style.setProperty('--c',OEC[filtroOE]); tx.textContent = OBJ[filtroOE].t; } else tx.hidden = true;
 }
+const cntOE = n => INI.filter(x=>x.oe.includes(n) && (!filtroPlazo||x.plazo===filtroPlazo)).length;
 $('chips').onclick = e => {
   const m = $('fMenu');
   if (e.target.closest('#fBtn')) { const ab = m.hidden; m.hidden = !ab; $('fBtn').setAttribute('aria-expanded', ab); if (ab) m.querySelector('.fo.on')?.focus(); return; }
   const b = e.target.closest('.fo'); if (!b) return;
+  if ('pz' in b.dataset) { filtroPlazo = b.dataset.pz; if (filtroOE && !cntOE(filtroOE)) filtroOE = 0; pintarPines(); $('fMenu').hidden = false; $('fBtn').setAttribute('aria-expanded', true); $('fMenu').querySelector(`[data-pz="${filtroPlazo}"]`)?.focus(); return; }
   filtroOE = +b.dataset.oe; pintarPines(); $('fBtn').focus();
 };
 addEventListener('pointerdown', e => { const m = $('fMenu'); if (m && !m.hidden && !e.target.closest('#chips')) { m.hidden = true; $('fBtn').setAttribute('aria-expanded', false); } });
@@ -1107,15 +1132,14 @@ let listaAbierta = null;
 function abrirLista(k){
   listaAbierta = k;
   const t = TN[k], items = visibles().filter(x=>x.t===k);
-  const grupos = [['corto','Corto plazo'],['mediano','Mediano plazo']];
   $('lTit').textContent = `${t.n} · ${items.length}`;
   const fr = elegirFrase(items.length);
   $('lGor').textContent = fr.txt(t, items.length, filtroOE ? ' del OE'+filtroOE : '') + (t.det?` (${t.det})`:'');
   $('lCard').style.setProperty('--c', OEC[filtroOE||1]);
-  $('lCuerpo').innerHTML = grupos.map(([g,nom])=>{ const gi = items.filter(x=>x.plazo===g); if(!gi.length) return '';
-    return `<p class="grupo">${nom} · ${gi.length}</p><ul class="lista">` + gi.map(x=>`<li><button data-id="${esc(x.id)}" data-plazo="${g}" style="--c:${OEC[x.oe[0]]}">
+  $('lCuerpo').innerHTML = ['corto','mediano'].map(g=>{ const gi = items.filter(x=>x.plazo===g); if(!gi.length) return '';
+    return `<p class="grupo">${etqPlazo(g)}<span>${gi.length} ${gi.length===1?'iniciativa':'iniciativas'}</span></p><ul class="lista">` + gi.map(x=>`<li><button data-id="${esc(x.id)}" data-plazo="${g}" style="--c:${OEC[x.oe[0]]}">
       <span class="nom">${esc(x.n)}</span>
-      <span class="meta">${chipsOE(x.oe)}${esc(x.loc||'')}${x.av!=null&&g==='corto'?` · ${x.av}%`:''}</span>
+      <span class="meta">${etqPlazo(g)}${chipsOE(x.oe)}${esc(x.loc||'')}${x.av!=null&&g==='corto'?` · ${x.av}%`:''}</span>
       ${g==='corto'?`<span class="mini"><i style="width:${x.av||0}%"></i></span>`:''}</button></li>`).join('') + '</ul>'; }).join('');
   $('lCuerpo').querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>abrirFicha(b.dataset.id,b.dataset.plazo,true));
   abrir('vLista');
@@ -1127,7 +1151,7 @@ function abrirFicha(id, plazo, desdeLista){
   const x = INI.find(y=>String(y.id)===String(id) && y.plazo===plazo); if(!x) return;
   const c = OEC[x.oe[0]];
   $('fCard').style.setProperty('--c',c);
-  $('fChips').innerHTML = chipsOE(x.oe) + `<span class="chip gris">${plazo==='corto'?'Corto plazo':'Mediano plazo'}</span>`;
+  $('fChips').innerHTML = chipsOE(x.oe) + `<span class="chip plazo ${plazo}">${PLAZO[plazo]}</span>`;
   $('fNom').textContent = x.n;
   $('fZona').textContent = `📍 ${x.loc || TN[x.t].n} · Región de Antofagasta`;
   let h = '';
